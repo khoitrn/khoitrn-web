@@ -58,7 +58,27 @@ const [projects, posts] = await Promise.all([
             background-size: 180px;
           "></div>
 
-          <!-- Left nav -->
+          <!-- Top-left: site name — always visible like Tawaraya -->
+          <a href="/" id="hero-logo" style="
+            position: absolute;
+            top: 2rem;
+            left: 2.5rem;
+            font-family: var(--font-display);
+            font-weight: 300;
+            font-size: 0.68rem;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.55);
+            text-decoration: none;
+            z-index: 10;
+            transition: color 0.5s;
+            will-change: opacity;
+          "
+          onmouseover="this.style.color='rgba(255,255,255,0.95)'"
+          onmouseout="this.style.color='rgba(255,255,255,0.55)'"
+          >Khoi Tran</a>
+
+          <!-- Left nav — visible immediately, vertically centered -->
           <nav id="hero-nav" style="
             position: absolute;
             left: 2.5rem;
@@ -68,7 +88,6 @@ const [projects, posts] = await Promise.all([
             flex-direction: column;
             gap: 1.75rem;
             z-index: 10;
-            opacity: 0;
             will-change: opacity;
           ">
             {[
@@ -92,7 +111,7 @@ const [projects, posts] = await Promise.all([
             ))}
           </nav>
 
-          <!-- Center content -->
+          <!-- Center content — visible immediately -->
           <div id="hero-text" style="
             position: absolute;
             inset: 0;
@@ -102,7 +121,6 @@ const [projects, posts] = await Promise.all([
             justify-content: center;
             text-align: center;
             padding: 0 2rem;
-            opacity: 0;
             will-change: opacity;
           ">
             <p style="
@@ -242,45 +260,28 @@ const [projects, posts] = await Promise.all([
 <script>
   import Lenis from 'lenis';
 
-  const wrapper    = document.getElementById('hero-wrapper') as HTMLElement;
   const frame      = document.getElementById('hero-frame') as HTMLElement;
   const bg         = document.getElementById('hero-bg') as HTMLElement;
-  const text       = document.getElementById('hero-text') as HTMLElement;
-  const nav        = document.getElementById('hero-nav') as HTMLElement;
   const scrollHint = document.getElementById('hero-scroll-hint') as HTMLElement;
 
-  if (wrapper && frame && bg && text && nav) {
-
-    // Lerp helper for smooth interpolation
+  if (frame && bg) {
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-    let currentProgress = 0;
-    let targetProgress  = 0;
+    let cur = 0;
 
     function update() {
-      const scrollY  = window.scrollY;
-      const maxScroll = window.innerHeight; // 100svh of scroll space
-      targetProgress  = Math.max(0, Math.min(scrollY / maxScroll, 1));
+      const raw = Math.max(0, Math.min(window.scrollY / window.innerHeight, 1));
+      cur = lerp(cur, raw, 0.1);
+      const p = cur;
 
-      currentProgress = lerp(currentProgress, targetProgress, 0.12);
-      const p = currentProgress;
-
-      // Letterbox bars: 18svh → 7svh top/bottom, 6vw → 0vw sides
-      const vPad = lerp(18, 7, p);
-      const hPad = lerp(6, 0, p);
-      frame.style.padding = `${vPad}svh ${hPad}vw`;
+      // Letterbox: 18svh/6vw → 7svh/0vw
+      frame.style.padding = `${lerp(18, 7, p)}svh ${lerp(6, 0, p)}vw`;
 
       // Image zoom: scale 1.25 → 1.0
-      const scale = lerp(1.25, 1.0, p);
-      bg.style.transform = `scale(${scale})`;
+      bg.style.transform = `scale(${lerp(1.25, 1.0, p)})`;
 
-      // Text + nav: fade in after 30% scroll
-      const textOpacity = Math.max(0, Math.min((p - 0.3) / 0.5, 1));
-      text.style.opacity = textOpacity.toString();
-      nav.style.opacity  = textOpacity.toString();
-
-      // Scroll hint: fade out
-      scrollHint.style.opacity = (1 - p * 3).toString();
+      // Scroll hint fades out immediately
+      if (scrollHint) scrollHint.style.opacity = Math.max(0, 1 - p * 4).toString();
 
       requestAnimationFrame(update);
     }

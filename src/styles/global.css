@@ -5,16 +5,17 @@
 
 /* ── Theme tokens ─────────────────────────────────── */
 
-/* Dark (default) */
+/* Dark (default) — Antimetal-inspired deep navy-black + violet */
 :root {
-  --color-canvas:   #0E0D0C;
-  --color-surface:  #151412;
-  --color-border:   rgba(255, 255, 255, 0.1);
+  --color-canvas:   #08080F;
+  --color-surface:  #0D0D18;
+  --color-border:   rgba(139, 92, 246, 0.15);
   --color-muted:    rgba(255, 255, 255, 0.35);
-  --color-ink:      rgba(255, 255, 255, 0.88);
+  --color-ink:      rgba(255, 255, 255, 0.9);
   --color-ink-soft: rgba(255, 255, 255, 0.62);
-  --color-accent:   #C4A882;
-  --color-bg-hero:  #080907;
+  --color-accent:   #A78BFA;
+  --color-glow:     rgba(124, 58, 237, 0.18);
+  --color-bg-hero:  #06060D;
 
   --font-display: "Raleway Variable", sans-serif;
   --font-body:    "Lora", serif;
@@ -58,8 +59,23 @@ body {
   font-size: 1rem;
   line-height: 1.7;
   overflow-x: hidden;
-  transition: background-color 0.5s var(--ease-smooth), color 0.5s var(--ease-smooth);
+  transition: background-color 0.6s var(--ease-smooth), color 0.6s var(--ease-smooth);
 }
+
+/* Subtle violet ambient glow on dark mode only */
+:root body::before {
+  content: '';
+  position: fixed;
+  top: -30%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80vw;
+  height: 60vh;
+  background: radial-gradient(ellipse, rgba(124, 58, 237, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+[data-theme="light"] body::before { display: none; }
 
 /* ── Animations ──────────────────────────────────── */
 @keyframes fade-up {

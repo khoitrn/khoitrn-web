@@ -4,8 +4,8 @@ import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 import { toHTML } from '@portabletext/to-html';
 
 export const client = createClient({
-  projectId: import.meta.env.SANITY_PROJECT_ID ?? 'euoc7nal',
-  dataset: import.meta.env.SANITY_DATASET ?? 'production',
+  projectId: 'euoc7nal',
+  dataset: 'production',
   apiVersion: '2025-04-01',
   useCdn: true,
 });

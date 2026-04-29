@@ -1,0 +1,54 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const updated = 'April 2025';
+---
+
+<Layout title="Now" description="What Khoi is currently working on.">
+
+  <div class="pt-40 pb-32 px-6 md:px-12">
+    <div class="max-w-2xl mx-auto">
+
+      <div class="mb-16 pb-8 border-b border-[var(--color-border)]">
+        <p class="animate-fade-up font-display font-light text-xs tracking-[0.3em] uppercase text-[var(--color-muted)] mb-6">Now</p>
+        <h1 class="animate-fade-up animate-fade-up-delay-1 font-display font-light text-4xl md:text-5xl leading-[1.1] tracking-[-0.02em] text-[var(--color-ink)]">
+          What I'm doing now.
+        </h1>
+      </div>
+
+      <div class="reveal prose">
+        <p>
+          Updated {updated} from Texas.
+        </p>
+
+        <h2>Building</h2>
+        <p>
+          Working on a new project — still in early days, focused on getting the core right before anything else.
+        </p>
+
+        <h2>Studying</h2>
+        <p>
+          Finishing up the semester at Texas A&M. Juggling coursework with building, which is harder than it sounds and more valuable than it seems.
+        </p>
+
+        <h2>Reading</h2>
+        <p>
+          Currently reading — update this as you go. Fiction, nonfiction, it all counts.
+        </p>
+
+        <h2>Thinking about</h2>
+        <p>
+          What makes a product actually good. The gap between clever and useful. How to build something worth building.
+        </p>
+
+        <hr />
+
+        <p class="text-sm text-[var(--color-muted)]">
+          This is a <a href="https://nownownow.com/about" target="_blank" rel="noopener">now page</a> — a snapshot of what I'm focused on at this point in time.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+</Layout>

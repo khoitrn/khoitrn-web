@@ -1,0 +1,32 @@
+---
+const year = new Date().getFullYear();
+
+const links = [
+  { href: 'https://github.com/khoitrn',   label: 'GitHub' },
+  { href: 'https://linkedin.com/in/khoitrn', label: 'LinkedIn' },
+  { href: 'mailto:khoi@tamu.edu',          label: 'Email' },
+];
+---
+
+<footer class="border-t border-[var(--color-border)] mt-32">
+  <div class="max-w-5xl mx-auto px-6 md:px-12 py-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+    <p class="font-display font-light text-xs tracking-[0.15em] uppercase text-[var(--color-muted)]">
+      © {year} Khoi Tran
+    </p>
+
+    <ul class="flex items-center gap-6">
+      {links.map(({ href, label }) => (
+        <li>
+          <a
+            href={href}
+            target={href.startsWith('http') ? '_blank' : undefined}
+            rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
+            class="font-display font-light text-xs tracking-[0.15em] uppercase text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors duration-300"
+          >
+            {label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</footer>

@@ -1,0 +1,32 @@
+{
+  "name": "khoitrn-web",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "generate-types": "wrangler types"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^13.2.2",
+    "@fontsource-variable/raleway": "^5.2.8",
+    "@fontsource/lora": "^5.2.8",
+    "@sanity/client": "^7.22.0",
+    "@sanity/image-url": "^2.1.1",
+    "@tailwindcss/vite": "^4.2.4",
+    "astro": "^6.1.10",
+    "tailwindcss": "^4.2.4",
+    "wrangler": "^4.86.0"
+  },
+  "overrides": {
+    "vite": "^7"
+  },
+  "devDependencies": {
+    "@sanity/astro": "^3.3.1"
+  }
+}

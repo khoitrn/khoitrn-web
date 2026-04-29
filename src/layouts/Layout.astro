@@ -1,0 +1,64 @@
+---
+import '../styles/global.css';
+import Nav from '../components/ui/Nav.astro';
+import Footer from '../components/ui/Footer.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  class?: string;
+}
+
+const {
+  title,
+  description = 'Khoi Tran — student, founder, engineer.',
+  image = '/og-default.png',
+  class: className,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title === 'Khoi Tran' ? title : `${title} — Khoi Tran`}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL(image, Astro.site)} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL(image, Astro.site)} />
+  </head>
+  <body>
+    <Nav />
+    <main class={className}>
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      // Scroll reveal
+      const observer = new IntersectionObserver(
+        (entries) => entries.forEach(e => e.isIntersecting && e.target.classList.add('visible')),
+        { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+      );
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+  </body>
+</html>

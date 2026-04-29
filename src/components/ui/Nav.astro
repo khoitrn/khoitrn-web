@@ -4,26 +4,28 @@ const links = [
   { href: '/writing', label: 'Writing' },
   { href: '/about',   label: 'About' },
 ];
-
 const { pathname } = Astro.url;
 ---
 
-<header class="fixed top-0 left-0 right-0 z-50 mix-blend-multiply">
-  <nav class="flex items-center justify-between px-6 py-5 md:px-12">
+<header class="fixed top-0 left-0 right-0 z-50">
+  <nav
+    class="flex items-center justify-between"
+    style="padding: 2rem 3rem;"
+  >
     <a
       href="/"
-      class="font-display font-light text-sm tracking-[0.2em] uppercase text-[var(--color-ink)] hover:text-[var(--color-muted)] transition-colors duration-300"
+      class="font-display font-light text-xs tracking-[0.25em] uppercase text-[var(--color-ink)] hover:text-[var(--color-muted)] transition-colors duration-500"
     >
       Khoi Tran
     </a>
 
-    <ul class="flex items-center gap-8">
+    <ul class="flex items-center" style="gap: 3rem;">
       {links.map(({ href, label }) => (
         <li>
           <a
             href={href}
             class:list={[
-              'font-display font-light text-xs tracking-[0.15em] uppercase transition-colors duration-300',
+              'font-display font-light text-xs tracking-[0.2em] uppercase transition-colors duration-500',
               pathname.startsWith(href)
                 ? 'text-[var(--color-ink)]'
                 : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]',

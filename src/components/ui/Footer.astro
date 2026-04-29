@@ -1,27 +1,25 @@
 ---
 const year = new Date().getFullYear();
-
 const links = [
-  { href: 'https://github.com/khoitrn',   label: 'GitHub' },
-  { href: 'https://linkedin.com/in/khoitrn', label: 'LinkedIn' },
-  { href: 'mailto:khoi@tamu.edu',          label: 'Email' },
+  { href: 'https://github.com/khoitrn',         label: 'GitHub' },
+  { href: 'https://linkedin.com/in/khoitrn',    label: 'LinkedIn' },
+  { href: 'mailto:khoi@tamu.edu',               label: 'Email' },
 ];
 ---
 
-<footer class="border-t border-[var(--color-border)] mt-32">
-  <div class="max-w-5xl mx-auto px-6 md:px-12 py-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-    <p class="font-display font-light text-xs tracking-[0.15em] uppercase text-[var(--color-muted)]">
+<footer style="border-top: 1px solid var(--color-border); margin-top: 0;">
+  <div style="max-width: 1100px; margin: 0 auto; padding: 2.5rem 3rem; display: flex; align-items: center; justify-content: space-between;">
+    <p class="font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-muted)]">
       © {year} Khoi Tran
     </p>
-
-    <ul class="flex items-center gap-6">
+    <ul style="display: flex; gap: 2.5rem; list-style: none;">
       {links.map(({ href, label }) => (
         <li>
           <a
             href={href}
             target={href.startsWith('http') ? '_blank' : undefined}
             rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
-            class="font-display font-light text-xs tracking-[0.15em] uppercase text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors duration-300"
+            class="font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors duration-500"
           >
             {label}
           </a>

@@ -58,6 +58,16 @@ const [projects, posts] = await Promise.all([
             background-size: 180px;
           "></div>
 
+          <!-- Top-right: theme toggle -->
+          <button
+            class="theme-toggle theme-toggle-hero"
+            data-theme-toggle
+            aria-label="Toggle theme"
+            style="position: absolute; top: 2rem; right: 2.5rem; z-index: 10;"
+          >
+            <span data-theme-label>Light</span>
+          </button>
+
           <!-- Top-left: site name — always visible like Tawaraya -->
           <a href="/" id="hero-logo" style="
             position: absolute;

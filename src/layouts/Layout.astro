@@ -39,6 +39,14 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={new URL(image, Astro.site)} />
+
+    <!-- Anti-flash: set theme before render -->
+    <script is:inline>
+      (function() {
+        var t = localStorage.getItem('khoitrn-theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
   </head>
   <body>
     {!hideNav && <Nav />}
@@ -50,19 +58,16 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <script>
       import Lenis from 'lenis';
 
+      // ── Smooth scroll ──────────────────────
       const lenis = new Lenis({
         duration: 1.6,
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smoothWheel: true,
       });
-
-      function raf(time: number) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
-      }
+      function raf(time: number) { lenis.raf(time); requestAnimationFrame(raf); }
       requestAnimationFrame(raf);
 
-      // Scroll reveal
+      // ── Scroll reveal ──────────────────────
       const obs = new IntersectionObserver(
         (entries) => entries.forEach(e => {
           if (e.isIntersecting) { e.target.classList.add('in-view'); obs.unobserve(e.target); }
@@ -70,6 +75,28 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
       );
       document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+      // ── Theme toggle ───────────────────────
+      function applyTheme(theme: string) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('khoitrn-theme', theme);
+        document.querySelectorAll('[data-theme-label]').forEach(el => {
+          (el as HTMLElement).textContent = theme === 'dark' ? 'Light' : 'Dark';
+        });
+      }
+
+      document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const current = document.documentElement.getAttribute('data-theme') || 'dark';
+          applyTheme(current === 'dark' ? 'light' : 'dark');
+        });
+      });
+
+      // Set initial label
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      document.querySelectorAll('[data-theme-label]').forEach(el => {
+        (el as HTMLElement).textContent = current === 'dark' ? 'Light' : 'Dark';
+      });
     </script>
   </body>
 </html>

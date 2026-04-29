@@ -3,28 +3,41 @@
 @import "@fontsource/lora/400.css";
 @import "@fontsource/lora/400-italic.css";
 
-@theme {
+/* ── Theme tokens ─────────────────────────────────── */
+
+/* Dark (default) */
+:root {
+  --color-canvas:   #0E0D0C;
+  --color-surface:  #151412;
+  --color-border:   rgba(255, 255, 255, 0.1);
+  --color-muted:    rgba(255, 255, 255, 0.35);
+  --color-ink:      rgba(255, 255, 255, 0.88);
+  --color-ink-soft: rgba(255, 255, 255, 0.62);
+  --color-accent:   #C4A882;
+  --color-bg-hero:  #080907;
+
   --font-display: "Raleway Variable", sans-serif;
   --font-body:    "Lora", serif;
   --font-mono:    "JetBrains Mono", "Fira Code", monospace;
-
-  --color-canvas:   #F9F7F4;
-  --color-surface:  #F2EFE9;
-  --color-border:   #E2DDD6;
-  --color-muted:    #9C9489;
-  --color-ink:      #1A1A18;
-  --color-ink-soft: #3D3D38;
-  --color-accent:   #8B7355;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-smooth:   cubic-bezier(0.45, 0, 0.55, 1);
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* Light (cloudy white) */
+[data-theme="light"] {
+  --color-canvas:   #F5F3EF;
+  --color-surface:  #EDEAE3;
+  --color-border:   #D8D3CB;
+  --color-muted:    #7A7268;
+  --color-ink:      #1C1C1A;
+  --color-ink-soft: #3A3A35;
+  --color-accent:   #7A6045;
+  --color-bg-hero:  #080907;
 }
+
+/* ── Reset ───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
   font-size: 16px;
@@ -33,19 +46,10 @@ html {
   text-rendering: optimizeLegibility;
 }
 
-/* Lenis smooth scroll */
-html.lenis, html.lenis body {
-  height: auto;
-}
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
+/* Lenis */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
 
 body {
   background-color: var(--color-canvas);
@@ -54,16 +58,13 @@ body {
   font-size: 1rem;
   line-height: 1.7;
   overflow-x: hidden;
+  transition: background-color 0.5s var(--ease-smooth), color 0.5s var(--ease-smooth);
 }
 
-/* ── Animations ── */
+/* ── Animations ──────────────────────────────────── */
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(24px); }
   to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
 }
 
 .animate-fade-up {
@@ -73,20 +74,46 @@ body {
 .delay-1 { animation-delay: 0.15s; }
 .delay-2 { animation-delay: 0.3s; }
 .delay-3 { animation-delay: 0.5s; }
-.delay-4 { animation-delay: 0.7s; }
 
-/* Scroll reveal */
 .reveal {
   opacity: 0;
   transform: translateY(28px);
   transition: opacity 0.9s var(--ease-out-expo), transform 0.9s var(--ease-out-expo);
 }
-.reveal.in-view {
-  opacity: 1;
-  transform: translateY(0);
+.reveal.in-view { opacity: 1; transform: translateY(0); }
+
+/* ── Theme toggle button ─────────────────────────── */
+.theme-toggle {
+  appearance: none;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  transition: color 0.4s, border-color 0.4s;
+}
+.theme-toggle:hover { color: var(--color-ink); border-color: var(--color-ink); }
+
+/* Hero toggle is always white regardless of theme */
+.theme-toggle-hero {
+  border-color: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.45);
+}
+.theme-toggle-hero:hover {
+  color: rgba(255,255,255,0.9);
+  border-color: rgba(255,255,255,0.5);
 }
 
-/* ── Prose (blog posts) ── */
+/* ── Prose ───────────────────────────────────────── */
 .prose {
   max-width: 66ch;
   font-family: var(--font-body);
@@ -125,14 +152,14 @@ body {
   border-radius: 3px;
 }
 .prose pre {
-  background: var(--color-ink);
-  color: var(--color-canvas);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   padding: 1.75rem;
   border-radius: 4px;
   overflow-x: auto;
   margin: 2.5em 0;
 }
-.prose pre code { background: none; padding: 0; color: inherit; }
+.prose pre code { background: none; padding: 0; }
 .prose ul, .prose ol { padding-left: 1.5em; margin-bottom: 1.6em; }
 .prose li { margin-bottom: 0.5em; }
 .prose hr { border: none; border-top: 1px solid var(--color-border); margin: 3.5em 0; }

@@ -7,14 +7,14 @@ interface Props {
   title: string;
   description?: string;
   image?: string;
-  darkHero?: boolean;
+  hideNav?: boolean;
 }
 
 const {
   title,
   description = 'Khoi Tran — student, founder, engineer.',
   image = '/og-default.png',
-  darkHero = false,
+  hideNav = false,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -40,12 +40,12 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={new URL(image, Astro.site)} />
   </head>
-  <body class={darkHero ? 'dark-hero-page' : ''}>
-    <Nav darkHero={darkHero} />
+  <body>
+    {!hideNav && <Nav />}
     <main>
       <slot />
     </main>
-    <Footer />
+    {!hideNav && <Footer />}
 
     <script>
       import Lenis from 'lenis';
@@ -62,29 +62,14 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       }
       requestAnimationFrame(raf);
 
-      // Nav colour switch: white over hero, dark after
-      const hero = document.querySelector('[data-hero]') as HTMLElement | null;
-      const nav  = document.querySelector('header') as HTMLElement | null;
-
-      if (hero && nav) {
-        const obs = new IntersectionObserver(
-          ([entry]) => nav.classList.toggle('over-hero', entry.isIntersecting),
-          { threshold: 0, rootMargin: '0px 0px 0px 0px' }
-        );
-        obs.observe(hero);
-      }
-
       // Scroll reveal
-      const revealObs = new IntersectionObserver(
+      const obs = new IntersectionObserver(
         (entries) => entries.forEach(e => {
-          if (e.isIntersecting) {
-            e.target.classList.add('in-view');
-            revealObs.unobserve(e.target);
-          }
+          if (e.isIntersecting) { e.target.classList.add('in-view'); obs.unobserve(e.target); }
         }),
         { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
       );
-      document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+      document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
     </script>
   </body>
 </html>

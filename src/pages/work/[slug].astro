@@ -4,14 +4,11 @@ import { client, projectsQuery, projectBySlugQuery, portableTextToHtml, urlFor }
 
 export async function getStaticPaths() {
   const projects = await client.fetch(projectsQuery);
-  return projects.map((project: any) => ({
-    params: { slug: project.slug.current },
-  }));
+  return projects.map((p: any) => ({ params: { slug: p.slug.current } }));
 }
 
 const { slug } = Astro.params;
 const project = await client.fetch(projectBySlugQuery, { slug });
-
 if (!project) return Astro.redirect('/work');
 
 const html = portableTextToHtml(project.body ?? []);
@@ -19,56 +16,49 @@ const coverUrl = project.coverImage ? urlFor(project.coverImage).width(1600).aut
 ---
 
 <Layout title={project.title} description={project.description}>
-  <div class="pt-40 pb-32 px-6 md:px-12">
-    <div class="max-w-5xl mx-auto">
+  <div style="padding-top:8rem; padding-bottom:8rem;">
 
-      <!-- Header -->
-      <div class="mb-16 pb-8 border-b border-[var(--color-border)]">
-        <a href="/work" class="animate-fade-up font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors duration-300 inline-block mb-10">
-          ← Work
-        </a>
-        <div class="animate-fade-up animate-fade-up-delay-1 flex items-center gap-6 mb-6">
-          {project.category && <span class="font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-muted)]">{project.category}</span>}
-          {project.year && (
-            <>
-              <span class="text-[var(--color-border)]">·</span>
-              <span class="font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-muted)]">{project.year}</span>
-            </>
-          )}
-        </div>
-        <h1 class="animate-fade-up animate-fade-up-delay-2 font-display font-light leading-[1.1] tracking-[-0.02em] text-[var(--color-ink)]" style="font-size: clamp(2rem, 5vw, 3.5rem);">
-          {project.title}
-        </h1>
-        {project.description && (
-          <p class="animate-fade-up animate-fade-up-delay-3 font-body text-lg text-[var(--color-muted)] leading-relaxed mt-6 max-w-2xl">
-            {project.description}
-          </p>
-        )}
+    <!-- Header -->
+    <div style="max-width:1100px; margin:0 auto; padding:0 3rem 4rem; border-bottom:1px solid var(--color-border);">
+      <a href="/work" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--color-muted); text-decoration:none; display:inline-block; margin-bottom:3rem; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-muted)'">← Work</a>
 
-        <div class="flex flex-wrap items-center gap-6 mt-8">
-          {project.technologies?.map((tech: string) => (
-            <span class="font-display font-light text-xs tracking-[0.15em] uppercase text-[var(--color-muted)] border border-[var(--color-border)] px-3 py-1">{tech}</span>
-          ))}
-          {project.url && (
-            <a href={project.url} target="_blank" rel="noopener noreferrer" class="font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-accent)] hover:text-[var(--color-ink)] transition-colors duration-300 ml-auto">
-              Visit project →
-            </a>
-          )}
-        </div>
+      <div class="animate-fade-up" style="display:flex; align-items:center; gap:1.5rem; margin-bottom:1.75rem;">
+        {project.category && <span style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-muted);">{project.category}</span>}
+        {project.year && <><span style="color:var(--color-border);">·</span><span style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-muted);">{project.year}</span></>}
       </div>
 
-      <!-- Cover image -->
-      {coverUrl && (
-        <div class="reveal mb-16 aspect-video overflow-hidden bg-[var(--color-surface)]">
-          <img src={coverUrl} alt={project.title} class="w-full h-full object-cover" loading="lazy" />
-        </div>
-      )}
+      <h1 class="animate-fade-up delay-1" style="font-family:var(--font-display); font-weight:300; font-size:clamp(2rem,5vw,3.75rem); line-height:1.1; letter-spacing:-0.02em; color:var(--color-ink);">{project.title}</h1>
+      {project.description && <p class="animate-fade-up delay-2" style="font-family:var(--font-body); font-size:1.1rem; color:var(--color-muted); line-height:1.75; margin-top:1.5rem; max-width:56ch;">{project.description}</p>}
 
-      <!-- Body -->
-      {html && (
-        <div class="reveal prose mx-auto" set:html={html} />
-      )}
-
+      <div style="display:flex; flex-wrap:wrap; align-items:center; gap:1rem; margin-top:2rem;">
+        {project.technologies?.map((tech: string) => (
+          <span style="font-family:var(--font-display); font-weight:300; font-size:0.62rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--color-muted); border:1px solid var(--color-border); padding:0.35rem 0.75rem;">{tech}</span>
+        ))}
+        {project.url && <a href={project.url} target="_blank" rel="noopener noreferrer" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none; margin-left:auto; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-accent)'">Visit project →</a>}
+      </div>
     </div>
+
+    <!-- Cover image -->
+    {coverUrl && (
+      <div class="reveal" style="max-width:1100px; margin:4rem auto 0; padding:0 3rem;">
+        <div style="aspect-ratio:16/9; overflow:hidden; background:var(--color-surface);">
+          <img src={coverUrl} alt={project.title} style="width:100%; height:100%; object-fit:cover;" loading="lazy" />
+        </div>
+      </div>
+    )}
+
+    <!-- Body -->
+    {html && (
+      <div style="max-width:720px; margin:4rem auto 0; padding:0 3rem;">
+        <div class="reveal prose" set:html={html} />
+      </div>
+    )}
+
+    <!-- Back links -->
+    <div style="max-width:1100px; margin:5rem auto 0; padding:4rem 3rem 0; display:flex; gap:2.5rem; border-top:1px solid var(--color-border);">
+      <a href="/work" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--color-muted); text-decoration:none; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-muted)'">← All work</a>
+      <a href="/" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--color-muted); text-decoration:none; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-muted)'">← Home</a>
+    </div>
+
   </div>
 </Layout>

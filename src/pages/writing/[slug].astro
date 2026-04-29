@@ -4,52 +4,47 @@ import { client, postsQuery, postBySlugQuery, portableTextToHtml, formatDate } f
 
 export async function getStaticPaths() {
   const posts = await client.fetch(postsQuery);
-  return posts.map((post: any) => ({
-    params: { slug: post.slug.current },
-  }));
+  return posts.map((post: any) => ({ params: { slug: post.slug.current } }));
 }
 
 const { slug } = Astro.params;
 const post = await client.fetch(postBySlugQuery, { slug });
-
 if (!post) return Astro.redirect('/writing');
 
 const html = portableTextToHtml(post.body ?? []);
 ---
 
 <Layout title={post.title} description={post.excerpt}>
-  <div class="pt-40 pb-32 px-6 md:px-12">
-    <div class="max-w-2xl mx-auto">
+  <div style="padding-top:8rem; padding-bottom:8rem;">
 
-      <!-- Header -->
-      <div class="mb-16 pb-8 border-b border-[var(--color-border)]">
-        <a href="/writing" class="animate-fade-up font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors duration-300 inline-block mb-10">
-          ← Writing
-        </a>
-        <div class="animate-fade-up animate-fade-up-delay-1 flex items-center gap-6 mb-6">
-          <span class="font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-muted)]">{post.category}</span>
-          <span class="text-[var(--color-border)]">·</span>
-          <span class="font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-muted)]">{formatDate(post.publishedAt)}</span>
-          {post.estimatedReadingTime && (
-            <>
-              <span class="text-[var(--color-border)]">·</span>
-              <span class="font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-muted)]">{post.estimatedReadingTime} min read</span>
-            </>
-          )}
-        </div>
-        <h1 class="animate-fade-up animate-fade-up-delay-2 font-display font-light leading-[1.1] tracking-[-0.02em] text-[var(--color-ink)]" style="font-size: clamp(2rem, 5vw, 3.5rem);">
-          {post.title}
-        </h1>
-        {post.excerpt && (
-          <p class="animate-fade-up animate-fade-up-delay-3 font-body text-lg text-[var(--color-muted)] leading-relaxed mt-6">
-            {post.excerpt}
-          </p>
-        )}
+    <!-- Header -->
+    <div style="max-width:720px; margin:0 auto; padding:0 3rem 4rem; border-bottom:1px solid var(--color-border);">
+      <a href="/writing" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--color-muted); text-decoration:none; display:inline-block; margin-bottom:3rem; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-muted)'">← Writing</a>
+
+      <div class="animate-fade-up" style="display:flex; align-items:center; gap:1.5rem; margin-bottom:1.75rem; flex-wrap:wrap;">
+        <span style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-muted);">{post.category}</span>
+        <span style="color:var(--color-border);">·</span>
+        <span style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-muted);">{formatDate(post.publishedAt)}</span>
+        {post.estimatedReadingTime && <>
+          <span style="color:var(--color-border);">·</span>
+          <span style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-muted);">{post.estimatedReadingTime} min read</span>
+        </>}
       </div>
 
-      <!-- Body -->
-      <div class="reveal prose" set:html={html} />
-
+      <h1 class="animate-fade-up delay-1" style="font-family:var(--font-display); font-weight:300; font-size:clamp(2rem,5vw,3.5rem); line-height:1.1; letter-spacing:-0.02em; color:var(--color-ink);">{post.title}</h1>
+      {post.excerpt && <p class="animate-fade-up delay-2" style="font-family:var(--font-body); font-size:1.1rem; color:var(--color-muted); line-height:1.75; margin-top:1.5rem;">{post.excerpt}</p>}
     </div>
+
+    <!-- Body -->
+    <div style="max-width:720px; margin:0 auto; padding:4rem 3rem 0;">
+      <div class="reveal prose" set:html={html} />
+    </div>
+
+    <!-- Back links -->
+    <div style="max-width:720px; margin:0 auto; padding:4rem 3rem 0; display:flex; gap:2.5rem; border-top:1px solid var(--color-border); margin-top:5rem;">
+      <a href="/writing" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--color-muted); text-decoration:none; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-muted)'">← All writing</a>
+      <a href="/" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--color-muted); text-decoration:none; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-muted)'">← Home</a>
+    </div>
+
   </div>
 </Layout>

@@ -8,271 +8,252 @@ const [projects, posts] = await Promise.all([
 ]);
 ---
 
-<Layout title="Khoi Tran" darkHero={true}>
+<Layout title="Khoi Tran" hideNav={true}>
 
-  <!-- ═══════════════════════════════════════
-       HERO — Full bleed cinematic landing
-       Replace /hero.jpg with your own photo.
-       Image should be dark + atmospheric.
-  ════════════════════════════════════════════ -->
-  <section
-    data-hero
-    style="
+  <!-- ══════════════════════════════════════════
+    HERO — Letterbox cinematic landing
+    Drop your photo at /public/hero.jpg to use it.
+    Gradient mimics a dark atmospheric scene until then.
+  ═══════════════════════════════════════════════ -->
+  <section style="
+    height: 100svh;
+    background: #080907;
+    display: flex;
+    flex-direction: column;
+    padding: 7svh 0;
+  ">
+
+    <!-- ── Framed image area ── -->
+    <div style="
+      flex: 1;
       position: relative;
-      width: 100%;
-      height: 100svh;
-      min-height: 600px;
-      background: #0b0a09;
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-    "
-  >
-    <!-- Background — replace with your own photo:
-         Add /public/hero.jpg and set background-image: url('/hero.jpg')  -->
-    <div
-      aria-hidden="true"
-      style="
-        position: absolute;
-        inset: 0;
+    ">
+
+      <!-- Atmospheric background — replace with your photo:
+           background-image: url('/hero.jpg'); background-size: cover; background-position: center; -->
+      <div aria-hidden="true" style="
+        position: absolute; inset: 0;
         background:
-          radial-gradient(ellipse 80% 60% at 68% 38%, rgba(58, 42, 28, 0.85) 0%, transparent 65%),
-          radial-gradient(ellipse 50% 40% at 20% 70%, rgba(32, 26, 18, 0.7) 0%, transparent 60%),
-          radial-gradient(ellipse 100% 80% at 50% 100%, rgba(10, 8, 6, 0.9) 0%, transparent 55%),
-          linear-gradient(165deg, #1c1610 0%, #0e0c09 35%, #080705 65%, #030302 100%);
-      "
-    ></div>
-    <!-- Subtle grain texture for depth -->
-    <div
-      aria-hidden="true"
-      style="
-        position: absolute;
-        inset: 0;
-        opacity: 0.04;
-        background-image: url(&quot;data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E&quot;);
-        background-size: 200px;
-      "
-    ></div>
+          radial-gradient(ellipse 65% 75% at 58% 42%, rgba(22,36,22,0.95) 0%, transparent 58%),
+          radial-gradient(ellipse 45% 55% at 18% 65%, rgba(14,24,14,0.8) 0%, transparent 52%),
+          radial-gradient(ellipse 55% 40% at 82% 28%, rgba(10,18,10,0.7) 0%, transparent 50%),
+          radial-gradient(ellipse 100% 60% at 50% 100%, rgba(4,6,4,0.9) 0%, transparent 50%),
+          linear-gradient(175deg, #0a0f0a 0%, #0e160c 25%, #091209 55%, #060908 100%);
+      "></div>
 
-    <!-- Gradient vignette for text legibility -->
-    <div
-      aria-hidden="true"
-      style="
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          to top,
-          rgba(0,0,0,0.72) 0%,
-          rgba(0,0,0,0.18) 45%,
-          rgba(0,0,0,0.04) 100%
-        );
-      "
-    ></div>
+      <!-- Grain -->
+      <div aria-hidden="true" style="
+        position: absolute; inset: 0; opacity: 0.035;
+        background-image: url(&quot;data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E&quot;);
+        background-size: 180px;
+      "></div>
 
-    <!-- Hero text — bottom left, like Tawaraya -->
-    <div
-      style="
-        position: relative;
+      <!-- ── Left nav — vertically centered on image ── -->
+      <nav style="
+        position: absolute;
+        left: 3.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 1.75rem;
         z-index: 10;
-        padding: 0 3rem 4.5rem;
-        max-width: 820px;
-      "
-    >
-      <p
+      ">
+        {[
+          { href: '/work',    label: 'Work' },
+          { href: '/writing', label: 'Writing' },
+          { href: '/about',   label: 'About' },
+        ].map(({ href, label }, i) => (
+          <a
+            href={href}
+            class="animate-fade-up"
+            style={`
+              font-family: var(--font-display);
+              font-weight: 300;
+              font-size: 0.72rem;
+              letter-spacing: 0.28em;
+              text-transform: uppercase;
+              color: rgba(255,255,255,0.5);
+              text-decoration: none;
+              transition: color 0.6s;
+              animation-delay: ${0.6 + i * 0.12}s;
+            `}
+            onmouseover="this.style.color='rgba(255,255,255,0.95)'"
+            onmouseout="this.style.color='rgba(255,255,255,0.5)'"
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
+
+      <!-- ── Center content ── -->
+      <div style="
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 0 2rem;
+      ">
+        <p
+          class="animate-fade-up"
+          style="
+            font-family: var(--font-display);
+            font-weight: 300;
+            font-size: 0.65rem;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+            margin-bottom: 1.75rem;
+            animation-delay: 0.1s;
+          "
+        >
+          Student · Founder · Engineer
+        </p>
+
+        <h1
+          class="animate-fade-up"
+          style="
+            font-family: var(--font-display);
+            font-weight: 300;
+            font-size: clamp(3.5rem, 9vw, 8.5rem);
+            line-height: 1;
+            letter-spacing: -0.025em;
+            color: rgba(255,255,255,0.92);
+            margin-bottom: 1.75rem;
+            animation-delay: 0.25s;
+          "
+        >
+          Khoi Tran
+        </h1>
+
+        <p
+          class="animate-fade-up"
+          style="
+            font-family: var(--font-body);
+            font-size: clamp(0.875rem, 1.4vw, 1rem);
+            line-height: 1.75;
+            color: rgba(255,255,255,0.4);
+            max-width: 36ch;
+            animation-delay: 0.42s;
+          "
+        >
+          I build things and think about building things —
+          products, companies, and the ideas that hold them together.
+        </p>
+      </div>
+
+      <!-- Scroll hint — bottom right of image -->
+      <div
         class="animate-fade-up"
-        style="
+        style="position: absolute; bottom: 2rem; right: 3rem; animation-delay: 0.9s;"
+      >
+        <span style="
           font-family: var(--font-display);
           font-weight: 300;
-          font-size: 0.7rem;
-          letter-spacing: 0.35em;
-          text-transform: uppercase;
-          color: rgba(255,255,255,0.5);
-          margin-bottom: 1.5rem;
-        "
-      >
-        Student · Founder · Engineer
-      </p>
-
-      <h1
-        class="animate-fade-up delay-1"
-        style="
-          font-family: var(--font-display);
-          font-weight: 300;
-          font-size: clamp(3.5rem, 9vw, 8rem);
-          line-height: 1;
-          letter-spacing: -0.025em;
-          color: rgba(255,255,255,0.95);
-          margin-bottom: 1.75rem;
-        "
-      >
-        Khoi Tran
-      </h1>
-
-      <p
-        class="animate-fade-up delay-2"
-        style="
-          font-family: var(--font-body);
-          font-size: clamp(1rem, 1.5vw, 1.125rem);
-          line-height: 1.7;
-          color: rgba(255,255,255,0.55);
-          max-width: 38ch;
-        "
-      >
-        I build things and think about building things —
-        products, companies, and the ideas that hold them together.
-      </p>
-    </div>
-
-    <!-- Scroll hint — bottom right -->
-    <div
-      class="animate-fade-up delay-4"
-      style="
-        position: absolute;
-        bottom: 2.75rem;
-        right: 3rem;
-        z-index: 10;
-      "
-    >
-      <span
-        style="
-          font-family: var(--font-display);
-          font-weight: 300;
-          font-size: 0.65rem;
+          font-size: 0.6rem;
           letter-spacing: 0.3em;
           text-transform: uppercase;
-          color: rgba(255,255,255,0.35);
-        "
-      >Scroll</span>
+          color: rgba(255,255,255,0.25);
+        ">Scroll</span>
+      </div>
+
     </div>
   </section>
 
-  <!-- ═══════════════════════════════
-       SELECTED WORK
-  ════════════════════════════════════ -->
+  <!-- ══════════════════════════════
+    SELECTED WORK
+  ═══════════════════════════════════ -->
   <section style="padding: 8rem 3rem; background: var(--color-canvas);">
     <div style="max-width: 1100px; margin: 0 auto;">
 
-      <div
-        class="reveal"
-        style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 1.25rem; margin-bottom: 3.5rem; border-bottom: 1px solid var(--color-border);"
-      >
-        <span style="font-family: var(--font-display); font-weight: 300; font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--color-muted);">
-          Selected Work
-        </span>
-        <a
-          href="/work"
-          style="font-family: var(--font-display); font-weight: 300; font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-accent); text-decoration: none; transition: color 0.5s;"
-          onmouseover="this.style.color='var(--color-ink)'"
-          onmouseout="this.style.color='var(--color-accent)'"
-        >
-          All projects →
-        </a>
+      <div class="reveal" style="display:flex; align-items:baseline; justify-content:space-between; padding-bottom:1.25rem; margin-bottom:3.5rem; border-bottom:1px solid var(--color-border);">
+        <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted);">Selected Work</span>
+        <a href="/work" class="hover-ink" style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none; transition:color 0.4s;">All projects →</a>
       </div>
 
       {projects.length > 0 ? (
         <div>
           {projects.map((item: any, i: number) => (
-            <a
-              href={`/work/${item.slug.current}`}
-              class="reveal work-row"
-              style={`display: flex; align-items: baseline; justify-content: space-between; padding: 1.75rem 0; border-bottom: 1px solid var(--color-border); text-decoration: none; transition-delay: ${i * 70}ms;`}
-            >
-              <span class="work-title" style="font-family: var(--font-display); font-weight: 300; font-size: clamp(1.35rem, 2.8vw, 2rem); color: var(--color-ink); transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);">
-                {item.title}
-              </span>
-              <span style="font-family: var(--font-display); font-weight: 300; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); display: flex; gap: 2.5rem; flex-shrink: 0; margin-left: 2rem;">
-                <span>{item.category}</span>
-                <span>{item.year}</span>
+            <a href={`/work/${item.slug.current}`} class="reveal row-link" style={`display:flex; align-items:baseline; justify-content:space-between; padding:1.75rem 0; border-bottom:1px solid var(--color-border); text-decoration:none; transition-delay:${i*70}ms;`}>
+              <span class="row-title" style="font-family:var(--font-display); font-weight:300; font-size:clamp(1.3rem,2.8vw,2rem); color:var(--color-ink); transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);">{item.title}</span>
+              <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--color-muted); display:flex; gap:2.5rem; flex-shrink:0; margin-left:2rem;">
+                <span>{item.category}</span><span>{item.year}</span>
               </span>
             </a>
           ))}
         </div>
       ) : (
-        <p style="font-family: var(--font-display); font-weight: 300; font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--color-muted); padding: 3rem 0;">Projects coming soon.</p>
+        <p style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--color-muted); padding:3rem 0;">Projects coming soon.</p>
       )}
     </div>
   </section>
 
-  <!-- ═══════════════════════════════
-       WRITING
-  ════════════════════════════════════ -->
+  <!-- ══════════════════════════════
+    WRITING
+  ═══════════════════════════════════ -->
   <section style="padding: 8rem 3rem; background: var(--color-surface);">
     <div style="max-width: 1100px; margin: 0 auto;">
 
-      <div
-        class="reveal"
-        style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 1.25rem; margin-bottom: 3.5rem; border-bottom: 1px solid var(--color-border);"
-      >
-        <span style="font-family: var(--font-display); font-weight: 300; font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--color-muted);">
-          Writing
-        </span>
-        <a
-          href="/writing"
-          style="font-family: var(--font-display); font-weight: 300; font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-accent); text-decoration: none; transition: color 0.5s;"
-          onmouseover="this.style.color='var(--color-ink)'"
-          onmouseout="this.style.color='var(--color-accent)'"
-        >
-          All posts →
-        </a>
+      <div class="reveal" style="display:flex; align-items:baseline; justify-content:space-between; padding-bottom:1.25rem; margin-bottom:3.5rem; border-bottom:1px solid var(--color-border);">
+        <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted);">Writing</span>
+        <a href="/writing" class="hover-ink" style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none; transition:color 0.4s;">All posts →</a>
       </div>
 
       {posts.length > 0 ? (
         <div>
           {posts.map((post: any, i: number) => (
-            <a
-              href={`/writing/${post.slug.current}`}
-              class="reveal work-row"
-              style={`display: flex; align-items: baseline; justify-content: space-between; padding: 1.75rem 0; border-bottom: 1px solid var(--color-border); text-decoration: none; transition-delay: ${i * 70}ms;`}
-            >
-              <span class="work-title" style="font-family: var(--font-display); font-weight: 300; font-size: clamp(1.1rem, 2.2vw, 1.6rem); color: var(--color-ink); max-width: 60%; transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);">
-                {post.title}
-              </span>
-              <span style="font-family: var(--font-display); font-weight: 300; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); display: flex; gap: 2.5rem; flex-shrink: 0; margin-left: 2rem;">
-                <span>{post.category}</span>
-                <span>{formatDate(post.publishedAt)}</span>
+            <a href={`/writing/${post.slug.current}`} class="reveal row-link" style={`display:flex; align-items:baseline; justify-content:space-between; padding:1.75rem 0; border-bottom:1px solid var(--color-border); text-decoration:none; transition-delay:${i*70}ms;`}>
+              <span class="row-title" style="font-family:var(--font-display); font-weight:300; font-size:clamp(1rem,2.2vw,1.55rem); color:var(--color-ink); max-width:58%; transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);">{post.title}</span>
+              <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--color-muted); display:flex; gap:2.5rem; flex-shrink:0; margin-left:2rem;">
+                <span>{post.category}</span><span>{formatDate(post.publishedAt)}</span>
               </span>
             </a>
           ))}
         </div>
       ) : (
-        <p style="font-family: var(--font-display); font-weight: 300; font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--color-muted); padding: 3rem 0;">Writing coming soon.</p>
+        <p style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--color-muted); padding:3rem 0;">Writing coming soon.</p>
       )}
     </div>
   </section>
 
-  <!-- ═══════════════════════════════
-       ABOUT + NOW
-  ════════════════════════════════════ -->
+  <!-- ══════════════════════════════
+    ABOUT + NOW
+  ═══════════════════════════════════ -->
   <section style="padding: 8rem 3rem; background: var(--color-canvas);">
     <div style="max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6rem;">
-
       <div class="reveal">
-        <p style="font-family: var(--font-display); font-weight: 300; font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 2.5rem;">About</p>
-        <p style="font-family: var(--font-body); font-size: 1.125rem; color: var(--color-ink-soft); line-height: 1.8; margin-bottom: 1.25rem;">
-          I'm a student and founder based in Texas, building at the intersection of technology and product.
-        </p>
-        <p style="font-family: var(--font-body); font-size: 1rem; color: var(--color-muted); line-height: 1.8; margin-bottom: 3rem;">
-          I care about the craft of making — code that's clean, products that are clear, and ideas that have earned their place.
-        </p>
-        <a href="/about" style="font-family: var(--font-display); font-weight: 300; font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-accent); text-decoration: none;">More about me →</a>
+        <p style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted); margin-bottom:2.5rem;">About</p>
+        <p style="font-family:var(--font-body); font-size:1.1rem; color:var(--color-ink-soft); line-height:1.85; margin-bottom:1.25rem;">I'm a student and founder based in Texas, building at the intersection of technology and product.</p>
+        <p style="font-family:var(--font-body); font-size:0.95rem; color:var(--color-muted); line-height:1.85; margin-bottom:3rem;">I care about the craft of making — code that's clean, products that are clear, and ideas that have earned their place.</p>
+        <a href="/about" style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none;">More about me →</a>
       </div>
-
-      <div class="reveal" style="transition-delay: 120ms;">
-        <p style="font-family: var(--font-display); font-weight: 300; font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 2.5rem;">Now</p>
-        <p style="font-family: var(--font-body); font-size: 1rem; color: var(--color-muted); line-height: 1.8; margin-bottom: 3rem;">
-          Currently focused on building products, writing more, and figuring out what it means to start something from scratch.
-        </p>
-        <a href="/now" style="font-family: var(--font-display); font-weight: 300; font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-accent); text-decoration: none;">What I'm doing now →</a>
+      <div class="reveal" style="transition-delay:120ms;">
+        <p style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted); margin-bottom:2.5rem;">Now</p>
+        <p style="font-family:var(--font-body); font-size:0.95rem; color:var(--color-muted); line-height:1.85; margin-bottom:3rem;">Currently focused on building products, writing more, and figuring out what it means to start something from scratch.</p>
+        <a href="/now" style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none;">What I'm doing now →</a>
       </div>
-
     </div>
   </section>
+
+  <!-- Footer inline (no global footer since nav is hidden) -->
+  <footer style="border-top:1px solid var(--color-border); background:var(--color-canvas);">
+    <div style="max-width:1100px; margin:0 auto; padding:2.5rem 3rem; display:flex; align-items:center; justify-content:space-between;">
+      <p style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--color-muted);">© {new Date().getFullYear()} Khoi Tran</p>
+      <div style="display:flex; gap:2.5rem;">
+        {[['https://github.com/khoitrn','GitHub'],['https://linkedin.com/in/khoitrn','LinkedIn'],['mailto:khoi@tamu.edu','Email']].map(([href,label]) => (
+          <a href={href} target={href.startsWith('http')?'_blank':undefined} rel={href.startsWith('http')?'noopener noreferrer':undefined} style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--color-muted); text-decoration:none; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-muted)'">{label}</a>
+        ))}
+      </div>
+    </div>
+  </footer>
 
 </Layout>
 
 <style>
-  .work-row:hover .work-title {
-    transform: translateX(10px);
-  }
+  .row-link:hover .row-title { transform: translateX(10px); }
+  .hover-ink:hover { color: var(--color-ink) !important; }
 </style>

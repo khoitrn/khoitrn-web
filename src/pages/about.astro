@@ -3,61 +3,51 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="About" description="Student, founder, and engineer based in Texas.">
+  <div style="padding-top: 8rem; padding-bottom: 8rem;">
 
-  <div class="pt-40 pb-32 px-6 md:px-12">
-    <div class="max-w-5xl mx-auto">
+    <!-- Page header -->
+    <div style="max-width: 1100px; margin: 0 auto; padding: 0 3rem 5rem; border-bottom: 1px solid var(--color-border);">
+      <a href="/" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--color-muted); text-decoration:none; display:inline-block; margin-bottom:3rem; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-muted)'">← Home</a>
+      <p class="animate-fade-up" style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.5rem;">About</p>
+      <h1 class="animate-fade-up delay-1" style="font-family:var(--font-display); font-weight:300; font-size:clamp(2.5rem,6vw,4.5rem); line-height:1.1; letter-spacing:-0.02em; color:var(--color-ink);">Student, founder,<br/>engineer.</h1>
+    </div>
 
-      <!-- Header -->
-      <div class="mb-24 pb-8 border-b border-[var(--color-border)]">
-        <p class="animate-fade-up font-display font-light text-xs tracking-[0.3em] uppercase text-[var(--color-muted)] mb-6">About</p>
-        <h1 class="animate-fade-up animate-fade-up-delay-1 font-display font-light leading-[1.1] tracking-[-0.02em] text-[var(--color-ink)]" style="font-size: clamp(2.5rem, 6vw, 4.5rem);">
-          Student, founder,<br />engineer.
-        </h1>
+    <!-- Content -->
+    <div style="max-width:1100px; margin:0 auto; padding:5rem 3rem 0; display:grid; grid-template-columns:1fr 2fr; gap:6rem; align-items:start;">
+
+      <!-- Photo -->
+      <div class="reveal">
+        <div style="aspect-ratio:3/4; background:var(--color-surface); border-radius:2px; overflow:hidden;">
+          <!-- Replace with: <img src={yourPhoto} alt="Khoi Tran" style="width:100%; height:100%; object-fit:cover;" /> -->
+        </div>
       </div>
 
-      <!-- Body -->
-      <div class="grid md:grid-cols-[1fr_2fr] gap-16 md:gap-24">
+      <!-- Text -->
+      <div class="reveal" style="transition-delay:100ms;">
+        <p style="font-family:var(--font-body); font-size:1.15rem; color:var(--color-ink-soft); line-height:1.85; margin-bottom:1.75rem;">
+          I'm Khoi Tran — a student at Texas A&M University, building things at the intersection of technology, product, and entrepreneurship.
+        </p>
+        <p style="font-family:var(--font-body); font-size:1rem; color:var(--color-ink-soft); line-height:1.85; margin-bottom:1.75rem;">
+          I started writing code because I wanted to build things I cared about. That curiosity led me to engineering, then to product thinking, and eventually to starting companies. Each path fed the others.
+        </p>
+        <p style="font-family:var(--font-body); font-size:1rem; color:var(--color-muted); line-height:1.85; margin-bottom:3.5rem;">
+          I care deeply about craft — code that's readable, products that are intuitive, and writing that earns its reader's attention. I believe the most important skill in building is knowing what to leave out.
+        </p>
 
-        <!-- Photo placeholder -->
-        <div class="reveal">
-          <div class="aspect-[3/4] bg-[var(--color-surface)] rounded-sm overflow-hidden">
-            <!-- Replace with <img src={yourPhoto} alt="Khoi Tran" class="w-full h-full object-cover" /> -->
-          </div>
+        <div style="padding-top:2.5rem; border-top:1px solid var(--color-border); margin-bottom:2.5rem;">
+          <p style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.5rem;">Currently</p>
+          <ul style="list-style:none; padding:0; margin:0;">
+            {['Studying at Texas A&M University', 'Building — ask me what\'s current', 'Writing here, thinking out loud'].map(item => (
+              <li style="font-family:var(--font-body); font-size:0.95rem; color:var(--color-ink-soft); padding:0.5rem 0; border-bottom:1px solid var(--color-border);">{item}</li>
+            ))}
+          </ul>
         </div>
 
-        <!-- Text -->
-        <div class="reveal space-y-8" style="transition-delay: 120ms;">
-          <p class="font-body text-lg text-[var(--color-ink-soft)] leading-relaxed">
-            I'm Khoi Tran — a student at Texas A&M University, building things at the intersection of technology, product, and entrepreneurship.
-          </p>
-          <p class="font-body text-[var(--color-ink-soft)] leading-relaxed">
-            I started writing code because I wanted to build things I cared about. That curiosity led me to engineering, then to product thinking, and eventually to starting companies. Each path fed the others.
-          </p>
-          <p class="font-body text-[var(--color-ink-soft)] leading-relaxed">
-            I care deeply about craft — code that's readable, products that are intuitive, and writing that earns its reader's attention. I believe the most important skill in building is knowing what to leave out.
-          </p>
-
-          <div class="pt-8 border-t border-[var(--color-border)]">
-            <p class="font-display font-light text-xs tracking-[0.3em] uppercase text-[var(--color-muted)] mb-6">Currently</p>
-            <ul class="space-y-2 font-body text-[var(--color-ink-soft)]">
-              <li>Studying at Texas A&M University</li>
-              <li>Building — ask me what's current</li>
-              <li>Writing here, thinking out loud</li>
-            </ul>
-          </div>
-
-          <div class="pt-8 border-t border-[var(--color-border)]">
-            <p class="font-display font-light text-xs tracking-[0.3em] uppercase text-[var(--color-muted)] mb-6">Get in touch</p>
-            <a
-              href="mailto:khoi@tamu.edu"
-              class="font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-accent)] hover:text-[var(--color-ink)] transition-colors duration-300"
-            >
-              khoi@tamu.edu →
-            </a>
-          </div>
+        <div style="padding-top:2.5rem; border-top:1px solid var(--color-border);">
+          <p style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.5rem;">Get in touch</p>
+          <a href="mailto:khoi@tamu.edu" style="font-family:var(--font-display); font-weight:300; font-size:0.7rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-accent)'">khoi@tamu.edu →</a>
         </div>
       </div>
     </div>
   </div>
-
 </Layout>

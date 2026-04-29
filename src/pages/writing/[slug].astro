@@ -1,0 +1,55 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { client, postsQuery, postBySlugQuery, portableTextToHtml, formatDate } from '../../lib/sanity';
+
+export async function getStaticPaths() {
+  const posts = await client.fetch(postsQuery);
+  return posts.map((post: any) => ({
+    params: { slug: post.slug.current },
+  }));
+}
+
+const { slug } = Astro.params;
+const post = await client.fetch(postBySlugQuery, { slug });
+
+if (!post) return Astro.redirect('/writing');
+
+const html = portableTextToHtml(post.body ?? []);
+---
+
+<Layout title={post.title} description={post.excerpt}>
+  <div class="pt-40 pb-32 px-6 md:px-12">
+    <div class="max-w-2xl mx-auto">
+
+      <!-- Header -->
+      <div class="mb-16 pb-8 border-b border-[var(--color-border)]">
+        <a href="/writing" class="animate-fade-up font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors duration-300 inline-block mb-10">
+          ← Writing
+        </a>
+        <div class="animate-fade-up animate-fade-up-delay-1 flex items-center gap-6 mb-6">
+          <span class="font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-muted)]">{post.category}</span>
+          <span class="text-[var(--color-border)]">·</span>
+          <span class="font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-muted)]">{formatDate(post.publishedAt)}</span>
+          {post.estimatedReadingTime && (
+            <>
+              <span class="text-[var(--color-border)]">·</span>
+              <span class="font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-muted)]">{post.estimatedReadingTime} min read</span>
+            </>
+          )}
+        </div>
+        <h1 class="animate-fade-up animate-fade-up-delay-2 font-display font-light leading-[1.1] tracking-[-0.02em] text-[var(--color-ink)]" style="font-size: clamp(2rem, 5vw, 3.5rem);">
+          {post.title}
+        </h1>
+        {post.excerpt && (
+          <p class="animate-fade-up animate-fade-up-delay-3 font-body text-lg text-[var(--color-muted)] leading-relaxed mt-6">
+            {post.excerpt}
+          </p>
+        )}
+      </div>
+
+      <!-- Body -->
+      <div class="reveal prose" set:html={html} />
+
+    </div>
+  </div>
+</Layout>

@@ -16,6 +16,7 @@
     "@astrojs/cloudflare": "^13.2.2",
     "@fontsource-variable/raleway": "^5.2.8",
     "@fontsource/lora": "^5.2.8",
+    "@portabletext/to-html": "^5.0.2",
     "@sanity/client": "^7.22.0",
     "@sanity/image-url": "^2.1.1",
     "@tailwindcss/vite": "^4.2.4",

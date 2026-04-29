@@ -5,36 +5,52 @@ import { client, postsQuery, formatDate } from '../../lib/sanity';
 const posts = await client.fetch(postsQuery);
 ---
 
-<Layout title="Writing" description="Essays on products, startups, and engineering.">
-  <div style="padding-top:8rem; padding-bottom:8rem;">
+<Layout title="Writing">
+  <div style="min-height:100svh; padding:7rem 3rem 8rem;">
+    <div style="max-width:1100px; margin:0 auto;">
 
-    <div style="max-width:1100px; margin:0 auto; padding:0 3rem 5rem; border-bottom:1px solid var(--color-border);">
-      <a href="/" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--color-muted); text-decoration:none; display:inline-block; margin-bottom:3rem; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-muted)'">← Home</a>
-      <p class="animate-fade-up" style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.5rem;">Writing</p>
-      <h1 class="animate-fade-up delay-1" style="font-family:var(--font-display); font-weight:300; font-size:clamp(2.5rem,6vw,4.5rem); line-height:1.1; letter-spacing:-0.02em; color:var(--color-ink);">Essays, notes,<br/>and thinking.</h1>
-    </div>
+      <!-- Back -->
+      <a href="/" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.28em; text-transform:uppercase; color:var(--color-muted); text-decoration:none; display:inline-block; margin-bottom:5rem; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-muted)'">khoitrn</a>
 
-    <div style="max-width:1100px; margin:0 auto; padding:4rem 3rem 0;">
+      <!-- Header -->
+      <div style="margin-bottom:6rem;">
+        <p class="animate-fade-up" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.25rem;">Writing</p>
+        <h1 class="animate-fade-up delay-1" style="font-family:var(--font-display); font-weight:300; font-size:clamp(2.75rem,6vw,5rem); line-height:1.05; letter-spacing:-0.025em; color:var(--color-ink);">Essays, notes,<br/>and thinking.</h1>
+      </div>
+
+      <!-- Post list — slash separated -->
       {posts.length > 0 ? (
         <div>
           {posts.map((post: any, i: number) => (
-            <a href={`/writing/${post.slug.current}`} class="reveal post-row" style={`display:grid; grid-template-columns:1fr auto; gap:2rem; padding:2rem 0; border-bottom:1px solid var(--color-border); text-decoration:none; align-items:start; transition-delay:${i*60}ms;`}>
-              <div>
-                <p style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-muted); margin-bottom:0.75rem;">{post.category}</p>
-                <h2 class="post-title" style="font-family:var(--font-display); font-weight:300; font-size:clamp(1.2rem,2.5vw,1.8rem); color:var(--color-ink); margin-bottom:0.75rem; transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);">{post.title}</h2>
-                {post.excerpt && <p style="font-family:var(--font-body); font-size:0.875rem; color:var(--color-muted); line-height:1.7; max-width:56ch;">{post.excerpt}</p>}
-              </div>
-              <p style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--color-muted); white-space:nowrap; margin-top:0.2rem;">{formatDate(post.publishedAt)}</p>
-            </a>
+            <>
+              {i > 0 && (
+                <div style="padding:0.2rem 0;">
+                  <span style="font-family:var(--font-display); font-weight:300; font-size:0.8rem; color:var(--color-border);">/</span>
+                </div>
+              )}
+              <a
+                href={`/writing/${post.slug.current}`}
+                class="reveal post-item"
+                style={`display:grid; grid-template-columns:7rem 1fr auto; gap:2.5rem; align-items:baseline; padding:2.25rem 0; text-decoration:none; transition-delay:${i*60}ms;`}
+              >
+                <span style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.08em; color:var(--color-muted); white-space:nowrap;">{formatDate(post.publishedAt)}</span>
+                <div>
+                  <h2 class="post-title" style="font-family:var(--font-display); font-weight:300; font-size:clamp(1.2rem,2.5vw,1.75rem); color:var(--color-ink); margin-bottom:0.5rem; transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);">{post.title}</h2>
+                  {post.excerpt && <p style="font-family:var(--font-body); font-size:0.875rem; color:var(--color-muted); line-height:1.7; max-width:54ch;">{post.excerpt}</p>}
+                </div>
+                <span style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--color-muted); white-space:nowrap;">{post.category}</span>
+              </a>
+            </>
           ))}
         </div>
       ) : (
         <p style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--color-muted); padding:4rem 0;">Writing coming soon.</p>
       )}
+
     </div>
   </div>
 </Layout>
 
 <style>
-  .post-row:hover .post-title { transform: translateX(8px); }
+  .post-item:hover .post-title { transform: translateX(8px); }
 </style>

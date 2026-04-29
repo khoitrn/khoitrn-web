@@ -192,8 +192,8 @@ const [projects, posts] = await Promise.all([
     CONTENT — revealed after hero
   ════════════════════════════════════ -->
 
-  <section style="padding: 8rem 3rem; background: var(--color-canvas);">
-    <div style="max-width: 1100px; margin: 0 auto;">
+  <section class="section-pad" style="background: var(--color-canvas);">
+    <div class="content-wrap">
       <div class="reveal" style="display:flex; align-items:baseline; justify-content:space-between; padding-bottom:1.25rem; margin-bottom:3.5rem; border-bottom:1px solid var(--color-border);">
         <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted);">Selected Work</span>
         <a href="/work" style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-accent)'">All projects →</a>
@@ -213,8 +213,8 @@ const [projects, posts] = await Promise.all([
     </div>
   </section>
 
-  <section style="padding: 8rem 3rem; background: var(--color-surface);">
-    <div style="max-width: 1100px; margin: 0 auto;">
+  <section class="section-pad" style="background: var(--color-surface);">
+    <div class="content-wrap">
       <div class="reveal" style="display:flex; align-items:baseline; justify-content:space-between; padding-bottom:1.25rem; margin-bottom:3.5rem; border-bottom:1px solid var(--color-border);">
         <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted);">Writing</span>
         <a href="/writing" style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-accent)'">All posts →</a>
@@ -234,8 +234,8 @@ const [projects, posts] = await Promise.all([
     </div>
   </section>
 
-  <section style="padding: 8rem 3rem; background: var(--color-canvas);">
-    <div style="max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:6rem;">
+  <section class="section-pad" style="background: var(--color-canvas);">
+    <div class="content-wrap grid-2col">
       <div class="reveal">
         <p style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted); margin-bottom:2.5rem;">About</p>
         <p style="font-family:var(--font-body); font-size:1.1rem; color:var(--color-ink-soft); line-height:1.85; margin-bottom:1.25rem;">I'm a student and founder based in Texas, building at the intersection of technology and product.</p>

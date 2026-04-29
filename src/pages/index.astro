@@ -10,179 +10,172 @@ const [projects, posts] = await Promise.all([
 
 <Layout title="Khoi Tran" hideNav={true}>
 
-  <!-- ══════════════════════════════════════════
-    HERO — Letterbox cinematic landing
-    Drop your photo at /public/hero.jpg to use it.
-    Gradient mimics a dark atmospheric scene until then.
-  ═══════════════════════════════════════════════ -->
-  <section style="
-    height: 100svh;
-    background: #080907;
-    display: flex;
-    flex-direction: column;
-    padding: 7svh 0;
-  ">
+  <!-- ═══════════════════════════════════════════════════
+    HERO SCROLL ZONE
+    200svh tall — hero sticks for the first 100svh of scroll.
+    Rectangle zooms out as user scrolls, then content is revealed.
+  ════════════════════════════════════════════════════════ -->
+  <div id="hero-wrapper" style="height: 200svh; position: relative;">
 
-    <!-- ── Framed image area ── -->
-    <div style="
-      flex: 1;
-      position: relative;
+    <div id="hero-sticky" style="
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      background: #080907;
       overflow: hidden;
     ">
 
-      <!-- Atmospheric background — replace with your photo:
-           background-image: url('/hero.jpg'); background-size: cover; background-position: center; -->
-      <div aria-hidden="true" style="
-        position: absolute; inset: 0;
-        background:
-          radial-gradient(ellipse 65% 75% at 58% 42%, rgba(22,36,22,0.95) 0%, transparent 58%),
-          radial-gradient(ellipse 45% 55% at 18% 65%, rgba(14,24,14,0.8) 0%, transparent 52%),
-          radial-gradient(ellipse 55% 40% at 82% 28%, rgba(10,18,10,0.7) 0%, transparent 50%),
-          radial-gradient(ellipse 100% 60% at 50% 100%, rgba(4,6,4,0.9) 0%, transparent 50%),
-          linear-gradient(175deg, #0a0f0a 0%, #0e160c 25%, #091209 55%, #060908 100%);
-      "></div>
-
-      <!-- Grain -->
-      <div aria-hidden="true" style="
-        position: absolute; inset: 0; opacity: 0.035;
-        background-image: url(&quot;data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E&quot;);
-        background-size: 180px;
-      "></div>
-
-      <!-- ── Left nav — vertically centered on image ── -->
-      <nav style="
-        position: absolute;
-        left: 3.5rem;
-        top: 50%;
-        transform: translateY(-50%);
+      <!-- Letterbox frame — padding animates on scroll -->
+      <div id="hero-frame" style="
+        height: 100%;
         display: flex;
         flex-direction: column;
-        gap: 1.75rem;
-        z-index: 10;
+        padding: 18svh 6vw;
+        will-change: padding;
       ">
-        {[
-          { href: '/work',    label: 'Work' },
-          { href: '/writing', label: 'Writing' },
-          { href: '/about',   label: 'About' },
-        ].map(({ href, label }, i) => (
-          <a
-            href={href}
-            class="animate-fade-up"
-            style={`
+        <!-- Image rectangle -->
+        <div style="flex: 1; position: relative; overflow: hidden;">
+
+          <!-- Background — replace background-image src with /hero.jpg when ready -->
+          <div id="hero-bg" style="
+            position: absolute;
+            inset: -15%;
+            background:
+              radial-gradient(ellipse 65% 75% at 58% 42%, rgba(22,36,22,0.95) 0%, transparent 58%),
+              radial-gradient(ellipse 45% 55% at 18% 65%, rgba(14,24,14,0.8) 0%, transparent 52%),
+              radial-gradient(ellipse 55% 40% at 82% 28%, rgba(10,18,10,0.7) 0%, transparent 50%),
+              radial-gradient(ellipse 100% 60% at 50% 100%, rgba(4,6,4,0.9) 0%, transparent 50%),
+              linear-gradient(175deg, #0a0f0a 0%, #0e160c 25%, #091209 55%, #060908 100%);
+            transform: scale(1.25);
+            transform-origin: center;
+            will-change: transform;
+          " aria-hidden="true"></div>
+
+          <!-- Grain -->
+          <div aria-hidden="true" style="
+            position: absolute; inset: 0; opacity: 0.035; pointer-events: none;
+            background-image: url(&quot;data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E&quot;);
+            background-size: 180px;
+          "></div>
+
+          <!-- Left nav -->
+          <nav id="hero-nav" style="
+            position: absolute;
+            left: 2.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+            z-index: 10;
+            opacity: 0;
+            will-change: opacity;
+          ">
+            {[
+              { href: '/work',    label: 'Work' },
+              { href: '/writing', label: 'Writing' },
+              { href: '/about',   label: 'About' },
+            ].map(({ href, label }) => (
+              <a href={href} style="
+                font-family: var(--font-display);
+                font-weight: 300;
+                font-size: 0.72rem;
+                letter-spacing: 0.28em;
+                text-transform: uppercase;
+                color: rgba(255,255,255,0.55);
+                text-decoration: none;
+                transition: color 0.5s;
+              "
+              onmouseover="this.style.color='rgba(255,255,255,0.95)'"
+              onmouseout="this.style.color='rgba(255,255,255,0.55)'"
+              >{label}</a>
+            ))}
+          </nav>
+
+          <!-- Center content -->
+          <div id="hero-text" style="
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 2rem;
+            opacity: 0;
+            will-change: opacity;
+          ">
+            <p style="
               font-family: var(--font-display);
               font-weight: 300;
-              font-size: 0.72rem;
-              letter-spacing: 0.28em;
+              font-size: 0.65rem;
+              letter-spacing: 0.4em;
               text-transform: uppercase;
-              color: rgba(255,255,255,0.5);
-              text-decoration: none;
-              transition: color 0.6s;
-              animation-delay: ${0.6 + i * 0.12}s;
-            `}
-            onmouseover="this.style.color='rgba(255,255,255,0.95)'"
-            onmouseout="this.style.color='rgba(255,255,255,0.5)'"
-          >
-            {label}
-          </a>
-        ))}
-      </nav>
+              color: rgba(255,255,255,0.35);
+              margin-bottom: 1.75rem;
+            ">Student · Founder · Engineer</p>
 
-      <!-- ── Center content ── -->
-      <div style="
-        position: absolute;
-        inset: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 0 2rem;
-      ">
-        <p
-          class="animate-fade-up"
-          style="
-            font-family: var(--font-display);
-            font-weight: 300;
-            font-size: 0.65rem;
-            letter-spacing: 0.4em;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.35);
-            margin-bottom: 1.75rem;
-            animation-delay: 0.1s;
-          "
-        >
-          Student · Founder · Engineer
-        </p>
+            <h1 style="
+              font-family: var(--font-display);
+              font-weight: 300;
+              font-size: clamp(3.5rem, 9vw, 8.5rem);
+              line-height: 1;
+              letter-spacing: -0.025em;
+              color: rgba(255,255,255,0.92);
+              margin-bottom: 1.75rem;
+            ">Khoi Tran</h1>
 
-        <h1
-          class="animate-fade-up"
-          style="
-            font-family: var(--font-display);
-            font-weight: 300;
-            font-size: clamp(3.5rem, 9vw, 8.5rem);
-            line-height: 1;
-            letter-spacing: -0.025em;
-            color: rgba(255,255,255,0.92);
-            margin-bottom: 1.75rem;
-            animation-delay: 0.25s;
-          "
-        >
-          Khoi Tran
-        </h1>
+            <p style="
+              font-family: var(--font-body);
+              font-size: clamp(0.875rem, 1.4vw, 1rem);
+              line-height: 1.75;
+              color: rgba(255,255,255,0.4);
+              max-width: 36ch;
+            ">I build things and think about building things —
+            products, companies, and the ideas that hold them together.</p>
+          </div>
 
-        <p
-          class="animate-fade-up"
-          style="
-            font-family: var(--font-body);
-            font-size: clamp(0.875rem, 1.4vw, 1rem);
-            line-height: 1.75;
-            color: rgba(255,255,255,0.4);
-            max-width: 36ch;
-            animation-delay: 0.42s;
-          "
-        >
-          I build things and think about building things —
-          products, companies, and the ideas that hold them together.
-        </p>
+          <!-- Scroll hint -->
+          <div id="hero-scroll-hint" style="
+            position: absolute;
+            bottom: 1.75rem;
+            right: 2.5rem;
+            opacity: 1;
+            will-change: opacity;
+          ">
+            <span style="
+              font-family: var(--font-display);
+              font-weight: 300;
+              font-size: 0.6rem;
+              letter-spacing: 0.3em;
+              text-transform: uppercase;
+              color: rgba(255,255,255,0.22);
+            ">Scroll</span>
+          </div>
+
+        </div>
       </div>
-
-      <!-- Scroll hint — bottom right of image -->
-      <div
-        class="animate-fade-up"
-        style="position: absolute; bottom: 2rem; right: 3rem; animation-delay: 0.9s;"
-      >
-        <span style="
-          font-family: var(--font-display);
-          font-weight: 300;
-          font-size: 0.6rem;
-          letter-spacing: 0.3em;
-          text-transform: uppercase;
-          color: rgba(255,255,255,0.25);
-        ">Scroll</span>
-      </div>
-
     </div>
-  </section>
+  </div>
+  <!-- End hero scroll zone -->
 
-  <!-- ══════════════════════════════
-    SELECTED WORK
-  ═══════════════════════════════════ -->
+
+  <!-- ═══════════════════════════════
+    CONTENT — revealed after hero
+  ════════════════════════════════════ -->
+
   <section style="padding: 8rem 3rem; background: var(--color-canvas);">
     <div style="max-width: 1100px; margin: 0 auto;">
-
       <div class="reveal" style="display:flex; align-items:baseline; justify-content:space-between; padding-bottom:1.25rem; margin-bottom:3.5rem; border-bottom:1px solid var(--color-border);">
         <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted);">Selected Work</span>
-        <a href="/work" class="hover-ink" style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none; transition:color 0.4s;">All projects →</a>
+        <a href="/work" style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-accent)'">All projects →</a>
       </div>
-
       {projects.length > 0 ? (
         <div>
           {projects.map((item: any, i: number) => (
             <a href={`/work/${item.slug.current}`} class="reveal row-link" style={`display:flex; align-items:baseline; justify-content:space-between; padding:1.75rem 0; border-bottom:1px solid var(--color-border); text-decoration:none; transition-delay:${i*70}ms;`}>
               <span class="row-title" style="font-family:var(--font-display); font-weight:300; font-size:clamp(1.3rem,2.8vw,2rem); color:var(--color-ink); transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);">{item.title}</span>
-              <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--color-muted); display:flex; gap:2.5rem; flex-shrink:0; margin-left:2rem;">
-                <span>{item.category}</span><span>{item.year}</span>
-              </span>
+              <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--color-muted); display:flex; gap:2.5rem; flex-shrink:0; margin-left:2rem;"><span>{item.category}</span><span>{item.year}</span></span>
             </a>
           ))}
         </div>
@@ -192,25 +185,18 @@ const [projects, posts] = await Promise.all([
     </div>
   </section>
 
-  <!-- ══════════════════════════════
-    WRITING
-  ═══════════════════════════════════ -->
   <section style="padding: 8rem 3rem; background: var(--color-surface);">
     <div style="max-width: 1100px; margin: 0 auto;">
-
       <div class="reveal" style="display:flex; align-items:baseline; justify-content:space-between; padding-bottom:1.25rem; margin-bottom:3.5rem; border-bottom:1px solid var(--color-border);">
         <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted);">Writing</span>
-        <a href="/writing" class="hover-ink" style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none; transition:color 0.4s;">All posts →</a>
+        <a href="/writing" style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-accent)'">All posts →</a>
       </div>
-
       {posts.length > 0 ? (
         <div>
           {posts.map((post: any, i: number) => (
             <a href={`/writing/${post.slug.current}`} class="reveal row-link" style={`display:flex; align-items:baseline; justify-content:space-between; padding:1.75rem 0; border-bottom:1px solid var(--color-border); text-decoration:none; transition-delay:${i*70}ms;`}>
               <span class="row-title" style="font-family:var(--font-display); font-weight:300; font-size:clamp(1rem,2.2vw,1.55rem); color:var(--color-ink); max-width:58%; transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);">{post.title}</span>
-              <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--color-muted); display:flex; gap:2.5rem; flex-shrink:0; margin-left:2rem;">
-                <span>{post.category}</span><span>{formatDate(post.publishedAt)}</span>
-              </span>
+              <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--color-muted); display:flex; gap:2.5rem; flex-shrink:0; margin-left:2rem;"><span>{post.category}</span><span>{formatDate(post.publishedAt)}</span></span>
             </a>
           ))}
         </div>
@@ -220,11 +206,8 @@ const [projects, posts] = await Promise.all([
     </div>
   </section>
 
-  <!-- ══════════════════════════════
-    ABOUT + NOW
-  ═══════════════════════════════════ -->
   <section style="padding: 8rem 3rem; background: var(--color-canvas);">
-    <div style="max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6rem;">
+    <div style="max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:6rem;">
       <div class="reveal">
         <p style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted); margin-bottom:2.5rem;">About</p>
         <p style="font-family:var(--font-body); font-size:1.1rem; color:var(--color-ink-soft); line-height:1.85; margin-bottom:1.25rem;">I'm a student and founder based in Texas, building at the intersection of technology and product.</p>
@@ -239,8 +222,7 @@ const [projects, posts] = await Promise.all([
     </div>
   </section>
 
-  <!-- Footer inline (no global footer since nav is hidden) -->
-  <footer style="border-top:1px solid var(--color-border); background:var(--color-canvas);">
+  <footer style="border-top:1px solid var(--color-border);">
     <div style="max-width:1100px; margin:0 auto; padding:2.5rem 3rem; display:flex; align-items:center; justify-content:space-between;">
       <p style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--color-muted);">© {new Date().getFullYear()} Khoi Tran</p>
       <div style="display:flex; gap:2.5rem;">
@@ -255,5 +237,54 @@ const [projects, posts] = await Promise.all([
 
 <style>
   .row-link:hover .row-title { transform: translateX(10px); }
-  .hover-ink:hover { color: var(--color-ink) !important; }
 </style>
+
+<script>
+  import Lenis from 'lenis';
+
+  const wrapper    = document.getElementById('hero-wrapper') as HTMLElement;
+  const frame      = document.getElementById('hero-frame') as HTMLElement;
+  const bg         = document.getElementById('hero-bg') as HTMLElement;
+  const text       = document.getElementById('hero-text') as HTMLElement;
+  const nav        = document.getElementById('hero-nav') as HTMLElement;
+  const scrollHint = document.getElementById('hero-scroll-hint') as HTMLElement;
+
+  if (wrapper && frame && bg && text && nav) {
+
+    // Lerp helper for smooth interpolation
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+    let currentProgress = 0;
+    let targetProgress  = 0;
+
+    function update() {
+      const scrollY  = window.scrollY;
+      const maxScroll = window.innerHeight; // 100svh of scroll space
+      targetProgress  = Math.max(0, Math.min(scrollY / maxScroll, 1));
+
+      currentProgress = lerp(currentProgress, targetProgress, 0.12);
+      const p = currentProgress;
+
+      // Letterbox bars: 18svh → 7svh top/bottom, 6vw → 0vw sides
+      const vPad = lerp(18, 7, p);
+      const hPad = lerp(6, 0, p);
+      frame.style.padding = `${vPad}svh ${hPad}vw`;
+
+      // Image zoom: scale 1.25 → 1.0
+      const scale = lerp(1.25, 1.0, p);
+      bg.style.transform = `scale(${scale})`;
+
+      // Text + nav: fade in after 30% scroll
+      const textOpacity = Math.max(0, Math.min((p - 0.3) / 0.5, 1));
+      text.style.opacity = textOpacity.toString();
+      nav.style.opacity  = textOpacity.toString();
+
+      // Scroll hint: fade out
+      scrollHint.style.opacity = (1 - p * 3).toString();
+
+      requestAnimationFrame(update);
+    }
+
+    requestAnimationFrame(update);
+  }
+</script>

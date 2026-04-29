@@ -7,14 +7,14 @@ interface Props {
   title: string;
   description?: string;
   image?: string;
-  class?: string;
+  darkHero?: boolean;
 }
 
 const {
   title,
   description = 'Khoi Tran — student, founder, engineer.',
   image = '/og-default.png',
-  class: className,
+  darkHero = false,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -27,11 +27,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-
     <title>{title === 'Khoi Tran' ? title : `${title} — Khoi Tran`}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
-
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={title} />
@@ -42,9 +40,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={new URL(image, Astro.site)} />
   </head>
-  <body>
-    <Nav />
-    <main class={className}>
+  <body class={darkHero ? 'dark-hero-page' : ''}>
+    <Nav darkHero={darkHero} />
+    <main>
       <slot />
     </main>
     <Footer />
@@ -52,9 +50,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <script>
       import Lenis from 'lenis';
 
-      // Smooth scroll
       const lenis = new Lenis({
-        duration: 1.4,
+        duration: 1.6,
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smoothWheel: true,
       });
@@ -65,19 +62,29 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       }
       requestAnimationFrame(raf);
 
+      // Nav colour switch: white over hero, dark after
+      const hero = document.querySelector('[data-hero]') as HTMLElement | null;
+      const nav  = document.querySelector('header') as HTMLElement | null;
+
+      if (hero && nav) {
+        const obs = new IntersectionObserver(
+          ([entry]) => nav.classList.toggle('over-hero', entry.isIntersecting),
+          { threshold: 0, rootMargin: '0px 0px 0px 0px' }
+        );
+        obs.observe(hero);
+      }
+
       // Scroll reveal
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((e) => {
-            if (e.isIntersecting) {
-              e.target.classList.add('in-view');
-              observer.unobserve(e.target);
-            }
-          });
-        },
-        { threshold: 0.08, rootMargin: '0px 0px -48px 0px' }
+      const revealObs = new IntersectionObserver(
+        (entries) => entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('in-view');
+            revealObs.unobserve(e.target);
+          }
+        }),
+        { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
       );
-      document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+      document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
     </script>
   </body>
 </html>

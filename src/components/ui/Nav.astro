@@ -1,4 +1,7 @@
 ---
+interface Props { darkHero?: boolean; }
+const { darkHero = false } = Astro.props;
+
 const links = [
   { href: '/work',    label: 'Work' },
   { href: '/writing', label: 'Writing' },
@@ -7,28 +10,22 @@ const links = [
 const { pathname } = Astro.url;
 ---
 
-<header class="fixed top-0 left-0 right-0 z-50">
-  <nav
-    class="flex items-center justify-between"
-    style="padding: 2rem 3rem;"
-  >
-    <a
-      href="/"
-      class="font-display font-light text-xs tracking-[0.25em] uppercase text-[var(--color-ink)] hover:text-[var(--color-muted)] transition-colors duration-500"
-    >
+<header
+  class:list={['site-nav', darkHero && 'over-hero']}
+  style="position: fixed; top: 0; left: 0; right: 0; z-index: 100;"
+>
+  <nav style="display: flex; align-items: center; justify-content: space-between; padding: 2.25rem 3rem;">
+    <a href="/" class="nav-logo font-display font-light text-xs tracking-[0.28em] uppercase transition-colors duration-700">
       Khoi Tran
     </a>
-
-    <ul class="flex items-center" style="gap: 3rem;">
+    <ul style="display: flex; gap: 3rem; list-style: none;">
       {links.map(({ href, label }) => (
         <li>
           <a
             href={href}
             class:list={[
-              'font-display font-light text-xs tracking-[0.2em] uppercase transition-colors duration-500',
-              pathname.startsWith(href)
-                ? 'text-[var(--color-ink)]'
-                : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]',
+              'nav-link font-display font-light text-xs tracking-[0.22em] uppercase transition-colors duration-700',
+              pathname.startsWith(href) ? 'active' : '',
             ]}
           >
             {label}
@@ -38,3 +35,27 @@ const { pathname } = Astro.url;
     </ul>
   </nav>
 </header>
+
+<style>
+  /* Default state — dark page */
+  .site-nav .nav-logo,
+  .site-nav .nav-link {
+    color: var(--color-muted);
+  }
+  .site-nav .nav-logo:hover,
+  .site-nav .nav-link:hover,
+  .site-nav .nav-link.active {
+    color: var(--color-ink);
+  }
+
+  /* Over dark hero — white text */
+  .site-nav.over-hero .nav-logo,
+  .site-nav.over-hero .nav-link {
+    color: rgba(255, 255, 255, 0.65);
+  }
+  .site-nav.over-hero .nav-logo:hover,
+  .site-nav.over-hero .nav-link:hover,
+  .site-nav.over-hero .nav-link.active {
+    color: rgba(255, 255, 255, 1);
+  }
+</style>

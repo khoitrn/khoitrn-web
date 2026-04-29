@@ -29,19 +29,29 @@ const [projects, posts] = await Promise.all([
       justify-content: flex-end;
     "
   >
-    <!-- Background image — swap src for your own photo -->
+    <!-- Background — replace with your own photo:
+         Add /public/hero.jpg and set background-image: url('/hero.jpg')  -->
     <div
       aria-hidden="true"
       style="
         position: absolute;
         inset: 0;
-        background-image: url('/hero.jpg');
-        background-size: cover;
-        background-position: center;
-        /* Placeholder gradient until you add hero.jpg */
-        background-color: #0b0a09;
-        background-blend-mode: multiply;
-        opacity: 0.92;
+        background:
+          radial-gradient(ellipse 80% 60% at 68% 38%, rgba(58, 42, 28, 0.85) 0%, transparent 65%),
+          radial-gradient(ellipse 50% 40% at 20% 70%, rgba(32, 26, 18, 0.7) 0%, transparent 60%),
+          radial-gradient(ellipse 100% 80% at 50% 100%, rgba(10, 8, 6, 0.9) 0%, transparent 55%),
+          linear-gradient(165deg, #1c1610 0%, #0e0c09 35%, #080705 65%, #030302 100%);
+      "
+    ></div>
+    <!-- Subtle grain texture for depth -->
+    <div
+      aria-hidden="true"
+      style="
+        position: absolute;
+        inset: 0;
+        opacity: 0.04;
+        background-image: url(&quot;data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E&quot;);
+        background-size: 200px;
       "
     ></div>
 

@@ -25,8 +25,14 @@ const [projects, posts] = await Promise.all([
   <div id="hero-wrapper" style="height: 200svh; position: relative;">
     <div id="hero-sticky" style="position: sticky; top: 0; height: 100svh; overflow: hidden;">
 
-      <!-- LAYER 1 — Full viewport image (behind everything) -->
-      <!-- To use your own photo: add background-image: url('/hero.jpg'); -->
+      <!-- LAYER 1 — Full viewport image (behind everything)
+           To swap in your photo:
+           1. Put the file in /public/hero.jpg
+           2. Add these two lines inside the style below:
+              background-image: url('/hero.jpg');
+              background-size: cover;
+              background-position: center;
+      -->
       <div id="hero-bg" style="
         position: absolute;
         inset: -10%;
@@ -42,9 +48,19 @@ const [projects, posts] = await Promise.all([
         z-index: 1;
       " aria-hidden="true"></div>
 
+      <!-- Text protection vignette — ensures fonts are always readable over any photo -->
+      <div aria-hidden="true" style="
+        position: absolute; inset: 0; z-index: 2; pointer-events: none;
+        background:
+          linear-gradient(to right,  rgba(0,0,0,0.55) 0%, transparent 35%),
+          linear-gradient(to bottom, rgba(0,0,0,0.4)  0%, transparent 30%),
+          linear-gradient(to top,    rgba(0,0,0,0.6)  0%, transparent 45%),
+          radial-gradient(ellipse 80% 60% at 50% 60%, transparent 30%, rgba(0,0,0,0.35) 100%);
+      "></div>
+
       <!-- Grain over image -->
       <div aria-hidden="true" style="
-        position: absolute; inset: 0; z-index: 2; opacity: 0.03; pointer-events: none;
+        position: absolute; inset: 0; z-index: 3; opacity: 0.03; pointer-events: none;
         background-image: url(&quot;data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E&quot;);
         background-size: 180px;
       "></div>

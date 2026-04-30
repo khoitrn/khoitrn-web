@@ -15,177 +15,150 @@ const [projects, posts] = await Promise.all([
     200svh tall — hero sticks for the first 100svh of scroll.
     Rectangle zooms out as user scrolls, then content is revealed.
   ════════════════════════════════════════════════════════ -->
+  <!-- ═══════════════════════════════════════════════════
+    HERO — Tawaraya technique:
+    Image sits at the back (Layer 1).
+    Solid canvas bars overlay top + bottom (Layer 2).
+    Text and nav float above everything (Layer 3).
+    On scroll: bars shrink + image zooms out = cinematic reveal.
+  ════════════════════════════════════════════════════════ -->
   <div id="hero-wrapper" style="height: 200svh; position: relative;">
+    <div id="hero-sticky" style="position: sticky; top: 0; height: 100svh; overflow: hidden;">
 
-    <div id="hero-sticky" style="
-      position: sticky;
-      top: 0;
-      height: 100svh;
-      background: #090907;
-      overflow: hidden;
-    ">
+      <!-- LAYER 1 — Full viewport image (behind everything) -->
+      <!-- To use your own photo: add background-image: url('/hero.jpg'); -->
+      <div id="hero-bg" style="
+        position: absolute;
+        inset: -10%;
+        background:
+          radial-gradient(ellipse 60% 50% at 50% 40%, rgba(178,242,0,0.07) 0%, transparent 65%),
+          radial-gradient(ellipse 40% 40% at 20% 60%, rgba(200,180,100,0.06) 0%, transparent 55%),
+          radial-gradient(ellipse 50% 35% at 80% 30%, rgba(220,200,120,0.04) 0%, transparent 50%),
+          radial-gradient(ellipse 80% 50% at 50% 100%, rgba(9,9,7,0.98) 0%, transparent 55%),
+          linear-gradient(165deg, #121210 0%, #0F0F0C 30%, #0C0C09 65%, #090907 100%);
+        transform: scale(1.15);
+        transform-origin: center;
+        will-change: transform;
+        z-index: 1;
+      " aria-hidden="true"></div>
 
-      <!-- Letterbox frame — padding animates on scroll -->
-      <div id="hero-frame" style="
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        padding: 18svh 6vw;
-        will-change: padding;
-      ">
-        <!-- Image rectangle -->
-        <div style="flex: 1; position: relative; overflow: hidden;">
+      <!-- Grain over image -->
+      <div aria-hidden="true" style="
+        position: absolute; inset: 0; z-index: 2; opacity: 0.03; pointer-events: none;
+        background-image: url(&quot;data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E&quot;);
+        background-size: 180px;
+      "></div>
 
-          <!-- Background — replace with your photo: background-image: url('/hero.jpg') -->
-          <div id="hero-bg" style="
-            position: absolute;
-            inset: -15%;
-            background:
-              radial-gradient(ellipse 60% 50% at 50% 40%, rgba(178, 242, 0, 0.07) 0%, transparent 65%),
-              radial-gradient(ellipse 40% 40% at 20% 60%, rgba(200, 180, 100, 0.06) 0%, transparent 55%),
-              radial-gradient(ellipse 50% 35% at 80% 30%, rgba(220, 200, 120, 0.04) 0%, transparent 50%),
-              radial-gradient(ellipse 80% 50% at 50% 100%, rgba(9, 9, 7, 0.98) 0%, transparent 55%),
-              linear-gradient(165deg, #121210 0%, #0F0F0C 30%, #0C0C09 65%, #090907 100%);
-            transform: scale(1.25);
-            transform-origin: center;
-            will-change: transform;
-          " aria-hidden="true"></div>
+      <!-- LAYER 2 — Solid bars masking top and bottom (the Tawaraya trick) -->
+      <div id="hero-bar-top" style="
+        position: absolute; top: 0; left: 0; right: 0;
+        height: 14svh;
+        background: #090907;
+        z-index: 10;
+        will-change: height;
+        transition: background 0.6s;
+      "></div>
+      <div id="hero-bar-bottom" style="
+        position: absolute; bottom: 0; left: 0; right: 0;
+        height: 14svh;
+        background: #090907;
+        z-index: 10;
+        will-change: height;
+        transition: background 0.6s;
+      "></div>
 
-          <!-- Grain -->
-          <div aria-hidden="true" style="
-            position: absolute; inset: 0; opacity: 0.035; pointer-events: none;
-            background-image: url(&quot;data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E&quot;);
-            background-size: 180px;
-          "></div>
+      <!-- LAYER 3 — All content floats above bars -->
+      <div style="position: absolute; inset: 0; z-index: 20; pointer-events: none;">
 
-          <!-- Top-right: theme toggle -->
-          <button
-            class="theme-toggle theme-toggle-hero"
-            data-theme-toggle
-            aria-label="Toggle theme"
-            style="position: absolute; top: 2rem; right: 2.5rem; z-index: 10;"
-          >
+        <!-- Top-left: site name (sits inside top bar) -->
+        <a href="/" style="
+          position: absolute; top: 0; left: 0;
+          display: flex; align-items: center;
+          height: 14svh; padding: 0 2.5rem;
+          font-family: var(--font-display); font-weight: 300;
+          font-size: 0.68rem; letter-spacing: 0.28em; text-transform: uppercase;
+          color: rgba(255,255,255,0.5); text-decoration: none;
+          transition: color 0.5s; pointer-events: auto;
+        "
+        onmouseover="this.style.color='rgba(255,255,255,0.9)'"
+        onmouseout="this.style.color='rgba(255,255,255,0.5)'"
+        >Khoi Tran</a>
+
+        <!-- Top-right: theme toggle (inside top bar) -->
+        <div style="position: absolute; top: 0; right: 0; height: 14svh; padding: 0 2.5rem; display: flex; align-items: center; pointer-events: auto;">
+          <button class="theme-toggle theme-toggle-hero" data-theme-toggle aria-label="Toggle theme">
             <span data-theme-label>Light</span>
           </button>
-
-          <!-- Top-left: site name — always visible like Tawaraya -->
-          <a href="/" id="hero-logo" style="
-            position: absolute;
-            top: 2rem;
-            left: 2.5rem;
-            font-family: var(--font-display);
-            font-weight: 300;
-            font-size: 0.68rem;
-            letter-spacing: 0.28em;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.55);
-            text-decoration: none;
-            z-index: 10;
-            transition: color 0.5s;
-            will-change: opacity;
-          "
-          onmouseover="this.style.color='rgba(255,255,255,0.95)'"
-          onmouseout="this.style.color='rgba(255,255,255,0.55)'"
-          >Khoi Tran</a>
-
-          <!-- Left nav — visible immediately, vertically centered -->
-          <nav id="hero-nav" style="
-            position: absolute;
-            left: 2.5rem;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 1.75rem;
-            z-index: 10;
-            will-change: opacity;
-          ">
-            {[
-              { href: '/work',    label: 'Work' },
-              { href: '/writing', label: 'Writing' },
-              { href: '/about',   label: 'About' },
-            ].map(({ href, label }) => (
-              <a href={href} style="
-                font-family: var(--font-display);
-                font-weight: 300;
-                font-size: 0.72rem;
-                letter-spacing: 0.28em;
-                text-transform: uppercase;
-                color: rgba(255,255,255,0.55);
-                text-decoration: none;
-                transition: color 0.5s;
-              "
-              onmouseover="this.style.color='rgba(255,255,255,0.95)'"
-              onmouseout="this.style.color='rgba(255,255,255,0.55)'"
-              >{label}</a>
-            ))}
-          </nav>
-
-          <!-- Center content — visible immediately -->
-          <div id="hero-text" style="
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 0 2rem;
-            will-change: opacity;
-          ">
-            <p style="
-              font-family: var(--font-display);
-              font-weight: 300;
-              font-size: 0.65rem;
-              letter-spacing: 0.4em;
-              text-transform: uppercase;
-              color: rgba(255,255,255,0.35);
-              margin-bottom: 1.75rem;
-            ">Student · Founder · Engineer</p>
-
-            <h1 style="
-              font-family: var(--font-display);
-              font-weight: 300;
-              font-size: clamp(3.5rem, 9vw, 8.5rem);
-              line-height: 1;
-              letter-spacing: -0.025em;
-              color: rgba(255,255,255,0.92);
-              margin-bottom: 1.75rem;
-            ">Khoi Tran</h1>
-
-            <p style="
-              font-family: var(--font-body);
-              font-size: clamp(0.875rem, 1.4vw, 1rem);
-              line-height: 1.75;
-              color: rgba(255,255,255,0.4);
-              max-width: 36ch;
-            ">I build things and think about building things —
-            products, companies, and the ideas that hold them together.</p>
-          </div>
-
-          <!-- Scroll hint -->
-          <div id="hero-scroll-hint" style="
-            position: absolute;
-            bottom: 1.75rem;
-            right: 2.5rem;
-            opacity: 1;
-            will-change: opacity;
-          ">
-            <span style="
-              font-family: var(--font-display);
-              font-weight: 300;
-              font-size: 0.6rem;
-              letter-spacing: 0.3em;
-              text-transform: uppercase;
-              color: rgba(255,255,255,0.22);
-            ">Scroll</span>
-          </div>
-
         </div>
+
+        <!-- Left nav — vertically centered in the image window -->
+        <nav style="
+          position: absolute;
+          left: 2.5rem; top: 50%; transform: translateY(-50%);
+          display: flex; flex-direction: column; gap: 1.75rem;
+          pointer-events: auto;
+        ">
+          {[
+            { href: '/work',    label: 'Work' },
+            { href: '/writing', label: 'Writing' },
+            { href: '/about',   label: 'About' },
+          ].map(({ href, label }) => (
+            <a href={href} style="
+              font-family: var(--font-display); font-weight: 300;
+              font-size: 0.72rem; letter-spacing: 0.28em; text-transform: uppercase;
+              color: rgba(255,255,255,0.5); text-decoration: none; transition: color 0.5s;
+            "
+            onmouseover="this.style.color='rgba(255,255,255,0.92)'"
+            onmouseout="this.style.color='rgba(255,255,255,0.5)'"
+            >{label}</a>
+          ))}
+        </nav>
+
+        <!-- Center — name and tagline in the image window -->
+        <div style="
+          position: absolute; inset: 0;
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          text-align: center; padding: 14svh 2rem;
+        ">
+          <p style="
+            font-family: var(--font-display); font-weight: 300;
+            font-size: 0.65rem; letter-spacing: 0.4em; text-transform: uppercase;
+            color: rgba(255,255,255,0.32); margin-bottom: 1.75rem;
+          ">Student · Founder · Engineer</p>
+
+          <h1 style="
+            font-family: var(--font-display); font-weight: 300;
+            font-size: clamp(3.5rem, 9vw, 8.5rem);
+            line-height: 1; letter-spacing: -0.025em;
+            color: rgba(255,255,255,0.92); margin-bottom: 1.75rem;
+          ">Khoi Tran</h1>
+
+          <p style="
+            font-family: var(--font-body);
+            font-size: clamp(0.875rem, 1.4vw, 1rem);
+            line-height: 1.75; color: rgba(255,255,255,0.38); max-width: 36ch;
+          ">I build things and think about building things —
+          products, companies, and the ideas that hold them together.</p>
+        </div>
+
+        <!-- Scroll hint (sits inside bottom bar) -->
+        <div id="hero-scroll-hint" style="
+          position: absolute; bottom: 0; right: 2.5rem;
+          height: 14svh; display: flex; align-items: center;
+          will-change: opacity;
+        ">
+          <span style="
+            font-family: var(--font-display); font-weight: 300;
+            font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase;
+            color: rgba(255,255,255,0.2);
+          ">Scroll</span>
+        </div>
+
       </div>
     </div>
   </div>
-  <!-- End hero scroll zone -->
+  <!-- End hero -->
 
 
   <!-- ═══════════════════════════════
@@ -270,28 +243,35 @@ const [projects, posts] = await Promise.all([
 <script>
   import Lenis from 'lenis';
 
-  const frame      = document.getElementById('hero-frame') as HTMLElement;
   const bg         = document.getElementById('hero-bg') as HTMLElement;
+  const barTop     = document.getElementById('hero-bar-top') as HTMLElement;
+  const barBot     = document.getElementById('hero-bar-bottom') as HTMLElement;
   const scrollHint = document.getElementById('hero-scroll-hint') as HTMLElement;
 
-  if (frame && bg) {
+  if (bg && barTop && barBot) {
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-
     let cur = 0;
 
     function update() {
       const raw = Math.max(0, Math.min(window.scrollY / window.innerHeight, 1));
-      cur = lerp(cur, raw, 0.1);
+      cur = lerp(cur, raw, 0.09);
       const p = cur;
 
-      // Letterbox: 18svh/6vw → 7svh/0vw
-      frame.style.padding = `${lerp(18, 7, p)}svh ${lerp(6, 0, p)}vw`;
+      // Bars: shrink from 14svh → 7svh (narrower letterbox as image opens up)
+      const barH = lerp(14, 7, p);
+      barTop.style.height = `${barH}svh`;
+      barBot.style.height = `${barH}svh`;
 
-      // Image zoom: scale 1.25 → 1.0
-      bg.style.transform = `scale(${lerp(1.25, 1.0, p)})`;
+      // Image: zoom out from 1.15 → 1.0
+      bg.style.transform = `scale(${lerp(1.15, 1.0, p)})`;
 
-      // Scroll hint fades out immediately
-      if (scrollHint) scrollHint.style.opacity = Math.max(0, 1 - p * 4).toString();
+      // Sync bar color with theme
+      const canvasBg = getComputedStyle(document.documentElement).getPropertyValue('--color-canvas').trim();
+      barTop.style.background = canvasBg;
+      barBot.style.background = canvasBg;
+
+      // Scroll hint fades out
+      if (scrollHint) scrollHint.style.opacity = Math.max(0, 1 - p * 5).toString();
 
       requestAnimationFrame(update);
     }

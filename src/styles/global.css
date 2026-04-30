@@ -9,10 +9,10 @@
 :root {
   --color-canvas:   #0D0D0A;
   --color-surface:  #141410;
-  --color-border:   rgba(240, 239, 220, 0.08);
-  --color-muted:    rgba(240, 239, 220, 0.38);
-  --color-ink:      rgba(240, 239, 220, 0.92);
-  --color-ink-soft: rgba(240, 239, 220, 0.62);
+  --color-border:   rgba(240, 239, 220, 0.14);
+  --color-muted:    #8A8978;
+  --color-ink:      #EEEEE4;
+  --color-ink-soft: #C8C8BC;
   --color-accent:   #B2F200;
   --color-glow:     rgba(178, 242, 0, 0.08);
   --color-bg-hero:  #090907;

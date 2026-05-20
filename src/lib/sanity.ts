@@ -40,12 +40,12 @@ export function formatDate(dateString: string): string {
 
 // Queries
 export const postsQuery = `*[_type == "post"] | order(publishedAt desc) {
-  _id, title, slug, excerpt, category, publishedAt,
+  _id, title, slug, excerpt, category, tags, publishedAt,
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180)
 }`;
 
 export const postBySlugQuery = `*[_type == "post" && slug.current == $slug][0] {
-  _id, title, slug, excerpt, category, publishedAt, body,
+  _id, title, slug, excerpt, category, tags, publishedAt, body,
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180)
 }`;
 
@@ -66,5 +66,5 @@ export const featuredProjectsQuery = `*[_type == "project" && featured == true] 
 }`;
 
 export const recentPostsQuery = `*[_type == "post"] | order(publishedAt desc)[0...3] {
-  _id, title, slug, excerpt, category, publishedAt
+  _id, title, slug, excerpt, category, tags, publishedAt
 }`;

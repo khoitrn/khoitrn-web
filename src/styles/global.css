@@ -278,8 +278,8 @@ body {
   /* Nav inner pages */
   .nav-inner { padding: 1.75rem 1.5rem !important; }
 
-  /* Prose */
-  .prose { font-size: 1rem; }
+  /* Prose — keep readable on mobile */
+  .prose { font-size: 1.0625rem; line-height: 1.9; }
 }
 
 @media (max-width: 480px) {

@@ -10,8 +10,15 @@ export default defineType({
     defineField({
       name: 'category',
       type: 'string',
-      options: { list: ['Essay', 'Founder', 'Engineering', 'Project'] },
+      options: { list: ['Travel', 'Reflection', 'Tech', 'Entrepreneurship', 'Leadership', 'Essay'] },
       validation: r => r.required(),
+    }),
+    defineField({
+      name: 'tags',
+      title: 'Tags',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: { layout: 'tags' },
     }),
     defineField({ name: 'excerpt', type: 'text', rows: 2 }),
     defineField({ name: 'publishedAt', type: 'datetime', initialValue: () => new Date().toISOString() }),

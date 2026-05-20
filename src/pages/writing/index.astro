@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import { client, postsQuery, formatDate } from '../../lib/sanity';
 
 const posts = await client.fetch(postsQuery);
+const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.category).filter(Boolean)))];
 ---
 
 <Layout title="Writing">
@@ -10,35 +11,52 @@ const posts = await client.fetch(postsQuery);
     <div style="max-width:1100px; margin:0 auto;">
 
       <!-- Back -->
-      <a href="/" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.28em; text-transform:uppercase; color:var(--color-muted); text-decoration:none; display:inline-block; margin-bottom:5rem; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-muted)'">khoitrn</a>
+      <a href="/" class="back-link">khoitrn</a>
 
       <!-- Header -->
-      <div style="margin-bottom:6rem;">
+      <div style="margin-bottom:3.5rem;">
         <p class="animate-fade-up" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.25rem;">Writing</p>
-        <h1 class="animate-fade-up delay-1" style="font-family:var(--font-display); font-weight:300; font-size:clamp(2.75rem,6vw,5rem); line-height:1.05; letter-spacing:-0.025em; color:var(--color-ink);">Essays, notes,<br/>and thinking.</h1>
+        <h1 class="animate-fade-up delay-1" style="font-family:var(--font-display); font-weight:300; font-size:clamp(2.25rem,6vw,5rem); line-height:1.05; letter-spacing:-0.025em; color:var(--color-ink);">Essays, notes,<br/>and thinking.</h1>
       </div>
 
-      <!-- Post list — slash separated -->
+      <!-- Category filter -->
+      {categories.length > 1 && (
+        <div id="filter-bar">
+          {categories.map((cat: string) => (
+            <button data-filter={cat} class="filter-btn">{cat}</button>
+          ))}
+        </div>
+      )}
+
+      <!-- Post list -->
       {posts.length > 0 ? (
-        <div>
+        <div id="post-list">
           {posts.map((post: any, i: number) => (
             <>
               {i > 0 && (
-                <div style="padding:0.2rem 0;">
+                <div class="post-divider" data-category={post.category}>
                   <span style="font-family:var(--font-display); font-weight:300; font-size:0.8rem; color:var(--color-border);">/</span>
                 </div>
               )}
               <a
                 href={`/writing/${post.slug.current}`}
                 class="reveal post-item"
-                style={`display:grid; grid-template-columns:7rem 1fr auto; gap:2.5rem; align-items:baseline; padding:2.25rem 0; text-decoration:none; transition-delay:${i*60}ms;`}
+                data-category={post.category}
+                style={`transition-delay:${i*60}ms;`}
               >
-                <span style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.08em; color:var(--color-muted); white-space:nowrap;">{formatDate(post.publishedAt)}</span>
-                <div>
-                  <h2 class="post-title" style="font-family:var(--font-display); font-weight:300; font-size:clamp(1.2rem,2.5vw,1.75rem); color:var(--color-ink); margin-bottom:0.5rem; transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);">{post.title}</h2>
-                  {post.excerpt && <p style="font-family:var(--font-body); font-size:0.875rem; color:var(--color-muted); line-height:1.7; max-width:54ch;">{post.excerpt}</p>}
+                <span class="post-date">{formatDate(post.publishedAt)}</span>
+                <div class="post-body">
+                  <h2 class="post-title">{post.title}</h2>
+                  {post.excerpt && <p class="post-excerpt">{post.excerpt}</p>}
+                  {post.tags?.length > 0 && (
+                    <div class="post-tags">
+                      {post.tags.map((tag: string) => (
+                        <span class="post-tag">{tag}</span>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <span style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--color-muted); white-space:nowrap;">{post.category}</span>
+                <span class="post-category">{post.category}</span>
               </a>
             </>
           ))}
@@ -52,5 +70,168 @@ const posts = await client.fetch(postsQuery);
 </Layout>
 
 <style>
+  /* ── Back link ── */
+  .back-link {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.65rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 5rem;
+    transition: color 0.4s;
+  }
+  .back-link:hover { color: var(--color-ink); }
+
+  /* ── Filter bar ── */
+  #filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 4rem;
+  }
+  .filter-btn {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 0.45rem 1rem;
+    border-radius: 2rem;
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: all 0.25s;
+    white-space: nowrap;
+  }
+  .filter-btn:hover { color: var(--color-ink); border-color: rgba(240,239,220,0.35); }
+  .filter-btn.active {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background: var(--color-glow);
+  }
+
+  /* ── Post row ── */
+  .post-item {
+    display: grid;
+    grid-template-columns: 7rem 1fr auto;
+    gap: 2.5rem;
+    align-items: baseline;
+    padding: 2.25rem 0;
+    text-decoration: none;
+  }
+  .post-divider { padding: 0.2rem 0; }
+
+  .post-date {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+  .post-title {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(1.1rem, 2.5vw, 1.75rem);
+    color: var(--color-ink);
+    margin-bottom: 0.5rem;
+    transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+    line-height: 1.3;
+  }
+  .post-excerpt {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    line-height: 1.7;
+    max-width: 54ch;
+  }
+  .post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+  }
+  .post-tag {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    opacity: 0.6;
+  }
+  .post-category {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
   .post-item:hover .post-title { transform: translateX(8px); }
+
+  /* ── Mobile ── */
+  @media (max-width: 640px) {
+    #filter-bar {
+      /* horizontal scroll on very small screens */
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      margin-bottom: 2.5rem;
+      padding-bottom: 0.25rem;
+    }
+    #filter-bar::-webkit-scrollbar { display: none; }
+
+    .post-item {
+      /* stack: hide date col, category moves below title */
+      grid-template-columns: 1fr;
+      gap: 0.35rem;
+      padding: 1.75rem 0;
+    }
+    .post-date { display: none; }
+    .post-category {
+      order: -1; /* show category label above title */
+      font-size: 0.58rem;
+      letter-spacing: 0.22em;
+    }
+    .post-title { font-size: 1.15rem; }
+    .post-excerpt { font-size: 0.9rem; max-width: 100%; }
+  }
 </style>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+  const items = document.querySelectorAll<HTMLElement>('.post-item');
+  const dividers = document.querySelectorAll<HTMLElement>('.post-divider');
+
+  function setActive(cat: string) {
+    buttons.forEach(btn => btn.classList.toggle('active', btn.dataset.filter === cat));
+
+    items.forEach(item => {
+      const match = cat === 'All' || item.dataset.category === cat;
+      item.style.display = match ? '' : 'none';
+    });
+
+    // rebuild dividers between visible posts only
+    let lastVisible: HTMLElement | null = null;
+    dividers.forEach(div => (div.style.display = 'none'));
+    items.forEach(item => {
+      if (item.style.display === 'none') return;
+      if (lastVisible) {
+        const sib = item.previousElementSibling as HTMLElement;
+        if (sib?.classList.contains('post-divider')) sib.style.display = '';
+      }
+      lastVisible = item;
+    });
+  }
+
+  const firstBtn = document.querySelector<HTMLButtonElement>('.filter-btn[data-filter="All"]');
+  if (firstBtn) firstBtn.classList.add('active');
+  buttons.forEach(btn => btn.addEventListener('click', () => setActive(btn.dataset.filter!)));
+</script>

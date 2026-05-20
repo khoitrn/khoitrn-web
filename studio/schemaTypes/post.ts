@@ -23,6 +23,28 @@ export default defineType({
     defineField({ name: 'excerpt', type: 'text', rows: 2 }),
     defineField({ name: 'publishedAt', type: 'datetime', initialValue: () => new Date().toISOString() }),
     defineField({ name: 'body', type: 'array', of: [{ type: 'block' }, { type: 'image', options: { hotspot: true } }, { type: 'code' }] }),
+    defineField({
+      name: 'footerLabel',
+      title: 'Footer section label',
+      type: 'string',
+      description: 'Label shown above the takeaways section (e.g. "things i learned today", "what i took away"). Leave blank to hide the section.',
+    }),
+    defineField({
+      name: 'takeaways',
+      title: 'Takeaways',
+      description: 'Optional footer section — fun facts, lessons learned, key insights, or anything worth highlighting separately from the main post.',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({ name: 'heading', title: 'Heading', type: 'string', description: 'Short bold label (optional)' }),
+            defineField({ name: 'body', title: 'Body', type: 'text', rows: 3 }),
+          ],
+          preview: { select: { title: 'heading', subtitle: 'body' } },
+        },
+      ],
+    }),
   ],
   preview: {
     select: { title: 'title', subtitle: 'category' },

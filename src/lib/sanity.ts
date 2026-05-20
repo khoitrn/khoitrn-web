@@ -46,6 +46,7 @@ export const postsQuery = `*[_type == "post"] | order(publishedAt desc) {
 
 export const postBySlugQuery = `*[_type == "post" && slug.current == $slug][0] {
   _id, title, slug, excerpt, category, tags, publishedAt, body,
+  footerLabel, takeaways,
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180)
 }`;
 

@@ -53,8 +53,8 @@ const html = portableTextToHtml(post.body ?? []);
         <ul class="takeaways-list">
           {post.takeaways.map((item: any) => (
             <li class="takeaway-item">
-              {item.heading && <strong class="takeaway-heading">{item.heading}</strong>}
-              {item.body && <span class="takeaway-body">{item.heading ? ' ' : ''}{item.body}</span>}
+              {item.heading && <span class="takeaway-heading">{item.heading}</span>}
+              {item.body && <span class="takeaway-body">{item.body}</span>}
             </li>
           ))}
         </ul>
@@ -167,19 +167,20 @@ const html = portableTextToHtml(post.body ?? []);
   /* ── Takeaways ── */
   .takeaways-wrap {
     max-width: 720px;
-    margin: 4rem auto 0;
-    padding: 2.5rem clamp(1rem, 5vw, 3rem);
+    margin: 5rem auto 0;
+    padding: 3rem clamp(1rem, 5vw, 3rem) 3.5rem;
     border-top: 1px solid var(--color-border);
     border-bottom: 1px solid var(--color-border);
   }
   .takeaways-label {
     font-family: var(--font-display);
     font-weight: 300;
-    font-size: 0.65rem;
-    letter-spacing: 0.3em;
+    font-size: 0.6rem;
+    letter-spacing: 0.35em;
     text-transform: uppercase;
     color: var(--color-muted);
-    margin-bottom: 1.75rem;
+    margin-bottom: 3rem;
+    opacity: 0.7;
   }
   .takeaways-list {
     list-style: none;
@@ -187,24 +188,34 @@ const html = portableTextToHtml(post.body ?? []);
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 0;
   }
   .takeaway-item {
-    font-family: var(--font-body);
-    font-size: 0.9375rem;
-    line-height: 1.75;
-    color: var(--color-ink-soft);
-    padding-left: 1rem;
-    border-left: 1px solid var(--color-border);
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .takeaway-item:first-child { padding-top: 0; }
+  .takeaway-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
   }
   .takeaway-heading {
     font-family: var(--font-display);
-    font-weight: 500;
-    font-size: 0.9rem;
-    color: var(--color-ink);
-    letter-spacing: 0.01em;
+    font-weight: 300;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: lowercase;
+    color: var(--color-muted);
+    display: block;
+    margin-bottom: 0.6rem;
   }
-  .takeaway-body { color: var(--color-ink-soft); }
+  .takeaway-body {
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    line-height: 1.8;
+    color: var(--color-ink-soft);
+    display: block;
+  }
 
   /* ── Mobile reading (Kindle-feel) ── */
   @media (max-width: 640px) {

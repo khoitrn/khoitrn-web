@@ -10,35 +10,35 @@ const projects = await client.fetch(projectsQuery);
     <div style="max-width:1100px; margin:0 auto;">
 
       <!-- Back -->
-      <a href="/" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.28em; text-transform:uppercase; color:var(--color-muted); text-decoration:none; display:inline-block; margin-bottom:5rem; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-muted)'">khoitrn</a>
+      <a href="/" class="back-link">khoitrn</a>
 
       <!-- Header -->
-      <div style="margin-bottom:6rem;">
+      <div style="margin-bottom:clamp(3rem,6vw,6rem);">
         <p class="animate-fade-up" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.25rem;">Work</p>
-        <h1 class="animate-fade-up delay-1" style="font-family:var(--font-display); font-weight:300; font-size:clamp(2.75rem,6vw,5rem); line-height:1.05; letter-spacing:-0.025em; color:var(--color-ink);">Selected projects.</h1>
+        <h1 class="animate-fade-up delay-1" style="font-family:var(--font-display); font-weight:300; font-size:clamp(2.25rem,6vw,5rem); line-height:1.05; letter-spacing:-0.025em; color:var(--color-ink);">Selected projects.</h1>
       </div>
 
-      <!-- Project list — slash separated, no heavy lines -->
+      <!-- Project list -->
       {projects.length > 0 ? (
         <div>
           {projects.map((project: any, i: number) => (
             <>
               {i > 0 && (
-                <div style="display:flex; align-items:center; gap:1.5rem; padding:0.25rem 0;">
+                <div class="proj-divider">
                   <span style="font-family:var(--font-display); font-weight:300; font-size:0.8rem; color:var(--color-border);">/</span>
                 </div>
               )}
               <a
                 href={`/work/${project.slug.current}`}
                 class="reveal project-item"
-                style={`display:grid; grid-template-columns:6rem 1fr auto; gap:2.5rem; align-items:baseline; padding:2.25rem 0; text-decoration:none; transition-delay:${i*60}ms;`}
+                style={`transition-delay:${i*60}ms;`}
               >
-                <span style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.1em; color:var(--color-muted);">{project.year}</span>
-                <div>
-                  <h2 class="project-title" style="font-family:var(--font-display); font-weight:300; font-size:clamp(1.4rem,3vw,2.25rem); color:var(--color-ink); margin-bottom:0.5rem; transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);">{project.title}</h2>
-                  {project.description && <p style="font-family:var(--font-body); font-size:0.875rem; color:var(--color-muted); line-height:1.7; max-width:50ch;">{project.description}</p>}
+                <span class="proj-year">{project.year}</span>
+                <div class="proj-body">
+                  <h2 class="project-title">{project.title}</h2>
+                  {project.description && <p class="proj-desc">{project.description}</p>}
                 </div>
-                <span style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--color-muted); white-space:nowrap; transition:color 0.4s;" class="project-cat">{project.category}</span>
+                <span class="proj-cat">{project.category}</span>
               </a>
             </>
           ))}
@@ -52,6 +52,83 @@ const projects = await client.fetch(projectsQuery);
 </Layout>
 
 <style>
+  .back-link {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.65rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 5rem;
+    transition: color 0.4s;
+  }
+  .back-link:hover { color: var(--color-ink); }
+
+  .proj-divider { padding: 0.25rem 0; }
+
+  .project-item {
+    display: grid;
+    grid-template-columns: 6rem 1fr auto;
+    gap: 2.5rem;
+    align-items: baseline;
+    padding: 2.25rem 0;
+    text-decoration: none;
+  }
+
+  .proj-year {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--color-muted);
+  }
+  .project-title {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(1.3rem, 3vw, 2.25rem);
+    color: var(--color-ink);
+    margin-bottom: 0.5rem;
+    transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+    line-height: 1.25;
+  }
+  .proj-desc {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    line-height: 1.7;
+    max-width: 50ch;
+  }
+  .proj-cat {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    white-space: nowrap;
+    transition: color 0.4s;
+  }
+
   .project-item:hover .project-title { transform: translateX(8px); }
-  .project-item:hover .project-cat { color: var(--color-ink) !important; }
+  .project-item:hover .proj-cat { color: var(--color-ink); }
+
+  @media (max-width: 640px) {
+    .back-link { margin-bottom: 3rem; }
+
+    .project-item {
+      grid-template-columns: 1fr;
+      gap: 0.35rem;
+      padding: 1.75rem 0;
+    }
+    .proj-year { display: none; }
+    .proj-cat {
+      order: -1;
+      font-size: 0.58rem;
+      letter-spacing: 0.22em;
+    }
+    .project-title { font-size: 1.2rem; }
+    .proj-desc { max-width: 100%; }
+  }
 </style>

@@ -8,16 +8,18 @@ const updated = now?.updatedAt ? formatDate(now.updatedAt) : null;
 ---
 
 <Layout title="Now" description="What Khoi is currently working on.">
-  <div class="pt-40 pb-32 px-6 md:px-12">
-    <div class="max-w-2xl mx-auto">
+  <div class="now-page page-pad">
+    <div class="now-wrap">
 
-      <div class="mb-16 pb-8 border-b border-[var(--color-border)]">
-        <p class="animate-fade-up font-display font-light text-xs tracking-[0.3em] uppercase text-[var(--color-muted)] mb-6">Now</p>
-        <h1 class="animate-fade-up animate-fade-up-delay-1 font-display font-light text-4xl md:text-5xl leading-[1.1] tracking-[-0.02em] text-[var(--color-ink)]">
+      <a href="/" class="back-link">khoitrn</a>
+
+      <div class="now-header">
+        <p class="animate-fade-up" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.25rem;">Now</p>
+        <h1 class="animate-fade-up delay-1" style="font-family:var(--font-display); font-weight:300; font-size:clamp(2.25rem,5vw,3.5rem); line-height:1.1; letter-spacing:-0.02em; color:var(--color-ink);">
           What I'm doing now.
         </h1>
         {updated && (
-          <p class="animate-fade-up animate-fade-up-delay-2 font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-muted)] mt-6">
+          <p class="animate-fade-up delay-2" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--color-muted); margin-top:1.25rem;">
             Updated {updated}
           </p>
         )}
@@ -27,7 +29,7 @@ const updated = now?.updatedAt ? formatDate(now.updatedAt) : null;
         <div class="reveal prose" set:html={html} />
       ) : (
         <div class="reveal prose">
-          <p>Updated April 2025 from Texas.</p>
+          <p>Updated May 2025 from Texas.</p>
           <h2>Building</h2>
           <p>Working on a new project — still in early days, focused on getting the core right before anything else.</p>
           <h2>Studying</h2>
@@ -42,3 +44,35 @@ const updated = now?.updatedAt ? formatDate(now.updatedAt) : null;
     </div>
   </div>
 </Layout>
+
+<style>
+  .now-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .now-header {
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .back-link {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.65rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: clamp(3rem, 5vw, 5rem);
+    transition: color 0.4s;
+  }
+  .back-link:hover { color: var(--color-ink); }
+
+  @media (max-width: 640px) {
+    :global(.prose) {
+      font-size: 1.0625rem !important;
+      line-height: 1.9 !important;
+    }
+  }
+</style>

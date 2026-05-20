@@ -190,7 +190,7 @@ const [projects, posts] = await Promise.all([
           {projects.map((item: any, i: number) => (
             <a href={`/work/${item.slug.current}`} class="reveal row-link" style={`display:flex; align-items:baseline; justify-content:space-between; padding:1.75rem 0; border-bottom:1px solid var(--color-border); text-decoration:none; transition-delay:${i*70}ms;`}>
               <span class="row-title" style="font-family:var(--font-display); font-weight:300; font-size:clamp(1.3rem,2.8vw,2rem); color:var(--color-ink); transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);">{item.title}</span>
-              <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--color-muted); display:flex; gap:2.5rem; flex-shrink:0; margin-left:2rem;"><span>{item.category}</span><span>{item.year}</span></span>
+              <span class="row-meta"><span>{item.category}</span><span>{item.year}</span></span>
             </a>
           ))}
         </div>
@@ -210,8 +210,8 @@ const [projects, posts] = await Promise.all([
         <div>
           {posts.map((post: any, i: number) => (
             <a href={`/writing/${post.slug.current}`} class="reveal row-link" style={`display:flex; align-items:baseline; justify-content:space-between; padding:1.75rem 0; border-bottom:1px solid var(--color-border); text-decoration:none; transition-delay:${i*70}ms;`}>
-              <span class="row-title" style="font-family:var(--font-display); font-weight:300; font-size:clamp(1rem,2.2vw,1.55rem); color:var(--color-ink); max-width:58%; transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);">{post.title}</span>
-              <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--color-muted); display:flex; gap:2.5rem; flex-shrink:0; margin-left:2rem;"><span>{post.category}</span><span>{formatDate(post.publishedAt)}</span></span>
+              <span class="row-title" style="font-family:var(--font-display); font-weight:300; font-size:clamp(1rem,2.2vw,1.55rem); color:var(--color-ink); transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);">{post.title}</span>
+              <span class="row-meta"><span>{post.category}</span><span>{formatDate(post.publishedAt)}</span></span>
             </a>
           ))}
         </div>
@@ -237,12 +237,12 @@ const [projects, posts] = await Promise.all([
     </div>
   </section>
 
-  <footer style="border-top:1px solid var(--color-border);">
-    <div style="max-width:1100px; margin:0 auto; padding:2.5rem 3rem; display:flex; align-items:center; justify-content:space-between;">
-      <p style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--color-muted);">© {new Date().getFullYear()} Khoi Tran</p>
-      <div style="display:flex; gap:2.5rem;">
+  <footer class="home-footer">
+    <div class="home-footer-inner">
+      <p class="footer-copy">© {new Date().getFullYear()} Khoi Tran</p>
+      <div class="footer-links">
         {[['https://github.com/khoitrn','GitHub'],['https://linkedin.com/in/khoitrn','LinkedIn'],['mailto:khoi@tamu.edu','Email']].map(([href,label]) => (
-          <a href={href} target={href.startsWith('http')?'_blank':undefined} rel={href.startsWith('http')?'noopener noreferrer':undefined} style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--color-muted); text-decoration:none; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-muted)'">{label}</a>
+          <a href={href} target={href.startsWith('http')?'_blank':undefined} rel={href.startsWith('http')?'noopener noreferrer':undefined} class="footer-link">{label}</a>
         ))}
       </div>
     </div>
@@ -252,6 +252,59 @@ const [projects, posts] = await Promise.all([
 
 <style>
   .row-link:hover .row-title { transform: translateX(10px); }
+
+  /* Row meta — category + year/date on the right */
+  .row-meta {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    display: flex;
+    gap: 2.5rem;
+    flex-shrink: 0;
+    margin-left: 2rem;
+  }
+
+  /* Home footer */
+  .home-footer { border-top: 1px solid var(--color-border); }
+  .home-footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2.5rem clamp(1.25rem, 4vw, 3rem);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+  }
+  .footer-copy {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .footer-links { display: flex; gap: 2rem; flex-wrap: wrap; }
+  .footer-link {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-decoration: none;
+    transition: color 0.4s;
+  }
+  .footer-link:hover { color: var(--color-ink); }
+
+  /* Mobile */
+  @media (max-width: 640px) {
+    .row-meta { display: none; }
+    .row-title { max-width: 100% !important; }
+  }
 </style>
 
 <script>

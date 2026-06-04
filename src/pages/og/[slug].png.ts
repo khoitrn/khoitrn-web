@@ -1,14 +1,27 @@
 import type { APIRoute, GetStaticPaths } from 'astro';
 import satori from 'satori';
-import { Resvg } from '@resvg/resvg-js';
+import { initWasm, Resvg } from '@resvg/resvg-wasm';
 import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { resolve, dirname } from 'node:path';
+import { join } from 'node:path';
 import { client, postsQuery } from '../../lib/sanity';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+// Initialize WASM once — no native bindings needed
+let wasmReady: Promise<void> | null = null;
+function ensureWasm() {
+  if (!wasmReady) {
+    wasmReady = (async () => {
+      const wasm = readFileSync(
+        join(process.cwd(), 'node_modules/@resvg/resvg-wasm/index_bg.wasm')
+      );
+      await initWasm(WebAssembly.compile(wasm));
+    })();
+  }
+  return wasmReady;
+}
+
+// Font loaded once via process.cwd() — reliable across all build environments
 const fontData = readFileSync(
-  resolve(__dirname, '../../../node_modules/@fontsource-variable/raleway/files/raleway-latin-wght-normal.woff2')
+  join(process.cwd(), 'node_modules/@fontsource-variable/raleway/files/raleway-latin-wght-normal.woff2')
 );
 
 function titleFontSize(title: string): number {
@@ -27,6 +40,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 export const GET: APIRoute = async ({ props }) => {
+  await ensureWasm();
   const { title, category } = props as { title: string; category: string };
 
   const svg = await satori(

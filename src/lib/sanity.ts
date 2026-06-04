@@ -38,6 +38,13 @@ export function formatDate(dateString: string): string {
   });
 }
 
+export function formatDateShort(dateString: string): string {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
 // Queries
 export const postsQuery = `*[_type == "post"] | order(publishedAt desc) {
   _id, title, slug, excerpt, category, tags, publishedAt,
@@ -71,5 +78,6 @@ export const featuredProjectsQuery = `*[_type == "project" && featured == true] 
 }`;
 
 export const recentPostsQuery = `*[_type == "post"] | order(publishedAt desc)[0...3] {
-  _id, title, slug, excerpt, category, tags, publishedAt
+  _id, title, slug, excerpt, category, tags, publishedAt,
+  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180)
 }`;

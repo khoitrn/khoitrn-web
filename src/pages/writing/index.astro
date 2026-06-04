@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { client, postsQuery, formatDate } from '../../lib/sanity';
+import { client, postsQuery, formatDateShort } from '../../lib/sanity';
 
 const posts = await client.fetch(postsQuery);
 const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.category).filter(Boolean)))];
@@ -12,7 +12,10 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
 
       <!-- Header -->
       <div style="margin-bottom:3.5rem;">
-        <p class="animate-fade-up" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.25rem;">Writing</p>
+        <div class="animate-fade-up" style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:1.25rem;">
+          <p style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--color-muted); margin:0;">Writing</p>
+          <a href="/rss.xml" style="font-family:var(--font-display); font-weight:300; font-size:0.6rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-muted); text-decoration:none; opacity:0.5; transition:opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">RSS</a>
+        </div>
         <h1 class="animate-fade-up delay-1" style="font-family:var(--font-display); font-weight:300; font-size:clamp(2.25rem,6vw,5rem); line-height:1.05; letter-spacing:-0.025em; color:var(--color-ink);">Essays, notes,<br/>and thinking.</h1>
       </div>
 
@@ -41,7 +44,10 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
                 data-category={post.category}
                 style={`transition-delay:${i*60}ms;`}
               >
-                <span class="post-date">{formatDate(post.publishedAt)}</span>
+                <span class="post-date">
+                  {formatDateShort(post.publishedAt)}
+                  {post.estimatedReadingTime ? <span class="post-read-time">· {post.estimatedReadingTime} min</span> : ''}
+                </span>
                 <div class="post-body">
                   <h2 class="post-title">{post.title}</h2>
                   {post.excerpt && <p class="post-excerpt">{post.excerpt}</p>}
@@ -114,6 +120,13 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
     letter-spacing: 0.08em;
     color: var(--color-muted);
     white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .post-read-time {
+    opacity: 0.55;
+    letter-spacing: 0.06em;
   }
   .post-title {
     font-family: var(--font-display);

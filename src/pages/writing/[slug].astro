@@ -14,7 +14,7 @@ if (!post) return Astro.redirect('/writing');
 const html = portableTextToHtml(post.body ?? []);
 ---
 
-<Layout title={post.title} description={post.excerpt}>
+<Layout title={post.title} description={post.excerpt} image={`/og/${post.slug.current}.png`}>
   <div class="page-pad">
 
     <!-- Header -->

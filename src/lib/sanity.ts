@@ -64,6 +64,8 @@ export const nowQuery = `*[_type == "now"][0] { body, updatedAt }`;
 
 export const aboutQuery = `*[_type == "about"][0] { headline, body, currentItems, email }`;
 
+export const settingsQuery = `*[_type == "settings"][0] { heroTagline, heroParagraph }`;
+
 export const featuredProjectsQuery = `*[_type == "project" && featured == true] | order(year desc)[0...3] {
   _id, title, slug, description, category, year
 }`;

@@ -1,11 +1,15 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { client, featuredProjectsQuery, recentPostsQuery, formatDate } from '../lib/sanity';
+import { client, featuredProjectsQuery, recentPostsQuery, settingsQuery, formatDate } from '../lib/sanity';
 
-const [projects, posts] = await Promise.all([
+const [projects, posts, settings] = await Promise.all([
   client.fetch(featuredProjectsQuery),
   client.fetch(recentPostsQuery),
+  client.fetch(settingsQuery),
 ]);
+
+const heroTagline  = settings?.heroTagline  ?? 'Student · Founder · Engineer';
+const heroParagraph = settings?.heroParagraph ?? 'I build things and think about building things — products, companies, and the ideas that hold them together.';
 ---
 
 <Layout title="Khoi Tran" hideNav={true}>
@@ -84,20 +88,6 @@ const [projects, posts] = await Promise.all([
       <!-- LAYER 3 — All content floats above bars -->
       <div style="position: absolute; inset: 0; z-index: 20; pointer-events: none;">
 
-        <!-- Top-left: site name (sits inside top bar) -->
-        <a href="/" style="
-          position: absolute; top: 0; left: 0;
-          display: flex; align-items: center;
-          height: 14svh; padding: 0 2.5rem;
-          font-family: var(--font-display); font-weight: 300;
-          font-size: 0.68rem; letter-spacing: 0.28em; text-transform: uppercase;
-          color: rgba(255,255,255,0.5); text-decoration: none;
-          transition: color 0.5s; pointer-events: auto;
-        "
-        onmouseover="this.style.color='rgba(255,255,255,0.9)'"
-        onmouseout="this.style.color='rgba(255,255,255,0.5)'"
-        >Khoi Tran</a>
-
         <!-- Mobile hamburger — only visible on mobile since left nav is hidden -->
         <button class="hero-hamburger" id="hero-hamburger" aria-label="Open menu">
           <span></span><span></span><span></span>
@@ -133,25 +123,29 @@ const [projects, posts] = await Promise.all([
           align-items: center; justify-content: center;
           text-align: center; padding: 14svh 2rem;
         ">
+          <!-- Spotlight glow focused on the name -->
+          <div id="hero-spotlight" aria-hidden="true"></div>
+
           <p style="
             font-family: var(--font-display); font-weight: 300;
             font-size: 0.65rem; letter-spacing: 0.4em; text-transform: uppercase;
             color: rgba(255,255,255,0.32); margin-bottom: 1.75rem;
-          ">Student · Founder · Engineer</p>
+          ">{heroTagline}</p>
 
-          <h1 style="
+          <h1 id="hero-name" style="
             font-family: var(--font-display); font-weight: 300;
             font-size: clamp(3.5rem, 9vw, 8.5rem);
             line-height: 1; letter-spacing: -0.025em;
-            color: rgba(255,255,255,0.92); margin-bottom: 1.75rem;
+            color: rgba(255,255,255,0.95); margin-bottom: 1.75rem;
+            position: relative; z-index: 1;
           ">Khoi Tran</h1>
 
           <p style="
             font-family: var(--font-body);
             font-size: clamp(0.875rem, 1.4vw, 1rem);
             line-height: 1.75; color: rgba(255,255,255,0.38); max-width: 36ch;
-          ">I build things and think about building things —
-          products, companies, and the ideas that hold them together.</p>
+            position: relative; z-index: 1;
+          ">{heroParagraph}</p>
         </div>
 
         <!-- Scroll hint (sits inside bottom bar) -->
@@ -256,6 +250,29 @@ const [projects, posts] = await Promise.all([
 </Layout>
 
 <style>
+  /* Spotlight — radial glow focused on the name */
+  #hero-spotlight {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -52%);
+    width: min(720px, 95vw);
+    height: 320px;
+    background: radial-gradient(ellipse at center,
+      rgba(255, 252, 240, 0.11) 0%,
+      rgba(178, 242, 0, 0.05) 35%,
+      transparent 70%
+    );
+    pointer-events: none;
+    will-change: opacity;
+    opacity: calc(var(--scroll-intensity, 1) * 1);
+    animation: spotlight-breathe 4.5s ease-in-out infinite;
+  }
+  @keyframes spotlight-breathe {
+    0%, 100% { filter: blur(0px)  brightness(0.85); }
+    50%       { filter: blur(4px) brightness(1.15); }
+  }
+
   /* Hero hamburger — only shown on mobile */
   .hero-hamburger {
     display: none;
@@ -385,6 +402,7 @@ const [projects, posts] = await Promise.all([
   const barTop     = document.getElementById('hero-bar-top') as HTMLElement;
   const barBot     = document.getElementById('hero-bar-bottom') as HTMLElement;
   const scrollHint = document.getElementById('hero-scroll-hint') as HTMLElement;
+  const spotlight  = document.getElementById('hero-spotlight') as HTMLElement;
 
   if (bg && barTop && barBot) {
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -410,6 +428,14 @@ const [projects, posts] = await Promise.all([
 
       // Scroll hint fades out
       if (scrollHint) scrollHint.style.opacity = Math.max(0, 1 - p * 5).toString();
+
+      // Spotlight: brighten as hero opens, fade as it exits
+      if (spotlight) {
+        const intensity = p < 0.25
+          ? 1 + p * 1.2        // grow brighter during first quarter of scroll
+          : 1.3 - (p - 0.25) * 1.8; // then fade
+        spotlight.style.setProperty('--scroll-intensity', Math.max(0, intensity).toString());
+      }
 
       requestAnimationFrame(update);
     }

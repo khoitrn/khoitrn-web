@@ -98,6 +98,11 @@ const [projects, posts] = await Promise.all([
         onmouseout="this.style.color='rgba(255,255,255,0.5)'"
         >Khoi Tran</a>
 
+        <!-- Mobile hamburger — only visible on mobile since left nav is hidden -->
+        <button class="hero-hamburger" id="hero-hamburger" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+
         <!-- Left nav — vertically centered in the image window (hidden on mobile) -->
         <nav class="hero-left-nav" style="
           position: absolute;
@@ -167,6 +172,13 @@ const [projects, posts] = await Promise.all([
   </div>
   <!-- End hero -->
 
+  <!-- Mobile fullscreen nav (hero pages only, since Nav is hidden on homepage) -->
+  <div class="hero-mobile-menu" id="hero-mobile-menu">
+    <button class="hero-menu-close" id="hero-menu-close">Close</button>
+    <a href="/work">Work</a>
+    <a href="/writing">Writing</a>
+    <a href="/about">About</a>
+  </div>
 
   <!-- ═══════════════════════════════
     CONTENT — revealed after hero
@@ -244,6 +256,72 @@ const [projects, posts] = await Promise.all([
 </Layout>
 
 <style>
+  /* Hero hamburger — only shown on mobile */
+  .hero-hamburger {
+    display: none;
+    position: absolute;
+    top: 0; right: 0;
+    height: 14svh;
+    padding: 0 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    z-index: 21;
+  }
+  .hero-hamburger span {
+    display: block;
+    width: 22px;
+    height: 1px;
+    background: rgba(255,255,255,0.5);
+  }
+  @media (max-width: 768px) {
+    .hero-hamburger { display: flex; }
+  }
+
+  /* Hero mobile overlay */
+  .hero-mobile-menu {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--color-canvas);
+    z-index: 300;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+  }
+  .hero-mobile-menu.open { display: flex; }
+  .hero-mobile-menu a {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 2rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-ink);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .hero-mobile-menu a:hover { color: var(--color-accent); }
+  .hero-menu-close {
+    position: absolute;
+    top: 2rem; right: 1.75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-muted);
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+  .hero-menu-close:hover { color: var(--color-ink); }
+
   .row-link:hover .row-title { transform: translateX(10px); }
 
   /* Row meta — category + year/date on the right */
@@ -338,4 +416,12 @@ const [projects, posts] = await Promise.all([
 
     requestAnimationFrame(update);
   }
+
+  // Hero mobile menu
+  const heroBtn   = document.getElementById('hero-hamburger');
+  const heroMenu  = document.getElementById('hero-mobile-menu');
+  const heroClose = document.getElementById('hero-menu-close');
+  heroBtn?.addEventListener('click',   () => heroMenu?.classList.add('open'));
+  heroClose?.addEventListener('click', () => heroMenu?.classList.remove('open'));
+  heroMenu?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => heroMenu.classList.remove('open')));
 </script>

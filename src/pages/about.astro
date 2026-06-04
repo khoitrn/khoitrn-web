@@ -17,9 +17,6 @@ const email = about?.email ?? 'khoi@tamu.edu';
   <div class="page-pad" style="min-height:100svh;">
     <div style="max-width:1100px; margin:0 auto;">
 
-      <!-- Back -->
-      <a href="/" class="back-link">khoitrn</a>
-
       <!-- Header -->
       <div class="about-header">
         <p class="animate-fade-up" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.25rem;">About</p>
@@ -76,20 +73,6 @@ const email = about?.email ?? 'khoi@tamu.edu';
 </Layout>
 
 <style>
-  .back-link {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.65rem;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-    text-decoration: none;
-    display: inline-block;
-    margin-bottom: clamp(3rem, 5vw, 5rem);
-    transition: color 0.4s;
-  }
-  .back-link:hover { color: var(--color-ink); }
-
   .about-header { margin-bottom: clamp(3rem, 6vw, 6rem); }
 
   /* Constrain prose font size to match the hardcoded style */

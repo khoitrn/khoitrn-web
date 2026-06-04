@@ -10,9 +10,6 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
   <div class="page-pad" style="min-height:100svh;">
     <div style="max-width:1100px; margin:0 auto;">
 
-      <!-- Back -->
-      <a href="/" class="back-link">khoitrn</a>
-
       <!-- Header -->
       <div style="margin-bottom:3.5rem;">
         <p class="animate-fade-up" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.25rem;">Writing</p>
@@ -70,21 +67,6 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
 </Layout>
 
 <style>
-  /* ── Back link ── */
-  .back-link {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.65rem;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-    text-decoration: none;
-    display: inline-block;
-    margin-bottom: 5rem;
-    transition: color 0.4s;
-  }
-  .back-link:hover { color: var(--color-ink); }
-
   /* ── Filter bar ── */
   #filter-bar {
     display: flex;

@@ -11,8 +11,6 @@ const updated = now?.updatedAt ? formatDate(now.updatedAt) : null;
   <div class="now-page page-pad">
     <div class="now-wrap">
 
-      <a href="/" class="back-link">khoitrn</a>
-
       <div class="now-header">
         <p class="animate-fade-up" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.25rem;">Now</p>
         <h1 class="animate-fade-up delay-1" style="font-family:var(--font-display); font-weight:300; font-size:clamp(2.25rem,5vw,3.5rem); line-height:1.1; letter-spacing:-0.02em; color:var(--color-ink);">
@@ -55,20 +53,6 @@ const updated = now?.updatedAt ? formatDate(now.updatedAt) : null;
     padding-bottom: 2rem;
     border-bottom: 1px solid var(--color-border);
   }
-  .back-link {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.65rem;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-    text-decoration: none;
-    display: inline-block;
-    margin-bottom: clamp(3rem, 5vw, 5rem);
-    transition: color 0.4s;
-  }
-  .back-link:hover { color: var(--color-ink); }
-
   @media (max-width: 640px) {
     :global(.prose) {
       font-size: 1.0625rem !important;

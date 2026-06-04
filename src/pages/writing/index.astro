@@ -3,7 +3,8 @@ import Layout from '../../layouts/Layout.astro';
 import { client, postsQuery, formatDateShort } from '../../lib/sanity';
 
 const posts = await client.fetch(postsQuery);
-const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.category).filter(Boolean)))];
+const hasVietnamese = posts.some((p: any) => p.language === 'vi');
+const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.category).filter(Boolean))) as string[]];
 ---
 
 <Layout title="Writing">
@@ -18,6 +19,17 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
         </div>
         <h1 class="animate-fade-up delay-1" style="font-family:var(--font-display); font-weight:300; font-size:clamp(2.25rem,6vw,5rem); line-height:1.05; letter-spacing:-0.025em; color:var(--color-ink);">Essays, notes,<br/>and thinking.</h1>
       </div>
+
+      <!-- Language toggle — only shown when Vietnamese posts exist -->
+      {hasVietnamese && (
+        <div id="lang-filter" class="animate-fade-up">
+          <button data-lang="all" class="lang-btn active">All</button>
+          <span class="lang-sep">·</span>
+          <button data-lang="en" class="lang-btn">EN</button>
+          <span class="lang-sep">·</span>
+          <button data-lang="vi" class="lang-btn">VI</button>
+        </div>
+      )}
 
       <!-- Category filter -->
       {categories.length > 1 && (
@@ -34,7 +46,7 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
           {posts.map((post: any, i: number) => (
             <>
               {i > 0 && (
-                <div class="post-divider" data-category={post.category}>
+                <div class="post-divider">
                   <span style="font-family:var(--font-display); font-weight:300; font-size:0.8rem; color:var(--color-border);">/</span>
                 </div>
               )}
@@ -42,6 +54,7 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
                 href={`/writing/${post.slug.current}`}
                 class="reveal post-item"
                 data-category={post.category}
+                data-language={post.language ?? 'en'}
                 style={`transition-delay:${i*60}ms;`}
               >
                 <span class="post-date">
@@ -59,7 +72,10 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
                     </div>
                   )}
                 </div>
-                <span class="post-category">{post.category}</span>
+                <span class="post-category">
+                  {post.category}
+                  {post.language === 'vi' && <span class="post-lang-vi">VI</span>}
+                </span>
               </a>
             </>
           ))}
@@ -73,7 +89,36 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
 </Layout>
 
 <style>
-  /* ── Filter bar ── */
+  /* ── Language toggle ── */
+  #lang-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 2rem;
+  }
+  .lang-btn {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.25s;
+  }
+  .lang-btn:hover { color: var(--color-ink); }
+  .lang-btn.active { color: var(--color-accent); }
+  .lang-sep {
+    font-size: 0.6rem;
+    color: var(--color-border);
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  /* ── Category filter ── */
   #filter-bar {
     display: flex;
     flex-wrap: wrap;
@@ -124,10 +169,8 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
     flex-direction: column;
     gap: 0.25rem;
   }
-  .post-read-time {
-    opacity: 0.55;
-    letter-spacing: 0.06em;
-  }
+  .post-read-time { opacity: 0.55; letter-spacing: 0.06em; }
+
   .post-title {
     font-family: var(--font-display);
     font-weight: 300;
@@ -144,12 +187,7 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
     line-height: 1.7;
     max-width: 54ch;
   }
-  .post-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.6rem;
-  }
+  .post-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; }
   .post-tag {
     font-family: var(--font-display);
     font-weight: 300;
@@ -159,6 +197,7 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
     color: var(--color-muted);
     opacity: 0.6;
   }
+
   .post-category {
     font-family: var(--font-display);
     font-weight: 300;
@@ -167,13 +206,23 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
     text-transform: uppercase;
     color: var(--color-muted);
     white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.3rem;
   }
+  .post-lang-vi {
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--color-accent);
+    opacity: 0.7;
+  }
+
   .post-item:hover .post-title { transform: translateX(8px); }
 
   /* ── Mobile ── */
   @media (max-width: 640px) {
     #filter-bar {
-      /* horizontal scroll on very small screens */
       flex-wrap: nowrap;
       overflow-x: auto;
       scrollbar-width: none;
@@ -184,16 +233,18 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
     #filter-bar::-webkit-scrollbar { display: none; }
 
     .post-item {
-      /* stack: hide date col, category moves below title */
       grid-template-columns: 1fr;
       gap: 0.35rem;
       padding: 1.75rem 0;
     }
     .post-date { display: none; }
     .post-category {
-      order: -1; /* show category label above title */
+      order: -1;
       font-size: 0.58rem;
       letter-spacing: 0.22em;
+      flex-direction: row;
+      align-items: center;
+      gap: 0.5rem;
     }
     .post-title { font-size: 1.15rem; }
     .post-excerpt { font-size: 0.9rem; max-width: 100%; }
@@ -201,19 +252,22 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
 </style>
 
 <script>
-  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
-  const items = document.querySelectorAll<HTMLElement>('.post-item');
+  const langBtns = document.querySelectorAll<HTMLButtonElement>('.lang-btn');
+  const catBtns  = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+  const items    = document.querySelectorAll<HTMLElement>('.post-item');
   const dividers = document.querySelectorAll<HTMLElement>('.post-divider');
 
-  function setActive(cat: string) {
-    buttons.forEach(btn => btn.classList.toggle('active', btn.dataset.filter === cat));
+  let activeLang = 'all';
+  let activeCat  = 'All';
 
+  function applyFilters() {
     items.forEach(item => {
-      const match = cat === 'All' || item.dataset.category === cat;
-      item.style.display = match ? '' : 'none';
+      const langOk = activeLang === 'all' || item.dataset.language === activeLang;
+      const catOk  = activeCat  === 'All' || item.dataset.category  === activeCat;
+      item.style.display = langOk && catOk ? '' : 'none';
     });
 
-    // rebuild dividers between visible posts only
+    // rebuild / slashes between visible posts only
     let lastVisible: HTMLElement | null = null;
     dividers.forEach(div => (div.style.display = 'none'));
     items.forEach(item => {
@@ -226,7 +280,23 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
     });
   }
 
-  const firstBtn = document.querySelector<HTMLButtonElement>('.filter-btn[data-filter="All"]');
-  if (firstBtn) firstBtn.classList.add('active');
-  buttons.forEach(btn => btn.addEventListener('click', () => setActive(btn.dataset.filter!)));
+  // Language toggle
+  langBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeLang = btn.dataset.lang!;
+      langBtns.forEach(b => b.classList.toggle('active', b === btn));
+      applyFilters();
+    });
+  });
+
+  // Category filter
+  const firstCat = document.querySelector<HTMLButtonElement>('.filter-btn[data-filter="All"]');
+  if (firstCat) firstCat.classList.add('active');
+  catBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeCat = btn.dataset.filter!;
+      catBtns.forEach(b => b.classList.toggle('active', b === btn));
+      applyFilters();
+    });
+  });
 </script>

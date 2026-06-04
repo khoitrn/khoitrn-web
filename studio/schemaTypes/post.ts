@@ -20,6 +20,19 @@ export default defineType({
       of: [{ type: 'string' }],
       options: { layout: 'tags' },
     }),
+    defineField({
+      name: 'language',
+      title: 'Language',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'English', value: 'en' },
+          { title: 'Tiếng Việt', value: 'vi' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'en',
+    }),
     defineField({ name: 'excerpt', type: 'text', rows: 2 }),
     defineField({ name: 'publishedAt', type: 'datetime', initialValue: () => new Date().toISOString() }),
     defineField({ name: 'body', type: 'array', of: [{ type: 'block' }, { type: 'image', options: { hotspot: true } }, { type: 'code' }] }),

@@ -47,7 +47,7 @@ export function formatDateShort(dateString: string): string {
 
 // Queries
 export const postsQuery = `*[_type == "post"] | order(publishedAt desc) {
-  _id, title, slug, excerpt, category, tags, publishedAt,
+  _id, title, slug, excerpt, category, language, tags, publishedAt,
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180)
 }`;
 
@@ -78,6 +78,6 @@ export const featuredProjectsQuery = `*[_type == "project" && featured == true] 
 }`;
 
 export const recentPostsQuery = `*[_type == "post"] | order(publishedAt desc)[0...3] {
-  _id, title, slug, excerpt, category, tags, publishedAt,
+  _id, title, slug, excerpt, category, language, tags, publishedAt,
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180)
 }`;

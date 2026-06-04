@@ -1,5 +1,16 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { client, aboutQuery, portableTextToHtml } from '../lib/sanity';
+
+const about = await client.fetch(aboutQuery);
+const bodyHtml = about?.body ? portableTextToHtml(about.body) : null;
+const headline = about?.headline ?? 'Student, founder, engineer.';
+const currentItems: string[] = about?.currentItems ?? [
+  'Studying at Texas A&M University',
+  "Building — ask me what's current",
+  'Writing here, thinking out loud',
+];
+const email = about?.email ?? 'khoi@tamu.edu';
 ---
 
 <Layout title="About">
@@ -12,7 +23,7 @@ import Layout from '../layouts/Layout.astro';
       <!-- Header -->
       <div class="about-header">
         <p class="animate-fade-up" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.25rem;">About</p>
-        <h1 class="animate-fade-up delay-1" style="font-family:var(--font-display); font-weight:300; font-size:clamp(2.25rem,6vw,5rem); line-height:1.05; letter-spacing:-0.025em; color:var(--color-ink);">Student, founder,<br/>engineer.</h1>
+        <h1 class="animate-fade-up delay-1" style="font-family:var(--font-display); font-weight:300; font-size:clamp(2.25rem,6vw,5rem); line-height:1.05; letter-spacing:-0.025em; color:var(--color-ink);" set:html={headline.replace(',', ',<br/>')}></h1>
       </div>
 
       <!-- Content grid -->
@@ -27,20 +38,26 @@ import Layout from '../layouts/Layout.astro';
 
         <!-- Text -->
         <div class="reveal" style="transition-delay:80ms;">
-          <p style="font-family:var(--font-body); font-size:clamp(1rem,2vw,1.125rem); color:var(--color-ink-soft); line-height:1.9; margin-bottom:1.75rem;">
-            I'm Khoi Tran — a student at Texas A&M University, building things at the intersection of technology, product, and entrepreneurship.
-          </p>
-          <p style="font-family:var(--font-body); font-size:1rem; color:var(--color-ink-soft); line-height:1.9; margin-bottom:1.75rem;">
-            I started writing code because I wanted to build things I cared about. That curiosity led me to engineering, then to product thinking, and eventually to starting companies.
-          </p>
-          <p style="font-family:var(--font-body); font-size:1rem; color:var(--color-muted); line-height:1.9; margin-bottom:4rem;">
-            I care deeply about craft — code that's readable, products that are intuitive, and writing that earns its reader's attention.
-          </p>
+          {bodyHtml ? (
+            <div class="prose about-prose" set:html={bodyHtml} />
+          ) : (
+            <>
+              <p style="font-family:var(--font-body); font-size:clamp(1rem,2vw,1.125rem); color:var(--color-ink-soft); line-height:1.9; margin-bottom:1.75rem;">
+                I'm Khoi Tran — a student at Texas A&M University, building things at the intersection of technology, product, and entrepreneurship.
+              </p>
+              <p style="font-family:var(--font-body); font-size:1rem; color:var(--color-ink-soft); line-height:1.9; margin-bottom:1.75rem;">
+                I started writing code because I wanted to build things I cared about. That curiosity led me to engineering, then to product thinking, and eventually to starting companies.
+              </p>
+              <p style="font-family:var(--font-body); font-size:1rem; color:var(--color-muted); line-height:1.9; margin-bottom:4rem;">
+                I care deeply about craft — code that's readable, products that are intuitive, and writing that earns its reader's attention.
+              </p>
+            </>
+          )}
 
           <!-- Currently -->
-          <p style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.75rem;">Currently</p>
+          <p style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.75rem; margin-top: 3rem;">Currently</p>
           <div>
-            {['Studying at Texas A&M University', 'Building — ask me what\'s current', 'Writing here, thinking out loud'].map((item, i) => (
+            {currentItems.map((item, i) => (
               <div style="display:flex; align-items:baseline; gap:1rem; padding:0.9rem 0;">
                 <span style="font-family:var(--font-display); font-weight:300; font-size:0.75rem; color:var(--color-border); flex-shrink:0;">{i > 0 ? '/' : ''}</span>
                 <span style="font-family:var(--font-body); font-size:0.95rem; color:var(--color-ink-soft); line-height:1.6;">{item}</span>
@@ -49,7 +66,7 @@ import Layout from '../layouts/Layout.astro';
           </div>
 
           <div style="margin-top:4rem; padding-top:3rem; border-top:1px solid var(--color-border);">
-            <a href="mailto:khoi@tamu.edu" style="font-family:var(--font-display); font-weight:300; font-size:0.7rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-accent)'">khoi@tamu.edu →</a>
+            <a href={`mailto:${email}`} style="font-family:var(--font-display); font-weight:300; font-size:0.7rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-accent)'">{email} →</a>
           </div>
         </div>
       </div>
@@ -74,4 +91,8 @@ import Layout from '../layouts/Layout.astro';
   .back-link:hover { color: var(--color-ink); }
 
   .about-header { margin-bottom: clamp(3rem, 6vw, 6rem); }
+
+  /* Constrain prose font size to match the hardcoded style */
+  .about-prose p { font-size: clamp(1rem, 2vw, 1.125rem); line-height: 1.9; margin-bottom: 1.75rem; }
+  .about-prose p:last-child { margin-bottom: 4rem; }
 </style>

@@ -8,5 +8,8 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    ssr: {
+      external: ['satori', '@resvg/resvg-wasm'],
+    },
   },
 });

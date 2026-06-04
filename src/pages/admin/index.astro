@@ -1,0 +1,422 @@
+---
+export const prerender = false;
+
+import { isAuthenticated } from '../../lib/admin-auth';
+
+const { DB, ADMIN_PASSWORD } = Astro.locals.runtime.env;
+
+if (!await isAuthenticated(Astro.request, ADMIN_PASSWORD)) {
+  return Astro.redirect('/admin/login');
+}
+
+// Subscriber stats
+const subStats = await DB.prepare(`
+  SELECT
+    COUNT(*) as total,
+    SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,
+    SUM(CASE WHEN status = 'unsubscribed' THEN 1 ELSE 0 END) as unsubscribed,
+    SUM(CASE WHEN subscribed_at > datetime('now', '-7 days') AND status = 'active' THEN 1 ELSE 0 END) as new_7d,
+    SUM(CASE WHEN subscribed_at > datetime('now', '-30 days') AND status = 'active' THEN 1 ELSE 0 END) as new_30d
+  FROM subscribers
+`).first<{ total: number; active: number; unsubscribed: number; new_7d: number; new_30d: number }>();
+
+// Page view stats
+const pvStats = await DB.prepare(`
+  SELECT
+    COUNT(*) as total,
+    SUM(CASE WHEN timestamp > datetime('now', '-1 day') THEN 1 ELSE 0 END) as today,
+    SUM(CASE WHEN timestamp > datetime('now', '-7 days') THEN 1 ELSE 0 END) as week,
+    SUM(CASE WHEN timestamp > datetime('now', '-30 days') THEN 1 ELSE 0 END) as month
+  FROM page_views
+`).first<{ total: number; today: number; week: number; month: number }>();
+
+// Top pages (last 30 days)
+const topPages = await DB.prepare(`
+  SELECT path, COUNT(*) as views
+  FROM page_views
+  WHERE timestamp > datetime('now', '-30 days')
+  GROUP BY path
+  ORDER BY views DESC
+  LIMIT 12
+`).all<{ path: string; views: number }>();
+
+// Top countries (last 30 days)
+const topCountries = await DB.prepare(`
+  SELECT country, COUNT(*) as views
+  FROM page_views
+  WHERE country IS NOT NULL AND timestamp > datetime('now', '-30 days')
+  GROUP BY country
+  ORDER BY views DESC
+  LIMIT 8
+`).all<{ country: string; views: number }>();
+
+// Daily views (last 14 days)
+const dailyViews = await DB.prepare(`
+  SELECT
+    strftime('%Y-%m-%d', timestamp) as day,
+    COUNT(*) as views
+  FROM page_views
+  WHERE timestamp > datetime('now', '-14 days')
+  GROUP BY day
+  ORDER BY day ASC
+`).all<{ day: string; views: number }>();
+
+// Recent subscribers
+const recentSubs = await DB.prepare(`
+  SELECT email, subscribed_at, status
+  FROM subscribers
+  ORDER BY subscribed_at DESC
+  LIMIT 10
+`).all<{ email: string; subscribed_at: string; status: string }>();
+
+function maskEmail(email: string): string {
+  const [local, domain] = email.split('@');
+  return `${local.slice(0, 2)}${'*'.repeat(Math.max(0, local.length - 2))}@${domain}`;
+}
+
+function fmtDate(d: string): string {
+  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+const maxViews = Math.max(...(dailyViews.results?.map(r => r.views) ?? [1]), 1);
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics — Khoi Tran</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: #0d0d0b;
+      color: #e8e4dc;
+      min-height: 100vh;
+      padding: 3rem clamp(1.5rem, 5vw, 4rem);
+    }
+
+    header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 3.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #222;
+    }
+
+    .site-label {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #444;
+    }
+
+    .page-title {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #666;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: #1c1c1a;
+      border: 1px solid #1c1c1a;
+      margin-bottom: 3rem;
+    }
+
+    .stat-cell {
+      background: #0d0d0b;
+      padding: 1.75rem 1.5rem;
+    }
+
+    .stat-label {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 0.75rem;
+    }
+
+    .stat-value {
+      font-family: 'Raleway', sans-serif;
+      font-weight: 300;
+      font-size: 2.25rem;
+      color: #e8e4dc;
+      letter-spacing: -0.02em;
+    }
+
+    .stat-sub {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #444;
+      margin-top: 0.4rem;
+    }
+
+    .section {
+      margin-bottom: 3rem;
+    }
+
+    .section-title {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #1c1c1a;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+    }
+
+    .chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 80px;
+      margin-bottom: 0.5rem;
+    }
+
+    .bar {
+      flex: 1;
+      background: #2a2a28;
+      border-radius: 2px 2px 0 0;
+      min-height: 2px;
+      transition: background 0.2s;
+    }
+    .bar:hover { background: #555; }
+
+    .chart-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.1em;
+      color: #333;
+    }
+
+    .row-table { width: 100%; border-collapse: collapse; }
+    .row-table tr { border-bottom: 1px solid #1c1c1a; }
+    .row-table tr:last-child { border-bottom: none; }
+    .row-table td {
+      padding: 0.75rem 0;
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+      color: #888;
+    }
+    .row-table td:first-child { color: #ccc; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .row-table td:last-child { text-align: right; color: #555; }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #1c1c1a;
+    }
+    .bar-row:last-child { border-bottom: none; }
+    .bar-label {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      color: #888;
+      width: 2.5rem;
+      flex-shrink: 0;
+    }
+    .bar-fill {
+      height: 4px;
+      background: #2a2a28;
+      border-radius: 2px;
+      flex: 1;
+    }
+    .bar-fill-inner {
+      height: 100%;
+      background: #555;
+      border-radius: 2px;
+    }
+    .bar-count {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      color: #444;
+      width: 2.5rem;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .sub-table { width: 100%; border-collapse: collapse; }
+    .sub-table th {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #333;
+      text-align: left;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #1c1c1a;
+    }
+    .sub-table td {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+      color: #666;
+      padding: 0.7rem 0;
+      border-bottom: 1px solid #111;
+    }
+    .sub-table td:first-child { color: #aaa; }
+    .sub-table .active { color: #4a7c59; }
+    .sub-table .unsubscribed { color: #5c3f3f; }
+
+    @media (max-width: 768px) {
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .grid-2 { grid-template-columns: 1fr; gap: 2rem; }
+    }
+    @media (max-width: 480px) {
+      .grid-4 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <span class="site-label">Khoi Tran</span>
+    <span class="page-title">Analytics</span>
+  </header>
+
+  <!-- Subscribers -->
+  <div class="section">
+    <p class="section-title">Subscribers</p>
+    <div class="grid-4">
+      <div class="stat-cell">
+        <p class="stat-label">Active</p>
+        <p class="stat-value">{subStats?.active ?? 0}</p>
+      </div>
+      <div class="stat-cell">
+        <p class="stat-label">New (7d)</p>
+        <p class="stat-value">{subStats?.new_7d ?? 0}</p>
+      </div>
+      <div class="stat-cell">
+        <p class="stat-label">New (30d)</p>
+        <p class="stat-value">{subStats?.new_30d ?? 0}</p>
+      </div>
+      <div class="stat-cell">
+        <p class="stat-label">Unsubscribed</p>
+        <p class="stat-value">{subStats?.unsubscribed ?? 0}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page Views -->
+  <div class="section">
+    <p class="section-title">Page Views</p>
+    <div class="grid-4">
+      <div class="stat-cell">
+        <p class="stat-label">Today</p>
+        <p class="stat-value">{pvStats?.today ?? 0}</p>
+      </div>
+      <div class="stat-cell">
+        <p class="stat-label">Last 7 days</p>
+        <p class="stat-value">{pvStats?.week ?? 0}</p>
+      </div>
+      <div class="stat-cell">
+        <p class="stat-label">Last 30 days</p>
+        <p class="stat-value">{pvStats?.month ?? 0}</p>
+      </div>
+      <div class="stat-cell">
+        <p class="stat-label">All time</p>
+        <p class="stat-value">{pvStats?.total ?? 0}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart + Countries -->
+  <div class="section grid-2">
+    <div>
+      <p class="section-title">Daily Views (14 days)</p>
+      <div class="chart">
+        {dailyViews.results?.map(r => (
+          <div
+            class="bar"
+            style={`height: ${Math.round((r.views / maxViews) * 100)}%`}
+            title={`${r.day}: ${r.views} views`}
+          ></div>
+        ))}
+      </div>
+      <div class="chart-labels">
+        {dailyViews.results && dailyViews.results.length > 0 && (
+          <>
+            <span>{dailyViews.results[0]?.day.slice(5)}</span>
+            <span>{dailyViews.results[dailyViews.results.length - 1]?.day.slice(5)}</span>
+          </>
+        )}
+      </div>
+    </div>
+
+    <div>
+      <p class="section-title">Countries (30d)</p>
+      {topCountries.results?.map(r => (
+        <div class="bar-row">
+          <span class="bar-label">{r.country}</span>
+          <div class="bar-fill">
+            <div class="bar-fill-inner" style={`width: ${Math.round((r.views / (topCountries.results?.[0]?.views ?? 1)) * 100)}%`}></div>
+          </div>
+          <span class="bar-count">{r.views}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- Top Pages -->
+  <div class="section">
+    <p class="section-title">Top Pages (30d)</p>
+    <table class="row-table">
+      {topPages.results?.map(r => (
+        <tr>
+          <td>{r.path}</td>
+          <td>{r.views} views</td>
+        </tr>
+      ))}
+    </table>
+  </div>
+
+  <!-- Recent Subscribers -->
+  <div class="section">
+    <p class="section-title">Recent Subscribers</p>
+    <table class="sub-table">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {recentSubs.results?.map(r => (
+          <tr>
+            <td>{maskEmail(r.email)}</td>
+            <td>{fmtDate(r.subscribed_at)}</td>
+            <td class={r.status}>{r.status}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+</body>
+</html>

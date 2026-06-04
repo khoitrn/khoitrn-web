@@ -1,0 +1,84 @@
+---
+export const prerender = false;
+
+const error = Astro.url.searchParams.get('error');
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Khoi Tran</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Georgia', serif;
+      background: #0d0d0b;
+      color: #e8e4dc;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      width: 100%;
+      max-width: 360px;
+      padding: 3rem 2.5rem;
+    }
+    .label {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #666;
+      display: block;
+      margin-bottom: 2rem;
+    }
+    input[type="password"] {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #333;
+      color: #e8e4dc;
+      font-family: 'Georgia', serif;
+      font-size: 1rem;
+      padding: 0.5rem 0;
+      outline: none;
+      margin-bottom: 2rem;
+    }
+    input[type="password"]:focus { border-bottom-color: #666; }
+    button {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #e8e4dc;
+      background: transparent;
+      border: 1px solid #333;
+      padding: 0.75rem 2rem;
+      cursor: pointer;
+      transition: border-color 0.3s;
+    }
+    button:hover { border-color: #666; }
+    .error {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #c0392b;
+      margin-bottom: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="label">Admin access</span>
+    {error && <p class="error">Incorrect password</p>}
+    <form method="POST" action="/api/admin/login">
+      <input type="password" name="password" placeholder="Password" autofocus autocomplete="current-password" />
+      <button type="submit">Enter</button>
+    </form>
+  </div>
+</body>
+</html>

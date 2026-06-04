@@ -74,19 +74,17 @@ const html = portableTextToHtml(post.body ?? []);
   .post-header {
     max-width: 720px;
     margin: 0 auto;
-    padding: 0 clamp(1rem, 5vw, 3rem) 4rem;
-    border-bottom: 1px solid var(--color-border);
+    padding: 0 clamp(1rem, 5vw, 3rem) 4.5rem;
   }
   .post-body-wrap {
     max-width: 720px;
     margin: 0 auto;
-    padding: 4rem clamp(1rem, 5vw, 3rem) 0;
+    padding: 4.5rem clamp(1rem, 5vw, 3rem) 0;
   }
   .post-footer {
     max-width: 720px;
-    margin: 5rem auto 0;
-    padding: 2.5rem clamp(1rem, 5vw, 3rem) 0;
-    border-top: 1px solid var(--color-border);
+    margin: 6rem auto 0;
+    padding: 0 clamp(1rem, 5vw, 3rem);
     display: flex;
     gap: 2.5rem;
   }
@@ -168,8 +166,8 @@ const html = portableTextToHtml(post.body ?? []);
     max-width: 720px;
     margin: 5rem auto 0;
     padding: 3rem clamp(1rem, 5vw, 3rem) 3.5rem;
-    border-top: 1px solid var(--color-border);
-    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
+    border-radius: 2px;
   }
   .takeaways-label {
     font-family: var(--font-display);

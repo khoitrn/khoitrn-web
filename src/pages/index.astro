@@ -180,14 +180,14 @@ const heroParagraph = settings?.heroParagraph ?? 'I build things and think about
 
   <section class="section-pad" style="background: var(--color-canvas);">
     <div class="content-wrap">
-      <div class="reveal" style="display:flex; align-items:baseline; justify-content:space-between; padding-bottom:1.25rem; margin-bottom:3.5rem; border-bottom:1px solid var(--color-border);">
+      <div class="reveal" style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4rem;">
         <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted);">Selected Work</span>
         <a href="/work" style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-accent)'">All projects →</a>
       </div>
       {projects.length > 0 ? (
         <div>
           {projects.map((item: any, i: number) => (
-            <a href={`/work/${item.slug.current}`} class="reveal row-link" style={`display:flex; align-items:baseline; justify-content:space-between; padding:1.75rem 0; border-bottom:1px solid var(--color-border); text-decoration:none; transition-delay:${i*70}ms;`}>
+            <a href={`/work/${item.slug.current}`} class="reveal row-link" style={`display:flex; align-items:baseline; justify-content:space-between; padding:2rem 0; text-decoration:none; transition-delay:${i*70}ms;`}>
               <span class="row-title" style="font-family:var(--font-display); font-weight:300; font-size:clamp(1.3rem,2.8vw,2rem); color:var(--color-ink); transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);">{item.title}</span>
               <span class="row-meta"><span>{item.category}</span><span>{item.year}</span></span>
             </a>
@@ -201,14 +201,14 @@ const heroParagraph = settings?.heroParagraph ?? 'I build things and think about
 
   <section class="section-pad" style="background: var(--color-surface);">
     <div class="content-wrap">
-      <div class="reveal" style="display:flex; align-items:baseline; justify-content:space-between; padding-bottom:1.25rem; margin-bottom:3.5rem; border-bottom:1px solid var(--color-border);">
+      <div class="reveal" style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4rem;">
         <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted);">Writing</span>
         <a href="/writing" style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-accent)'">All posts →</a>
       </div>
       {posts.length > 0 ? (
         <div>
           {posts.map((post: any, i: number) => (
-            <a href={`/writing/${post.slug.current}`} class="reveal row-link" style={`display:flex; align-items:baseline; justify-content:space-between; padding:1.75rem 0; border-bottom:1px solid var(--color-border); text-decoration:none; transition-delay:${i*70}ms;`}>
+            <a href={`/writing/${post.slug.current}`} class="reveal row-link" style={`display:flex; align-items:baseline; justify-content:space-between; padding:2rem 0; text-decoration:none; transition-delay:${i*70}ms;`}>
               <span class="row-title" style="font-family:var(--font-display); font-weight:300; font-size:clamp(1rem,2.2vw,1.55rem); color:var(--color-ink); transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);">{post.title}</span>
               <span class="row-meta">
                 <span>{post.category}</span>
@@ -360,7 +360,7 @@ const heroParagraph = settings?.heroParagraph ?? 'I build things and think about
   }
 
   /* Home footer */
-  .home-footer { border-top: 1px solid var(--color-border); }
+  .home-footer { margin-top: 2rem; }
   .home-footer-inner {
     max-width: 1100px;
     margin: 0 auto;

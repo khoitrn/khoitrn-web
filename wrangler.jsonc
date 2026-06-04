@@ -1,5 +1,12 @@
 {
 	"name": "khoitrn-web",
 	"compatibility_date": "2026-04-29",
-	"pages_build_output_dir": "./dist"
+	"pages_build_output_dir": "./dist",
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "khoitrn-analytics",
+			"database_id": "REPLACE_WITH_DATABASE_ID"
+		}
+	]
 }

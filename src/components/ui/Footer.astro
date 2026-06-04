@@ -1,4 +1,6 @@
 ---
+import SubscribeForm from './SubscribeForm.astro';
+
 const year = new Date().getFullYear();
 const links = [
   { href: 'https://github.com/khoitrn',         label: 'GitHub' },
@@ -8,23 +10,26 @@ const links = [
 ---
 
 <footer style="border-top: 1px solid var(--color-border); margin-top: 0;">
-  <div style="max-width: 1100px; margin: 0 auto; padding: 2.5rem 3rem; display: flex; align-items: center; justify-content: space-between;">
-    <p class="font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-muted)]">
-      © {year} Khoi Tran
-    </p>
-    <ul style="display: flex; gap: 2.5rem; list-style: none;">
-      {links.map(({ href, label }) => (
-        <li>
-          <a
-            href={href}
-            target={href.startsWith('http') ? '_blank' : undefined}
-            rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
-            class="font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors duration-500"
-          >
-            {label}
-          </a>
-        </li>
-      ))}
-    </ul>
+  <div style="max-width: 1100px; margin: 0 auto; padding: 3rem clamp(1.25rem, 4vw, 3rem);">
+    <SubscribeForm />
+    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 2rem; border-top: 1px solid var(--color-border); flex-wrap: wrap; gap: 1.25rem;">
+      <p class="font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-muted)]">
+        © {year} Khoi Tran
+      </p>
+      <ul style="display: flex; gap: 2.5rem; list-style: none;">
+        {links.map(({ href, label }) => (
+          <li>
+            <a
+              href={href}
+              target={href.startsWith('http') ? '_blank' : undefined}
+              rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
+              class="font-display font-light text-xs tracking-[0.2em] uppercase text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors duration-500"
+            >
+              {label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
   </div>
 </footer>

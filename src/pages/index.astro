@@ -98,15 +98,8 @@ const [projects, posts] = await Promise.all([
         onmouseout="this.style.color='rgba(255,255,255,0.5)'"
         >Khoi Tran</a>
 
-        <!-- Top-right: theme toggle (inside top bar) -->
-        <div style="position: absolute; top: 0; right: 0; height: 14svh; padding: 0 2.5rem; display: flex; align-items: center; pointer-events: auto;">
-          <button class="theme-toggle theme-toggle-hero" data-theme-toggle aria-label="Toggle theme">
-            <span data-theme-label>Light</span>
-          </button>
-        </div>
-
-        <!-- Left nav — vertically centered in the image window -->
-        <nav style="
+        <!-- Left nav — vertically centered in the image window (hidden on mobile) -->
+        <nav class="hero-left-nav" style="
           position: absolute;
           left: 2.5rem; top: 50%; transform: translateY(-50%);
           display: flex; flex-direction: column; gap: 1.75rem;
@@ -301,7 +294,7 @@ const [projects, posts] = await Promise.all([
   .footer-link:hover { color: var(--color-ink); }
 
   /* Mobile */
-  @media (max-width: 640px) {
+  @media (max-width: 768px) {
     .row-meta { display: none; }
     .row-title { max-width: 100% !important; }
   }

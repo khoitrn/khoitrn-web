@@ -28,9 +28,6 @@ const { pathname } = Astro.url;
           </li>
         ))}
       </ul>
-      <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme">
-        <span data-theme-label>Light</span>
-      </button>
     </div>
 
     <!-- Hamburger (mobile only) -->
@@ -50,10 +47,6 @@ const { pathname } = Astro.url;
   {links.map(({ href, label }) => (
     <a href={href}>{label}</a>
   ))}
-
-  <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme" style="margin-top: 1rem;">
-    <span data-theme-label>Light</span>
-  </button>
 </div>
 
 <script>

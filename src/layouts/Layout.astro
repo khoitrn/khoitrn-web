@@ -40,12 +40,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={new URL(image, Astro.site)} />
 
-    <!-- Anti-flash: set theme before render -->
+    <!-- Always dark mode -->
     <script is:inline>
-      (function() {
-        var t = localStorage.getItem('khoitrn-theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', t);
-      })();
+      document.documentElement.setAttribute('data-theme', 'dark');
     </script>
   </head>
   <body>
@@ -54,6 +51,19 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       <slot />
     </main>
     {!hideNav && <Footer />}
+
+    <script>
+      // ── Page view tracking ─────────────────
+      fetch('/api/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          path: window.location.pathname,
+          referrer: document.referrer || null,
+        }),
+        keepalive: true,
+      }).catch(() => {});
+    </script>
 
     <script>
       import Lenis from 'lenis';
@@ -76,27 +86,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       );
       document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
-      // ── Theme toggle ───────────────────────
-      function applyTheme(theme: string) {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('khoitrn-theme', theme);
-        document.querySelectorAll('[data-theme-label]').forEach(el => {
-          (el as HTMLElement).textContent = theme === 'dark' ? 'Light' : 'Dark';
-        });
-      }
-
-      document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const current = document.documentElement.getAttribute('data-theme') || 'dark';
-          applyTheme(current === 'dark' ? 'light' : 'dark');
-        });
-      });
-
-      // Set initial label
-      const current = document.documentElement.getAttribute('data-theme') || 'dark';
-      document.querySelectorAll('[data-theme-label]').forEach(el => {
-        (el as HTMLElement).textContent = current === 'dark' ? 'Light' : 'Dark';
-      });
     </script>
   </body>
 </html>

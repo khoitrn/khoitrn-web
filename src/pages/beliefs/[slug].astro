@@ -1,0 +1,139 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { beliefs } from '../../data/beliefs';
+
+export function getStaticPaths() {
+  return beliefs.map(b => ({ params: { slug: b.slug }, props: { belief: b } }));
+}
+
+const { belief } = Astro.props;
+const idx   = beliefs.findIndex(b => b.slug === belief.slug);
+const prev  = idx > 0               ? beliefs[idx - 1] : null;
+const next  = idx < beliefs.length - 1 ? beliefs[idx + 1] : null;
+---
+
+<Layout title={`${belief.num} — Khoi Tran`} description={belief.title}>
+  <div class="belief-page">
+
+    <a href="/beliefs" class="back animate-fade-up">← beliefs</a>
+
+    <article>
+      <header class="animate-fade-up delay-1">
+        <span class="belief-num">{belief.num}</span>
+        <h1 class="belief-title">{belief.title}</h1>
+      </header>
+
+      <div class="belief-body animate-fade-up delay-2">
+        {belief.body.map(para => <p>{para}</p>)}
+      </div>
+    </article>
+
+    <!-- Prev / next navigation -->
+    <nav class="belief-nav">
+      {prev && (
+        <a href={`/beliefs/${prev.slug}`} class="belief-nav-link belief-nav-prev">
+          <span class="nav-label">← {prev.num}</span>
+          <span class="nav-title">{prev.title}</span>
+        </a>
+      )}
+      {next && (
+        <a href={`/beliefs/${next.slug}`} class="belief-nav-link belief-nav-next">
+          <span class="nav-label">{next.num} →</span>
+          <span class="nav-title">{next.title}</span>
+        </a>
+      )}
+    </nav>
+
+  </div>
+</Layout>
+
+<style>
+  .belief-page {
+    padding: 5rem max(calc((100vw - 640px) / 2), 2rem) 8rem;
+  }
+
+  /* Back link */
+  .back {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-decoration: none;
+    margin-bottom: 4rem;
+    transition: color 0.4s;
+  }
+  .back:hover { color: var(--color-ink); }
+
+  /* Header */
+  header { margin-bottom: 3rem; }
+
+  .belief-num {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    color: var(--color-muted);
+    opacity: 0.45;
+    margin-bottom: 1.25rem;
+  }
+
+  .belief-title {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+  }
+
+  /* Body */
+  .belief-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.6em;
+  }
+  .belief-body p {
+    font-family: var(--font-body);
+    font-size: clamp(0.9375rem, 1.6vw, 1.0625rem);
+    color: var(--color-ink-soft);
+    line-height: 1.9;
+  }
+
+  /* Prev / next */
+  .belief-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-top: 6rem;
+    padding-top: 2.5rem;
+  }
+  .belief-nav-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    text-decoration: none;
+    max-width: 44%;
+    transition: opacity 0.3s;
+  }
+  .belief-nav-link:hover { opacity: 0.65; }
+  .belief-nav-next { align-items: flex-end; text-align: right; }
+
+  .nav-label {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+  .nav-title {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    line-height: 1.5;
+  }
+</style>

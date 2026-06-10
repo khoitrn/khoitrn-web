@@ -85,6 +85,18 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
       )}
 
     </div>
+
+    <!-- ◆ Philosophy — quiet corner, easy to miss -->
+    <div class="philosophy-corner">
+      <button class="philosophy-trigger" id="philosophy-trigger" aria-label="A note" title="">◆</button>
+      <div class="philosophy-body" id="philosophy-body" aria-hidden="true">
+        <p>I write to think. Not to record — to discover.</p>
+        <p>Most of what I publish is unfinished. I don't know the answer when I start. That's why I start.</p>
+        <p>I write because uncertainty makes me want to say something, and because saying it slowly turns it into something I can hold.</p>
+        <p>If something here lands with you, that's enough.</p>
+      </div>
+    </div>
+
   </div>
 </Layout>
 
@@ -249,6 +261,53 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
     .post-title { font-size: 1.15rem; }
     .post-excerpt { font-size: 0.9rem; max-width: 100%; }
   }
+
+  /* ◆ Philosophy corner */
+  .philosophy-corner {
+    margin-top: 6rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .philosophy-trigger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.45rem;
+    color: var(--color-muted);
+    opacity: 0.18;
+    padding: 0.5rem;
+    transition: opacity 0.6s;
+    user-select: none;
+    letter-spacing: 0;
+  }
+  .philosophy-trigger:hover { opacity: 0.45; }
+
+  .philosophy-body {
+    max-width: 38ch;
+    text-align: right;
+    margin-top: 1.75rem;
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1),
+                transform 0.7s cubic-bezier(0.16,1,0.3,1);
+  }
+  .philosophy-body.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .philosophy-body p {
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    line-height: 1.85;
+    color: var(--color-muted);
+    opacity: 0.65;
+    margin-bottom: 1em;
+    font-style: italic;
+  }
+  .philosophy-body p:last-child { margin-bottom: 0; }
 </style>
 
 <script>
@@ -298,5 +357,21 @@ const categories = ['All', ...Array.from(new Set(posts.map((p: any) => p.categor
       catBtns.forEach(b => b.classList.toggle('active', b === btn));
       applyFilters();
     });
+  });
+
+  // ◆ Philosophy toggle
+  const trigger = document.getElementById('philosophy-trigger');
+  const body    = document.getElementById('philosophy-body');
+  trigger?.addEventListener('click', () => {
+    const open = body?.classList.toggle('visible');
+    body?.setAttribute('aria-hidden', open ? 'false' : 'true');
+    if (trigger) trigger.style.opacity = open ? '0.55' : '';
+  });
+
+  // also toggle with 'p' key when not focused on input
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'p' && !['INPUT','TEXTAREA'].includes((e.target as HTMLElement).tagName)) {
+      trigger?.click();
+    }
   });
 </script>

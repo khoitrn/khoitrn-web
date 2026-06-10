@@ -1,0 +1,143 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { beliefs } from '../data/beliefs';
+---
+
+<Layout title="Beliefs — Khoi Tran" description="Things Khoi Tran believes.">
+  <div class="beliefs-page">
+
+    <header class="animate-fade-up">
+      <div class="diamond-header" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none" width="32" height="32" overflow="visible">
+          <path class="d-glow"  d="M16 0.5 L17.8 14.2 L31.5 16 L17.8 17.8 L16 31.5 L14.2 17.8 L0.5 16 L14.2 14.2 Z"/>
+          <path class="d-shape" d="M16 0.5 L17.8 14.2 L31.5 16 L17.8 17.8 L16 31.5 L14.2 17.8 L0.5 16 L14.2 14.2 Z"/>
+          <path class="d-inner" d="M16 6 L17.2 14.8 L26 16 L17.2 17.2 L16 26 L14.8 17.2 L6 16 L14.8 14.8 Z"/>
+        </svg>
+      </div>
+
+      <h1 class="animate-fade-up delay-1">beliefs.</h1>
+
+      <p class="intro animate-fade-up delay-2">
+        You were curious enough to click a small shining diamond on someone's website.
+        That probably says something good about you.
+        Here's what I actually think — click any one to read more.
+      </p>
+    </header>
+
+    <ol class="belief-list">
+      {beliefs.map((b, i) => (
+        <li class="reveal" style={`transition-delay: ${i * 60}ms`}>
+          <a href={`/beliefs/${b.slug}`} class="belief-link">
+            <span class="belief-num">{b.num}</span>
+            <span class="belief-text">{b.title}</span>
+            <span class="belief-arrow">↗</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+
+    <footer class="beliefs-footer animate-fade-up">
+      <a href="/" class="back">← home</a>
+    </footer>
+
+  </div>
+</Layout>
+
+<style>
+  .beliefs-page {
+    padding: 7rem max(calc((100vw - 640px) / 2), 2rem) 8rem;
+  }
+
+  header { margin-bottom: 5rem; }
+
+  .diamond-header { margin-bottom: 2rem; overflow: visible; }
+  .d-glow {
+    fill: none; stroke: var(--color-accent); stroke-width: 1.5;
+    opacity: 0; filter: blur(3px);
+    animation: d-pulse 3.5s ease-in-out infinite;
+  }
+  .d-shape {
+    fill: none; stroke: var(--color-accent); stroke-width: 1.2; stroke-linejoin: round;
+    animation: d-breathe 3.5s ease-in-out infinite;
+  }
+  .d-inner {
+    fill: none; stroke: var(--color-accent); stroke-width: 0.8; opacity: 0.4;
+    animation: d-breathe 3.5s ease-in-out infinite 0.4s;
+  }
+  @keyframes d-breathe { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.95; } }
+  @keyframes d-pulse   { 0%, 100% { opacity: 0;   } 50% { opacity: 0.55; } }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    line-height: 1;
+    margin-bottom: 1.75rem;
+  }
+  .intro {
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    color: var(--color-muted);
+    line-height: 1.85;
+    max-width: 46ch;
+  }
+
+  /* List */
+  .belief-list { list-style: none; padding: 0; margin: 0; }
+
+  .belief-link {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr 1.25rem;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 1.4rem 0;
+    text-decoration: none;
+    transition: opacity 0.3s;
+  }
+  .belief-link:hover { opacity: 0.7; }
+  .belief-link:hover .belief-text { transform: translateX(4px); }
+  .belief-link:hover .belief-arrow { opacity: 1; }
+
+  .belief-num {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    color: var(--color-muted);
+    opacity: 0.4;
+  }
+  .belief-text {
+    font-family: var(--font-body);
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
+    color: var(--color-ink-soft);
+    line-height: 1.6;
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+  }
+  .belief-arrow {
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    color: var(--color-accent);
+    opacity: 0;
+    transition: opacity 0.3s;
+    text-align: right;
+  }
+
+  .beliefs-footer { margin-top: 4rem; }
+  .back {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.65rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-decoration: none;
+    transition: color 0.4s;
+  }
+  .back:hover { color: var(--color-ink); }
+
+  @media (max-width: 600px) {
+    .belief-link { grid-template-columns: 2rem 1fr 1rem; gap: 0.75rem; }
+  }
+</style>

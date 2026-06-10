@@ -86,3 +86,11 @@ export const relatedPostsQuery = `*[_type == "post" && slug.current != $slug && 
   _id, title, slug, excerpt, category, publishedAt,
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180)
 }`;
+
+export const talksQuery = `*[_type == "talk"] | order(year desc) {
+  _id, title, slug, event, location, year, description, mediaUrl, thumbnail, featured
+}`;
+
+export const talkBySlugQuery = `*[_type == "talk" && slug.current == $slug][0] {
+  _id, title, slug, event, location, year, description, body, mediaUrl, thumbnail
+}`;

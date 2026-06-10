@@ -14,227 +14,155 @@ const heroParagraph = settings?.heroParagraph ?? 'I build things and think about
 
 <Layout title="Khoi Tran" hideNav={true}>
 
-  <!-- ═══════════════════════════════════════════════════
-    HERO SCROLL ZONE
-    200svh tall — hero sticks for the first 100svh of scroll.
-    Rectangle zooms out as user scrolls, then content is revealed.
-  ════════════════════════════════════════════════════════ -->
-  <!-- ═══════════════════════════════════════════════════
-    HERO — Tawaraya technique:
-    Image sits at the back (Layer 1).
-    Solid canvas bars overlay top + bottom (Layer 2).
-    Text and nav float above everything (Layer 3).
-    On scroll: bars shrink + image zooms out = cinematic reveal.
-  ════════════════════════════════════════════════════════ -->
-  <div id="hero-wrapper" style="height: 200svh; position: relative;">
-    <div id="hero-sticky" style="position: sticky; top: 0; height: 100svh; overflow: hidden;">
+  <!-- ── SHOJI PANELS (fixed, slide on scroll) ─────────────────── -->
+  <div id="panel-left"  class="shoji-panel" aria-hidden="true"><img src="/hero.svg" alt="" class="panel-img panel-img-left"  /></div>
+  <div id="panel-right" class="shoji-panel" aria-hidden="true"><img src="/hero.svg" alt="" class="panel-img panel-img-right" /></div>
 
-      <!-- LAYER 1 — Full viewport image (behind everything)
-           To swap in your photo:
-           1. Put the file in /public/hero.jpg
-           2. Add these two lines inside the style below:
-              background-image: url('/hero.jpg');
-              background-size: cover;
-              background-position: center;
-      -->
-      <div id="hero-bg" style="
-        position: absolute;
-        inset: -10%;
-        background-image: url('/hero.svg');
-        background-size: cover;
-        background-position: center;
-        background-color: #090907;
-        transform: scale(1.15);
-        transform-origin: center;
-        will-change: transform;
-        z-index: 1;
-      " aria-hidden="true"></div>
+  <!-- ── LEFT NAV — hidden during shoji, fades in as panels open ── -->
+  <nav id="hero-left-nav" class="hero-left-nav">
+    {[
+      { href: '/about',   label: 'about' },
+      { href: '/work',    label: 'work' },
+      { href: '/writing', label: 'writing' },
+      { href: '/talks',   label: 'talks' },
+    ].map(({ href, label }) => (
+      <a href={href} class="hero-nav-link"
+        onmouseover="this.style.color='rgba(255,255,255,0.92)'"
+        onmouseout="this.style.color='rgba(255,255,255,0.4)'"
+      >{label}</a>
+    ))}
 
-      <!-- Text protection vignette — ensures fonts are always readable over any photo -->
-      <div aria-hidden="true" style="
-        position: absolute; inset: 0; z-index: 2; pointer-events: none;
-        background:
-          linear-gradient(to right,  rgba(0,0,0,0.55) 0%, transparent 35%),
-          linear-gradient(to bottom, rgba(0,0,0,0.4)  0%, transparent 30%),
-          linear-gradient(to top,    rgba(0,0,0,0.6)  0%, transparent 45%),
-          radial-gradient(ellipse 80% 60% at 50% 60%, transparent 30%, rgba(0,0,0,0.35) 100%);
-      "></div>
+    <!-- Diamond — sits below nav links, links to beliefs page -->
+    <a href="/beliefs" class="hero-diamond-btn" aria-label="Beliefs">
+      <svg class="nav-star-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+        <path class="nav-star-glow"  d="M12 0.5 L13.5 10.5 L23.5 12 L13.5 13.5 L12 23.5 L10.5 13.5 L0.5 12 L10.5 10.5 Z"/>
+        <path class="nav-star-shape" d="M12 0.5 L13.5 10.5 L23.5 12 L13.5 13.5 L12 23.5 L10.5 13.5 L0.5 12 L10.5 10.5 Z"/>
+        <path class="nav-star-inner" d="M12 5.5 L13 11 L18.5 12 L13 13 L12 18.5 L11 13 L5.5 12 L11 11 Z"/>
+      </svg>
+    </a>
+  </nav>
 
-      <!-- Grain over image -->
-      <div aria-hidden="true" style="
-        position: absolute; inset: 0; z-index: 3; opacity: 0.03; pointer-events: none;
-        background-image: url(&quot;data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E&quot;);
-        background-size: 180px;
-      "></div>
+  <!-- ── HERO OVERLAY (name + tagline — fades out as panels open) ── -->
+  <div id="hero-overlay">
 
-      <!-- LAYER 2 — Solid bars masking top and bottom (the Tawaraya trick) -->
-      <div id="hero-bar-top" style="
-        position: absolute; top: 0; left: 0; right: 0;
-        height: 14svh;
-        background: #090907;
-        z-index: 10;
-        will-change: height;
-        transition: background 0.6s;
-      "></div>
-      <div id="hero-bar-bottom" style="
-        position: absolute; bottom: 0; left: 0; right: 0;
-        height: 14svh;
-        background: #090907;
-        z-index: 10;
-        will-change: height;
-        transition: background 0.6s;
-      "></div>
+    <button class="hero-hamburger" id="hero-hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
 
-      <!-- LAYER 3 — All content floats above bars -->
-      <div style="position: absolute; inset: 0; z-index: 20; pointer-events: none;">
-
-        <!-- Mobile hamburger — only visible on mobile since left nav is hidden -->
-        <button class="hero-hamburger" id="hero-hamburger" aria-label="Open menu">
-          <span></span><span></span><span></span>
-        </button>
-
-        <!-- Left nav — vertically centered in the image window (hidden on mobile) -->
-        <nav class="hero-left-nav" style="
-          position: absolute;
-          left: 2.5rem; top: 50%; transform: translateY(-50%);
-          display: flex; flex-direction: column; gap: 1.75rem;
-          pointer-events: auto;
-        ">
-          {[
-            { href: '/work',    label: 'Work' },
-            { href: '/writing', label: 'Writing' },
-            { href: '/about',   label: 'About' },
-          ].map(({ href, label }) => (
-            <a href={href} style="
-              font-family: var(--font-display); font-weight: 300;
-              font-size: 0.72rem; letter-spacing: 0.28em; text-transform: uppercase;
-              color: rgba(255,255,255,0.5); text-decoration: none; transition: color 0.5s;
-            "
-            onmouseover="this.style.color='rgba(255,255,255,0.92)'"
-            onmouseout="this.style.color='rgba(255,255,255,0.5)'"
-            >{label}</a>
-          ))}
-        </nav>
-
-        <!-- Center — name and tagline in the image window -->
-        <div style="
-          position: absolute; inset: 0;
-          display: flex; flex-direction: column;
-          align-items: center; justify-content: center;
-          text-align: center; padding: 14svh 2rem;
-        ">
-          <!-- Spotlight glow focused on the name -->
-          <div id="hero-spotlight" aria-hidden="true"></div>
-
-          <p style="
-            font-family: var(--font-display); font-weight: 300;
-            font-size: 0.65rem; letter-spacing: 0.4em; text-transform: uppercase;
-            color: rgba(255,255,255,0.32); margin-bottom: 1.75rem;
-          ">{heroTagline}</p>
-
-          <h1 id="hero-name" style="
-            font-family: var(--font-display); font-weight: 300;
-            font-size: clamp(3.5rem, 9vw, 8.5rem);
-            line-height: 1; letter-spacing: -0.025em;
-            color: rgba(255,255,255,0.95); margin-bottom: 1.75rem;
-            position: relative; z-index: 1;
-          ">Khoi Tran</h1>
-
-          <p style="
-            font-family: var(--font-body);
-            font-size: clamp(0.875rem, 1.4vw, 1rem);
-            line-height: 1.75; color: rgba(255,255,255,0.38); max-width: 36ch;
-            position: relative; z-index: 1;
-          ">{heroParagraph}</p>
-        </div>
-
-        <!-- Scroll hint (sits inside bottom bar) -->
-        <div id="hero-scroll-hint" style="
-          position: absolute; bottom: 0; right: 2.5rem;
-          height: 14svh; display: flex; align-items: center;
-          will-change: opacity;
-        ">
-          <span style="
-            font-family: var(--font-display); font-weight: 300;
-            font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase;
-            color: rgba(255,255,255,0.2);
-          ">Scroll</span>
-        </div>
-
-      </div>
+    <div class="hero-center-text">
+      <p class="hero-tagline">{heroTagline}</p>
+      <h1 class="hero-name">khoi tran</h1>
+      <p class="hero-para">{heroParagraph}</p>
     </div>
-  </div>
-  <!-- End hero -->
 
-  <!-- Mobile fullscreen nav (hero pages only, since Nav is hidden on homepage) -->
+    <div id="hero-scroll-hint">
+      <span>scroll</span>
+    </div>
+
+  </div>
+
+  <!-- ── MOBILE MENU ──────────────────────────────────────────── -->
   <div class="hero-mobile-menu" id="hero-mobile-menu">
-    <button class="hero-menu-close" id="hero-menu-close">Close</button>
-    <a href="/work">Work</a>
-    <a href="/writing">Writing</a>
-    <a href="/about">About</a>
+    <button class="hero-menu-close" id="hero-menu-close">close</button>
+    <a href="/work">work</a>
+    <a href="/writing">writing</a>
+    <a href="/talks">talks</a>
+    <a href="/about">about</a>
   </div>
 
-  <!-- ═══════════════════════════════
-    CONTENT — revealed after hero
-  ════════════════════════════════════ -->
+  <div class="content-wrap home-body">
 
-  <!-- Cloud divider — atmospheric breath between hero and content -->
-  <div class="cloud-divider" aria-hidden="true">
-    <img src="/clouds.svg" alt="" width="1200" height="160" />
-  </div>
+    <!-- 100vh spacer — panels open over this, about appears behind them -->
+    <div class="shoji-spacer" aria-hidden="true"></div>
 
-  <section class="section-pad" style="background: var(--color-canvas);">
-    <div class="content-wrap">
-      <div class="reveal" style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4rem;">
-        <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted);">Selected Work</span>
-        <a href="/work" style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-accent)'">All projects →</a>
+    <!-- ── About ── -->
+    <section class="home-section reveal">
+      <p class="about-text">I'm a student and founder based in Texas, building at the intersection of technology and product.</p>
+      <p class="about-sub">I care about the craft of making — code that's clean, products that are clear, and ideas that have earned their place.</p>
+
+      <!-- Status + links -->
+      <div class="status-row">
+        <span class="status-dot" id="status-dot" aria-hidden="true"></span>
+        <span class="status-time" id="status-time"></span>
+        <span class="status-sep">·</span>
+        <span class="status-loc">college station, tx</span>
       </div>
-      {projects.length > 0 ? (
-        <div>
-          {projects.map((item: any, i: number) => (
-            <a href={`/work/${item.slug.current}`} class="reveal row-link" style={`display:flex; align-items:baseline; justify-content:space-between; padding:2rem 0; text-decoration:none; transition-delay:${i*70}ms;`}>
-              <span class="row-title" style="font-family:var(--font-display); font-weight:300; font-size:clamp(1.3rem,2.8vw,2rem); color:var(--color-ink); transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);">{item.title}</span>
-              <span class="row-meta"><span>{item.category}</span><span>{item.year}</span></span>
-            </a>
-          ))}
+      <div class="social-links">
+        {[
+          { href: 'https://github.com/khoitrn',         label: 'github' },
+          { href: 'https://linkedin.com/in/khoitrn',    label: 'linkedin' },
+          { href: 'https://x.com/khoitrn',              label: 'x' },
+          { href: 'mailto:khoi@tamu.edu',               label: 'email' },
+        ].map(({ href, label }) => (
+          <a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel={href.startsWith('http') ? 'noopener noreferrer' : undefined} class="social-link">{label}</a>
+        ))}
+      </div>
+      <a href="/about" class="section-link">more about me →</a>
+    </section>
+
+
+    <!-- ── Currently ── -->
+    <section class="home-section reveal">
+      <span class="section-label">currently</span>
+      <p class="currently-text">Building products, writing more, and figuring out what it means to start something from scratch.</p>
+      <a href="/now" class="section-link">full now page →</a>
+    </section>
+
+
+    <!-- ── Work + Writing — 2-col ── -->
+    <section class="home-section reveal">
+      <div class="grid-work-writing">
+
+        <div class="work-col">
+          <div class="col-header">
+            <span class="section-label">work</span>
+            <a href="/work" class="col-link">all →</a>
+          </div>
+          {projects.length > 0 ? (
+            <div>
+              {projects.map((item: any, i: number) => (
+                <a href={`/work/${item.slug.current}`} class="col-row" style={`transition-delay:${i*70}ms;`}>
+                  <span class="col-row-title">{item.title}</span>
+                  <span class="col-row-meta"><span>{item.category}</span><span>{item.year}</span></span>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p class="empty-note">Projects coming soon.</p>
+          )}
         </div>
-      ) : (
-        <p style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--color-muted); padding:3rem 0;">Projects coming soon.</p>
-      )}
-    </div>
-  </section>
 
-  <section class="section-pad" style="background: var(--color-surface);">
-    <div class="content-wrap">
-      <div class="reveal" style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4rem;">
-        <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted);">Writing</span>
-        <a href="/writing" style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-accent)'">All posts →</a>
-      </div>
-      {posts.length > 0 ? (
-        <div>
-          {posts.map((post: any, i: number) => (
-            <a href={`/writing/${post.slug.current}`} class="reveal row-link" style={`display:flex; align-items:baseline; justify-content:space-between; padding:2rem 0; text-decoration:none; transition-delay:${i*70}ms;`}>
-              <span class="row-title" style="font-family:var(--font-display); font-weight:300; font-size:clamp(1rem,2.2vw,1.55rem); color:var(--color-ink); transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);">{post.title}</span>
-              <span class="row-meta">
-                <span>{post.category}</span>
-                <span>{formatDateShort(post.publishedAt)}</span>
-                {post.estimatedReadingTime ? <span>{post.estimatedReadingTime} min</span> : ''}
-              </span>
-            </a>
-          ))}
+        <div class="col-rule" aria-hidden="true"></div>
+
+        <div class="writing-col">
+          <div class="col-header">
+            <span class="section-label">writing</span>
+            <a href="/writing" class="col-link">all →</a>
+          </div>
+          {posts.length > 0 ? (
+            <div>
+              {posts.map((post: any, i: number) => (
+                <a href={`/writing/${post.slug.current}`} class="col-row" style={`transition-delay:${i*70}ms;`}>
+                  <span class="col-row-title">{post.title}</span>
+                  <span class="col-row-meta">
+                    <span>{post.category}</span>
+                    <span>{formatDateShort(post.publishedAt)}</span>
+                  </span>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p class="empty-note">Writing coming soon.</p>
+          )}
         </div>
-      ) : (
-        <p style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--color-muted); padding:3rem 0;">Writing coming soon.</p>
-      )}
-    </div>
-  </section>
 
-  <!-- Talks -->
-  <section class="section-pad talks-section" style="background: var(--color-canvas);">
-    <div class="content-wrap">
-      <div class="reveal" style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4rem;">
-        <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted);">Talks</span>
       </div>
+    </section>
+
+
+    <!-- ── Talks ── -->
+    <section id="talks" class="home-section reveal">
+      <span class="section-label" style="display:block; margin-bottom:3rem;">talks</span>
       <div>
         {[
           {
@@ -256,20 +184,15 @@ const heroParagraph = settings?.heroParagraph ?? 'I build things and think about
             description: "How to ship fast without cutting the things that matter, told through the mistakes I made building my first product.",
           },
         ].map((talk, i) => (
-          <div class={`reveal talk-row${i > 0 ? ' talk-row-border' : ''}`} style={`transition-delay:${i*70}ms;`}>
+          <div class={`talk-row${i > 0 ? ' talk-row-border' : ''}`}>
             <div class="talk-inner">
               <div class="talk-thumb-wrap">
                 {talk.youtubeId ? (
-                  <img
-                    src={`https://img.youtube.com/vi/${talk.youtubeId}/mqdefault.jpg`}
-                    alt={talk.title}
-                    class="talk-thumb"
-                    loading="lazy"
-                  />
+                  <img src={`https://img.youtube.com/vi/${talk.youtubeId}/mqdefault.jpg`} alt={talk.title} class="talk-thumb" loading="lazy" />
                 ) : (
                   <div class="talk-thumb-placeholder">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <polygon points="9,7 19,12 9,17" fill="currentColor" opacity="0.3"/>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                      <polygon points="9,7 19,12 9,17" fill="currentColor" opacity="0.25"/>
                     </svg>
                   </div>
                 )}
@@ -277,37 +200,21 @@ const heroParagraph = settings?.heroParagraph ?? 'I build things and think about
               <div class="talk-body">
                 <h3 class="talk-title">{talk.title}</h3>
                 <p class="talk-desc">{talk.description}</p>
-              </div>
-              <div class="talk-meta">
-                <span>{talk.event}</span>
-                <span class="talk-meta-sub">{talk.location} · {talk.year}</span>
-                {talk.duration && <span class="talk-meta-sub">{talk.duration}</span>}
-                {talk.youtubeId && (
-                  <a href={`https://www.youtube.com/watch?v=${talk.youtubeId}`} target="_blank" rel="noopener noreferrer" class="talk-watch-link">Watch →</a>
-                )}
+                <div class="talk-meta">
+                  <span>{talk.event} · {talk.location} · {talk.year}</span>
+                  {talk.youtubeId && (
+                    <a href={`https://www.youtube.com/watch?v=${talk.youtubeId}`} target="_blank" rel="noopener noreferrer" class="talk-watch-link">watch →</a>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         ))}
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="section-pad" style="background: var(--color-canvas);">
-    <div class="content-wrap grid-2col">
-      <div class="reveal">
-        <p style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted); margin-bottom:2.5rem;">About</p>
-        <p style="font-family:var(--font-body); font-size:1.1rem; color:var(--color-ink-soft); line-height:1.85; margin-bottom:1.25rem;">I'm a student and founder based in Texas, building at the intersection of technology and product.</p>
-        <p style="font-family:var(--font-body); font-size:0.95rem; color:var(--color-muted); line-height:1.85; margin-bottom:3rem;">I care about the craft of making — code that's clean, products that are clear, and ideas that have earned their place.</p>
-        <a href="/about" style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none;">More about me →</a>
-      </div>
-      <div class="reveal" style="transition-delay:120ms;">
-        <p style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted); margin-bottom:2.5rem;">Now</p>
-        <p style="font-family:var(--font-body); font-size:0.95rem; color:var(--color-muted); line-height:1.85; margin-bottom:3rem;">Currently focused on building products, writing more, and figuring out what it means to start something from scratch.</p>
-        <a href="/now" style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none;">What I'm doing now →</a>
-      </div>
-    </div>
-  </section>
+
+  </div>
 
   <footer class="home-footer">
     <div class="home-footer-inner">
@@ -323,17 +230,555 @@ const heroParagraph = settings?.heroParagraph ?? 'I build things and think about
 </Layout>
 
 <style>
-  /* Spotlight — radial glow focused on the name */
+  /* ── Shoji panels ── */
+  .shoji-panel {
+    position: fixed;
+    top: 0;
+    height: 100vh;
+    width: 50vw;
+    overflow: hidden;
+    will-change: transform;
+    z-index: 30;
+  }
+  #panel-left  { left: 0; }
+  #panel-right { right: 0; }
+
+  .panel-img {
+    position: absolute;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    pointer-events: none;
+  }
+  .panel-img-left  { left: 0; }
+  .panel-img-right { right: 0; }
+
+  /* Center seam line */
+  #panel-left::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 1px;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 2;
+  }
+
+  /* ── Hero overlay ── */
+  #hero-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    pointer-events: none;
+    will-change: opacity;
+  }
+
+  /* Left nav — separate fixed element, hidden during shoji, fades in when open */
+  .hero-left-nav {
+    position: fixed;
+    left: 2.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    z-index: 45;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1);
+  }
+  .hero-left-nav.nav-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .hero-nav-link {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.7rem;
+    letter-spacing: 0.28em;
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    transition: color 0.4s;
+  }
+
+  /* Diamond button below nav */
+  .hero-diamond-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-top: 0.75rem;
+    text-decoration: none;
+    overflow: visible;
+    position: relative;
+  }
+  .hero-diamond-btn::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    background: conic-gradient(from 0deg, transparent 0%, rgba(196,144,58,0.2) 15%, transparent 30%);
+    border-radius: 50%;
+    animation: nav-star-spin 6s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes nav-star-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  .nav-star-svg { width: 22px; height: 22px; overflow: visible; display: block; }
+  .nav-star-glow {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 1.5;
+    opacity: 0;
+    filter: blur(2.5px);
+    animation: nav-star-pulse 3.5s ease-in-out infinite;
+  }
+  .nav-star-shape {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 1.2;
+    stroke-linejoin: round;
+    animation: nav-star-breathe 3.5s ease-in-out infinite;
+  }
+  .nav-star-inner {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 0.8;
+    opacity: 0.4;
+    animation: nav-star-breathe 3.5s ease-in-out infinite 0.4s;
+  }
+  @keyframes nav-star-breathe {
+    0%, 100% { opacity: 0.35; }
+    50%       { opacity: 1; }
+  }
+  @keyframes nav-star-pulse {
+    0%, 100% { opacity: 0; }
+    50%       { opacity: 0.6; }
+  }
+  .hero-diamond-btn:hover .nav-star-shape,
+  .hero-diamond-btn:hover .nav-star-inner { opacity: 1; }
+
+  /* Center text — truly centered */
+  .hero-center-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 2rem;
+    pointer-events: none;
+  }
+  .hero-tagline {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.6rem;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.28);
+    margin-bottom: 1.25rem;
+  }
+  .hero-name {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(3.5rem, 8vw, 7.5rem);
+    line-height: 1;
+    letter-spacing: -0.025em;
+    color: rgba(255,255,255,0.95);
+    margin-bottom: 1.25rem;
+  }
+  .hero-para {
+    font-family: var(--font-body);
+    font-size: clamp(0.8rem, 1.2vw, 0.9375rem);
+    line-height: 1.75;
+    color: rgba(255,255,255,0.32);
+    max-width: 36ch;
+  }
+
+  /* Scroll hint */
+  #hero-scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    right: 2.5rem;
+    pointer-events: none;
+  }
+  #hero-scroll-hint span {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.58rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.18);
+  }
+
+  /* Hamburger */
+  .hero-hamburger {
+    display: none;
+    position: absolute;
+    top: 1.5rem; right: 1.75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    z-index: 1;
+    padding: 0.5rem;
+  }
+  .hero-hamburger span {
+    display: block;
+    width: 22px;
+    height: 1px;
+    background: rgba(255,255,255,0.5);
+  }
+
+  /* Mobile overlay menu */
+  .hero-mobile-menu {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--color-canvas);
+    z-index: 300;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+  }
+  .hero-mobile-menu.open { display: flex; }
+  .hero-mobile-menu a {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 2rem;
+    letter-spacing: 0.1em;
+    color: var(--color-ink);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .hero-mobile-menu a:hover { color: var(--color-accent); }
+  .hero-menu-close {
+    position: absolute;
+    top: 2rem; right: 1.75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-muted);
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+  .hero-menu-close:hover { color: var(--color-ink); }
+
+  /* Mobile: single panel + hide desktop nav */
+  @media (max-width: 768px) {
+    .hero-hamburger { display: flex; }
+    .hero-left-nav  { display: none !important; }
+    #panel-right    { display: none; }
+    #panel-left     { width: 100vw; }
+    #panel-left::after { display: none; }
+    .hero-center-text {
+      padding: 0 1.75rem;
+      align-items: center;
+    }
+  }
+
+  /* ── Content ── */
+  .shoji-spacer { height: 160vh; }
+
+  .home-body {
+    max-width: 640px;
+    padding-top: 0;
+    padding-bottom: 8rem;
+  }
+  .home-section { padding: 4rem 0; }
+
+  /* ── About ── */
+  .about-text {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--color-ink-soft);
+    line-height: 1.85;
+    margin-bottom: 0.85rem;
+  }
+  .about-sub {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    line-height: 1.85;
+    margin-bottom: 2rem;
+  }
+
+  /* Status row */
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    flex-shrink: 0;
+    transition: background 0.6s;
+  }
+  .status-dot.offline { background: var(--color-muted); opacity: 0.4; }
+  .status-time, .status-loc {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .status-sep { color: var(--color-border); }
+
+  .social-links {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+  }
+  .social-link {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-decoration: none;
+    transition: color 0.4s;
+  }
+  .social-link:hover { color: var(--color-ink); }
+
+  .section-link {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.65rem;
+    letter-spacing: 0.22em;
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color 0.4s;
+  }
+  .section-link:hover { color: var(--color-ink); }
+
+  .section-label {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    opacity: 0.7;
+  }
+
+  /* ── Currently ── */
+  .currently-text {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    line-height: 1.85;
+    margin: 1.25rem 0 1.75rem;
+  }
+
+  /* ── Work + Writing ── */
+  .grid-work-writing {
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+  }
+  .col-rule { display: none; }
+  .col-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+  .col-link {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color 0.4s;
+  }
+  .col-link:hover { color: var(--color-ink); }
+  .col-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 0;
+    text-decoration: none;
+    transition: opacity 0.3s;
+  }
+  .col-row:hover { opacity: 0.6; }
+  .col-row-title {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.9rem;
+    color: var(--color-ink);
+    line-height: 1.3;
+    flex: 1;
+    transition: transform 0.45s cubic-bezier(0.16,1,0.3,1);
+  }
+  .col-row:hover .col-row-title { transform: translateX(4px); }
+  .col-row-meta {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    display: flex;
+    gap: 1rem;
+    opacity: 0.6;
+    flex-shrink: 0;
+  }
+  .empty-note {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    padding: 2rem 0;
+    opacity: 0.6;
+  }
+
+  /* ── Talks ── */
+  .talk-row { padding: 2rem 0; }
+  .talk-row-border { margin-top: 1rem; }
+  .talk-inner {
+    display: grid;
+    grid-template-columns: 8rem 1fr;
+    gap: 1.75rem;
+    align-items: start;
+  }
+  .talk-thumb-wrap {
+    width: 8rem;
+    aspect-ratio: 16/9;
+    border-radius: 2px;
+    overflow: hidden;
+    background: var(--color-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .talk-thumb {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: grayscale(1);
+    opacity: 0.65;
+    transition: opacity 0.4s, filter 0.4s;
+  }
+  .talk-row:hover .talk-thumb { opacity: 0.85; filter: grayscale(0.3); }
+  .talk-thumb-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--color-muted);
+  }
+  .talk-title {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(0.95rem, 1.8vw, 1.25rem);
+    color: var(--color-ink);
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+    transition: transform 0.45s cubic-bezier(0.16,1,0.3,1);
+  }
+  .talk-row:hover .talk-title { transform: translateX(4px); }
+  .talk-desc {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    line-height: 1.7;
+  }
+  .talk-meta {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-top: 0.6rem;
+    opacity: 0.6;
+  }
+  .talk-watch-link {
+    color: var(--color-accent);
+    text-decoration: none;
+    opacity: 1;
+    transition: color 0.3s;
+  }
+  .talk-watch-link:hover { color: var(--color-ink); }
+
+  /* ── Footer ── */
+  .home-footer { margin-top: 0; }
+  .home-footer-inner {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 2.5rem clamp(1.25rem, 4vw, 3rem);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    border-top: 1px solid var(--color-border);
+  }
+  .footer-copy {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .footer-links { display: flex; gap: 2rem; flex-wrap: wrap; }
+  .footer-link {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-decoration: none;
+    transition: color 0.4s;
+  }
+  .footer-link:hover { color: var(--color-ink); }
+
+  @media (max-width: 680px) {
+    .home-body { padding-bottom: 5rem; }
+    .home-section { padding: 3rem 0; }
+    .talk-inner { grid-template-columns: 1fr; gap: 1rem; }
+    .talk-thumb-wrap { width: 100%; }
+    .social-links { gap: 1.25rem; flex-wrap: wrap; }
+  }
+
+  /* ── Cloud divider (removed — spacer handles transition) ── */
+  .cloud-divider { display: none; }
+
+  /* ── Spotlight ── kept for potential future use */
   #hero-spotlight {
     position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -52%);
-    width: min(720px, 95vw);
-    height: 320px;
-    background: radial-gradient(ellipse at center,
-      rgba(255, 252, 240, 0.11) 0%,
-      rgba(196, 144, 58, 0.06) 35%,
+    left: -2rem;
+    top: -1rem;
+    width: min(560px, 90vw);
+    height: 260px;
+    background: radial-gradient(ellipse at 20% 60%,
+      rgba(255, 252, 240, 0.09) 0%,
+      rgba(196, 144, 58, 0.05) 40%,
       transparent 70%
     );
     pointer-events: none;
@@ -342,8 +787,8 @@ const heroParagraph = settings?.heroParagraph ?? 'I build things and think about
     animation: spotlight-breathe 4.5s ease-in-out infinite;
   }
   @keyframes spotlight-breathe {
-    0%, 100% { filter: blur(0px)  brightness(0.85); }
-    50%       { filter: blur(4px) brightness(1.15); }
+    0%, 100% { filter: blur(0px)  brightness(0.9); }
+    50%       { filter: blur(6px) brightness(1.1); }
   }
 
   /* Hero hamburger — only shown on mobile */
@@ -412,15 +857,254 @@ const heroParagraph = settings?.heroParagraph ?? 'I build things and think about
   }
   .hero-menu-close:hover { color: var(--color-ink); }
 
-  /* Cloud divider */
+  /* ── Home body container — narrow reading column ── */
+  .home-body {
+    max-width: 640px;
+    padding-top: 5rem;
+    padding-bottom: 8rem;
+  }
+  .home-section {
+    padding: 3.5rem 0;
+  }
+  .home-rule {
+    height: 1px;
+    background: var(--color-border);
+    opacity: 0.45;
+  }
+
+  /* ── About ── */
+  .about-text {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--color-ink-soft);
+    line-height: 1.85;
+    margin-bottom: 0.85rem;
+  }
+  .about-sub {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    line-height: 1.85;
+    margin-bottom: 2rem;
+  }
+
+  /* Status row */
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+  }
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    flex-shrink: 0;
+    transition: background 0.6s;
+  }
+  .status-dot.offline { background: var(--color-muted); opacity: 0.5; }
+  .status-time, .status-loc {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .status-sep { color: var(--color-border); font-size: 0.7rem; }
+
+  /* Social links */
+  .social-links {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+  }
+  .social-link {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-decoration: none;
+    transition: color 0.4s;
+  }
+  .social-link:hover { color: var(--color-ink); }
+
+  .section-link {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.65rem;
+    letter-spacing: 0.22em;
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color 0.4s;
+  }
+  .section-link:hover { color: var(--color-ink); }
+
+  .section-label {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    opacity: 0.7;
+  }
+
+  /* ── Currently ── */
+  .currently-text {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    line-height: 1.85;
+    margin: 1.25rem 0 1.75rem;
+  }
+
+  /* ── Work + Writing — single column at reading width ── */
+  .grid-work-writing {
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+  }
+  .col-rule { display: none; }
+  .col-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+  .col-link {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color 0.4s;
+  }
+  .col-link:hover { color: var(--color-ink); }
+  .col-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 0;
+    text-decoration: none;
+    transition: opacity 0.3s;
+  }
+  .col-row:hover { opacity: 0.65; }
+  .col-row-title {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.9rem;
+    color: var(--color-ink);
+    line-height: 1.3;
+    transition: transform 0.45s cubic-bezier(0.16,1,0.3,1);
+    flex: 1;
+  }
+  .col-row:hover .col-row-title { transform: translateX(4px); }
+  .col-row-meta {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    display: flex;
+    gap: 1rem;
+    opacity: 0.6;
+    flex-shrink: 0;
+  }
+  .empty-note {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    padding: 2rem 0;
+    opacity: 0.6;
+  }
+
+  /* ── Talks ── */
+  .talk-row { padding: 2rem 0; }
+  .talk-row-border { margin-top: 1rem; }
+  .talk-inner {
+    display: grid;
+    grid-template-columns: 8rem 1fr;
+    gap: 1.75rem;
+    align-items: start;
+  }
+  .talk-thumb-wrap {
+    width: 10rem;
+    aspect-ratio: 16/9;
+    border-radius: 2px;
+    overflow: hidden;
+    background: var(--color-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .talk-thumb {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: grayscale(1); opacity: 0.65;
+    transition: opacity 0.4s, filter 0.4s;
+  }
+  .talk-row:hover .talk-thumb { opacity: 0.85; filter: grayscale(0.3); }
+  .talk-thumb-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--color-muted);
+  }
+  .talk-title {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    color: var(--color-ink);
+    line-height: 1.3;
+    margin-bottom: 0.65rem;
+    transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+  }
+  .talk-row:hover .talk-title { transform: translateX(6px); }
+  .talk-desc {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    line-height: 1.7;
+    max-width: 50ch;
+  }
+  .talk-meta {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-top: 0.6rem;
+    opacity: 0.65;
+  }
+  .talk-watch-link {
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color 0.3s;
+    opacity: 1;
+  }
+  .talk-watch-link:hover { color: var(--color-ink); }
+
+  /* ── Cloud divider ── */
   .cloud-divider {
     width: 100%;
     overflow: hidden;
     line-height: 0;
     margin-top: -2rem;
-    padding: 0 0 1rem;
-    color: var(--color-ink);
-    opacity: 0.5;
+    padding-bottom: 0;
     pointer-events: none;
     user-select: none;
   }
@@ -429,130 +1113,15 @@ const heroParagraph = settings?.heroParagraph ?? 'I build things and think about
     height: auto;
     display: block;
     filter: brightness(0) invert(1);
-    opacity: 0.4;
+    opacity: 0.35;
   }
   [data-theme="light"] .cloud-divider img {
     filter: brightness(0);
-    opacity: 0.15;
+    opacity: 0.12;
   }
 
-  /* Talks */
-  .talk-row {
-    padding: 2.5rem 0;
-  }
-  .talk-row-border {
-    border-top: 1px solid var(--color-border);
-  }
-  .talk-inner {
-    display: grid;
-    grid-template-columns: 11rem 1fr auto;
-    gap: 3rem;
-    align-items: start;
-  }
-  .talk-thumb-wrap {
-    width: 11rem;
-    aspect-ratio: 16 / 9;
-    border-radius: 2px;
-    overflow: hidden;
-    background: var(--color-surface);
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .talk-thumb {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: grayscale(1);
-    opacity: 0.7;
-    transition: opacity 0.4s, filter 0.4s;
-  }
-  .talk-row:hover .talk-thumb { opacity: 0.9; filter: grayscale(0.4); }
-  .talk-thumb-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-muted);
-  }
-  .talk-body {
-    flex: 1;
-  }
-  .talk-title {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: clamp(1.05rem, 2.2vw, 1.55rem);
-    color: var(--color-ink);
-    line-height: 1.3;
-    margin-bottom: 0.75rem;
-    transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
-  }
-  .talk-row:hover .talk-title { transform: translateX(8px); }
-  .talk-desc {
-    font-family: var(--font-body);
-    font-size: 0.875rem;
-    color: var(--color-muted);
-    line-height: 1.7;
-    max-width: 52ch;
-  }
-  .talk-meta {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.65rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.4rem;
-    white-space: nowrap;
-    flex-shrink: 0;
-    padding-top: 0.15rem;
-  }
-  .talk-meta-sub { opacity: 0.6; letter-spacing: 0.12em; }
-  .talk-watch-link {
-    color: var(--color-accent);
-    text-decoration: none;
-    transition: color 0.3s;
-    margin-top: 0.5rem;
-  }
-  .talk-watch-link:hover { color: var(--color-ink); }
-
-  @media (max-width: 768px) {
-    .talk-inner {
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-    .talk-thumb-wrap { width: 100%; aspect-ratio: 16/9; }
-    .talk-meta {
-      align-items: flex-start;
-      flex-direction: row;
-      flex-wrap: wrap;
-      gap: 0.5rem 1.5rem;
-    }
-  }
-
-  .row-link:hover .row-title { transform: translateX(10px); }
-
-  /* Row meta — category + year/date on the right */
-  .row-meta {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.68rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-    display: flex;
-    gap: 2.5rem;
-    flex-shrink: 0;
-    margin-left: 2rem;
-  }
-
-  /* Home footer */
-  .home-footer { margin-top: 2rem; }
+  /* ── Home footer ── */
+  .home-footer { margin-top: 0; }
   .home-footer-inner {
     max-width: 1100px;
     margin: 0 auto;
@@ -562,6 +1131,7 @@ const heroParagraph = settings?.heroParagraph ?? 'I build things and think about
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 1.25rem;
+    border-top: 1px solid var(--color-border);
   }
   .footer-copy {
     font-family: var(--font-display);
@@ -585,65 +1155,106 @@ const heroParagraph = settings?.heroParagraph ?? 'I build things and think about
   .footer-link:hover { color: var(--color-ink); }
 
   /* Mobile */
-  @media (max-width: 768px) {
-    .row-meta { display: none; }
-    .row-title { max-width: 100% !important; }
+  @media (max-width: 680px) {
+    .home-body { padding-top: 2.5rem; padding-bottom: 5rem; }
+    .home-section { padding: 2.5rem 0; }
+    .talk-inner { grid-template-columns: 1fr; gap: 1rem; }
+    .talk-thumb-wrap { width: 100%; }
+    .social-links { gap: 1.25rem; flex-wrap: wrap; }
   }
 </style>
 
 <script>
   import Lenis from 'lenis';
 
-  const bg         = document.getElementById('hero-bg') as HTMLElement;
-  const barTop     = document.getElementById('hero-bar-top') as HTMLElement;
-  const barBot     = document.getElementById('hero-bar-bottom') as HTMLElement;
-  const scrollHint = document.getElementById('hero-scroll-hint') as HTMLElement;
-  const spotlight  = document.getElementById('hero-spotlight') as HTMLElement;
+  // ── Shoji panel animation ──────────────────────────────────
+  const panelL  = document.getElementById('panel-left')    as HTMLElement;
+  const panelR  = document.getElementById('panel-right')   as HTMLElement;
+  const overlay = document.getElementById('hero-overlay')  as HTMLElement;
+  const leftNav = document.getElementById('hero-left-nav') as HTMLElement;
+  const hint    = document.getElementById('hero-scroll-hint') as HTMLElement;
 
-  if (bg && barTop && barBot) {
-    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-    let cur = 0;
+  const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+  let cur = 0;
+  let done = false;
 
-    function update() {
-      const raw = Math.max(0, Math.min(window.scrollY / window.innerHeight, 1));
-      cur = lerp(cur, raw, 0.09);
-      const p = cur;
+  function updateShoji() {
+    if (done) return;
 
-      // Bars: shrink from 14svh → 7svh (narrower letterbox as image opens up)
-      const barH = lerp(14, 7, p);
-      barTop.style.height = `${barH}svh`;
-      barBot.style.height = `${barH}svh`;
+    const raw  = Math.max(0, Math.min(window.scrollY / (window.innerHeight * 1.6), 1));
+    cur = lerp(cur, raw, 0.048);
+    const p = cur;
 
-      // Image: zoom out from 1.15 → 1.0
-      bg.style.transform = `scale(${lerp(1.15, 1.0, p)})`;
+    const mobile = window.innerWidth <= 768;
 
-      // Sync bar color with theme
-      const canvasBg = getComputedStyle(document.documentElement).getPropertyValue('--color-canvas').trim();
-      barTop.style.background = canvasBg;
-      barBot.style.background = canvasBg;
-
-      // Scroll hint fades out
-      if (scrollHint) scrollHint.style.opacity = Math.max(0, 1 - p * 5).toString();
-
-      // Spotlight: brighten as hero opens, fade as it exits
-      if (spotlight) {
-        const intensity = p < 0.25
-          ? 1 + p * 1.2        // grow brighter during first quarter of scroll
-          : 1.3 - (p - 0.25) * 1.8; // then fade
-        spotlight.style.setProperty('--scroll-intensity', Math.max(0, intensity).toString());
-      }
-
-      requestAnimationFrame(update);
+    if (mobile) {
+      panelL.style.transform = `translateY(${-p * 105}%)`;
+    } else {
+      panelL.style.transform = `translateX(${-p * 105}%)`;
+      if (panelR) panelR.style.transform = `translateX(${p * 105}%)`;
     }
 
-    requestAnimationFrame(update);
+    // Name/tagline fades OUT as panels open
+    overlay.style.opacity = Math.max(0, 1 - p * 2.4).toString();
+
+    // Left nav: show when panels are mostly open, hide when nearly closed
+    const showNav = raw > 0.5;
+    leftNav.classList.toggle('nav-open', showNav);
+
+    // Scroll hint fades early
+    if (hint) hint.style.opacity = Math.max(0, 1 - p * 6).toString();
+
+    if (p > 1.02 && raw > 1.02) {
+      done = true;
+      panelL.style.display = 'none';
+      if (panelR) panelR.style.display = 'none';
+      overlay.style.display = 'none';
+      return;
+    }
+
+    requestAnimationFrame(updateShoji);
   }
 
-  // Hero mobile menu
+  window.addEventListener('scroll', () => {
+    if (done && window.scrollY < window.innerHeight * 0.08) {
+      done = false;
+      panelL.style.display = '';
+      if (panelR) panelR.style.display = '';
+      overlay.style.display = '';
+      requestAnimationFrame(updateShoji);
+    }
+  }, { passive: true });
+
+  requestAnimationFrame(updateShoji);
+
+  // Lenis smooth scroll
+  new Lenis({ autoRaf: true });
+
+  // ── Mobile menu ────────────────────────────────────────────
   const heroBtn   = document.getElementById('hero-hamburger');
   const heroMenu  = document.getElementById('hero-mobile-menu');
   const heroClose = document.getElementById('hero-menu-close');
   heroBtn?.addEventListener('click',   () => heroMenu?.classList.add('open'));
   heroClose?.addEventListener('click', () => heroMenu?.classList.remove('open'));
-  heroMenu?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => heroMenu.classList.remove('open')));
+  heroMenu?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => heroMenu?.classList.remove('open')));
+
+  // ── CST clock ──────────────────────────────────────────────
+  const timeEl = document.getElementById('status-time') as HTMLElement | null;
+  const dotEl  = document.getElementById('status-dot')  as HTMLElement | null;
+
+  function updateClock() {
+    const now = new Date();
+    const cst = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Chicago',
+      hour: 'numeric', minute: '2-digit', hour12: true,
+    }).format(now);
+    const hour = parseInt(new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Chicago', hour: 'numeric', hour12: false,
+    }).format(now), 10);
+    if (timeEl) timeEl.textContent = cst + ' cst';
+    if (dotEl)  dotEl.classList.toggle('offline', !(hour >= 8 && hour < 23));
+  }
+
+  updateClock();
+  setInterval(updateClock, 30_000);
 </script>

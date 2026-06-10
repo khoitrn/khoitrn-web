@@ -25,3 +25,9 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Server-only files (need Cloudflare adapter — excluded from static build)
+src/pages/api/
+src/pages/admin/
+src/lib/admin-auth.ts
+migrations/

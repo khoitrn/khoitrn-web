@@ -81,3 +81,8 @@ export const recentPostsQuery = `*[_type == "post"] | order(publishedAt desc)[0.
   _id, title, slug, excerpt, category, language, tags, publishedAt,
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180)
 }`;
+
+export const relatedPostsQuery = `*[_type == "post" && slug.current != $slug && category == $category] | order(publishedAt desc)[0...3] {
+  _id, title, slug, excerpt, category, publishedAt,
+  "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180)
+}`;

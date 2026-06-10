@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { client, postsQuery, postBySlugQuery, portableTextToHtml, formatDate } from '../../lib/sanity';
+import { client, postsQuery, postBySlugQuery, relatedPostsQuery, portableTextToHtml, formatDate, formatDateShort } from '../../lib/sanity';
 
 export async function getStaticPaths() {
   const posts = await client.fetch(postsQuery);
@@ -12,6 +12,9 @@ const post = await client.fetch(postBySlugQuery, { slug });
 if (!post) return Astro.redirect('/writing');
 
 const html = portableTextToHtml(post.body ?? []);
+const related = post.category
+  ? await client.fetch(relatedPostsQuery, { slug, category: post.category })
+  : [];
 ---
 
 <Layout title={post.title} description={post.excerpt} image={`/og/${post.slug.current}.png`}>
@@ -59,6 +62,28 @@ const html = portableTextToHtml(post.body ?? []);
           ))}
         </ul>
       </aside>
+    )}
+
+    <!-- Related -->
+    {related.length > 0 && (
+      <section class="related-wrap reveal">
+        <p class="related-label">related</p>
+        <div class="related-list">
+          {related.map((r: any, i: number) => (
+            <>
+              {i > 0 && <div class="related-divider" />}
+              <a href={`/writing/${r.slug.current}`} class="related-item">
+                <span class="related-meta">
+                  {formatDateShort(r.publishedAt)}
+                  {r.estimatedReadingTime ? <span class="related-read-time">· {r.estimatedReadingTime} min</span> : ''}
+                </span>
+                <span class="related-title">{r.title}</span>
+                {r.excerpt && <span class="related-excerpt">{r.excerpt}</span>}
+              </a>
+            </>
+          ))}
+        </div>
+      </section>
     )}
 
     <!-- Footer nav -->
@@ -208,6 +233,65 @@ const html = portableTextToHtml(post.body ?? []);
     line-height: 1.8;
     color: var(--color-ink-soft);
     display: block;
+  }
+
+  /* ── Related ── */
+  .related-wrap {
+    max-width: 720px;
+    margin: 6rem auto 0;
+    padding: 0 clamp(1rem, 5vw, 3rem);
+  }
+  .related-label {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.6rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    opacity: 0.7;
+    margin-bottom: 2rem;
+  }
+  .related-list {
+    display: flex;
+    flex-direction: column;
+  }
+  .related-divider {
+    height: 1px;
+    background: var(--color-border);
+    opacity: 0.4;
+  }
+  .related-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 1.75rem 0;
+    text-decoration: none;
+    transition: opacity 0.3s;
+  }
+  .related-item:hover { opacity: 0.7; }
+  .related-meta {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: var(--color-muted);
+  }
+  .related-read-time { opacity: 0.55; }
+  .related-title {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(1rem, 2.5vw, 1.35rem);
+    color: var(--color-ink);
+    line-height: 1.3;
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+  }
+  .related-item:hover .related-title { transform: translateX(6px); }
+  .related-excerpt {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    line-height: 1.65;
+    max-width: 54ch;
   }
 
   /* ── Mobile reading (Kindle-feel) ── */

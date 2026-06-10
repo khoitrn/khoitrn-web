@@ -178,6 +178,11 @@ const heroParagraph = settings?.heroParagraph ?? 'I build things and think about
     CONTENT — revealed after hero
   ════════════════════════════════════ -->
 
+  <!-- Cloud divider — atmospheric breath between hero and content -->
+  <div class="cloud-divider" aria-hidden="true">
+    <img src="/clouds.svg" alt="" width="1200" height="160" />
+  </div>
+
   <section class="section-pad" style="background: var(--color-canvas);">
     <div class="content-wrap">
       <div class="reveal" style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4rem;">
@@ -224,6 +229,70 @@ const heroParagraph = settings?.heroParagraph ?? 'I build things and think about
     </div>
   </section>
 
+  <!-- Talks -->
+  <section class="section-pad talks-section" style="background: var(--color-canvas);">
+    <div class="content-wrap">
+      <div class="reveal" style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4rem;">
+        <span style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--color-muted);">Talks</span>
+      </div>
+      <div>
+        {[
+          {
+            title: "Building Products at the Edge of Uncertainty",
+            event: "Texas A&M Engineering Symposium",
+            location: "College Station, TX",
+            year: "2024",
+            duration: "20 min",
+            youtubeId: null,
+            description: "On the process of making decisions when you don't have all the information — and why that's the only way to build anything worth building.",
+          },
+          {
+            title: "From Zero to Launch: A Student Founder's Playbook",
+            event: "Startup Week Houston",
+            location: "Houston, TX",
+            year: "2023",
+            duration: "25 min",
+            youtubeId: null,
+            description: "How to ship fast without cutting the things that matter, told through the mistakes I made building my first product.",
+          },
+        ].map((talk, i) => (
+          <div class={`reveal talk-row${i > 0 ? ' talk-row-border' : ''}`} style={`transition-delay:${i*70}ms;`}>
+            <div class="talk-inner">
+              <div class="talk-thumb-wrap">
+                {talk.youtubeId ? (
+                  <img
+                    src={`https://img.youtube.com/vi/${talk.youtubeId}/mqdefault.jpg`}
+                    alt={talk.title}
+                    class="talk-thumb"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="talk-thumb-placeholder">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <polygon points="9,7 19,12 9,17" fill="currentColor" opacity="0.3"/>
+                    </svg>
+                  </div>
+                )}
+              </div>
+              <div class="talk-body">
+                <h3 class="talk-title">{talk.title}</h3>
+                <p class="talk-desc">{talk.description}</p>
+              </div>
+              <div class="talk-meta">
+                <span>{talk.event}</span>
+                <span class="talk-meta-sub">{talk.location} · {talk.year}</span>
+                {talk.duration && <span class="talk-meta-sub">{talk.duration}</span>}
+                {talk.youtubeId && (
+                  <a href={`https://www.youtube.com/watch?v=${talk.youtubeId}`} target="_blank" rel="noopener noreferrer" class="talk-watch-link">Watch →</a>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
   <section class="section-pad" style="background: var(--color-canvas);">
     <div class="content-wrap grid-2col">
       <div class="reveal">
@@ -264,7 +333,7 @@ const heroParagraph = settings?.heroParagraph ?? 'I build things and think about
     height: 320px;
     background: radial-gradient(ellipse at center,
       rgba(255, 252, 240, 0.11) 0%,
-      rgba(178, 242, 0, 0.05) 35%,
+      rgba(196, 144, 58, 0.06) 35%,
       transparent 70%
     );
     pointer-events: none;
@@ -342,6 +411,129 @@ const heroParagraph = settings?.heroParagraph ?? 'I build things and think about
     transition: color 0.3s;
   }
   .hero-menu-close:hover { color: var(--color-ink); }
+
+  /* Cloud divider */
+  .cloud-divider {
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    margin-top: -2rem;
+    padding: 0 0 1rem;
+    color: var(--color-ink);
+    opacity: 0.5;
+    pointer-events: none;
+    user-select: none;
+  }
+  .cloud-divider img {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: brightness(0) invert(1);
+    opacity: 0.4;
+  }
+  [data-theme="light"] .cloud-divider img {
+    filter: brightness(0);
+    opacity: 0.15;
+  }
+
+  /* Talks */
+  .talk-row {
+    padding: 2.5rem 0;
+  }
+  .talk-row-border {
+    border-top: 1px solid var(--color-border);
+  }
+  .talk-inner {
+    display: grid;
+    grid-template-columns: 11rem 1fr auto;
+    gap: 3rem;
+    align-items: start;
+  }
+  .talk-thumb-wrap {
+    width: 11rem;
+    aspect-ratio: 16 / 9;
+    border-radius: 2px;
+    overflow: hidden;
+    background: var(--color-surface);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .talk-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1);
+    opacity: 0.7;
+    transition: opacity 0.4s, filter 0.4s;
+  }
+  .talk-row:hover .talk-thumb { opacity: 0.9; filter: grayscale(0.4); }
+  .talk-thumb-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-muted);
+  }
+  .talk-body {
+    flex: 1;
+  }
+  .talk-title {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(1.05rem, 2.2vw, 1.55rem);
+    color: var(--color-ink);
+    line-height: 1.3;
+    margin-bottom: 0.75rem;
+    transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+  }
+  .talk-row:hover .talk-title { transform: translateX(8px); }
+  .talk-desc {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    line-height: 1.7;
+    max-width: 52ch;
+  }
+  .talk-meta {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-top: 0.15rem;
+  }
+  .talk-meta-sub { opacity: 0.6; letter-spacing: 0.12em; }
+  .talk-watch-link {
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color 0.3s;
+    margin-top: 0.5rem;
+  }
+  .talk-watch-link:hover { color: var(--color-ink); }
+
+  @media (max-width: 768px) {
+    .talk-inner {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    .talk-thumb-wrap { width: 100%; aspect-ratio: 16/9; }
+    .talk-meta {
+      align-items: flex-start;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.5rem;
+    }
+  }
 
   .row-link:hover .row-title { transform: translateX(10px); }
 

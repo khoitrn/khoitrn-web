@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" fill="none">
+  <style>
+    .ink { fill: #1C1C1A; }
+    @media (prefers-color-scheme: dark) { .ink { fill: #EEEEE4; } }
+  </style>
+
+  <!--
+    "ktrn" brush calligraphy wordmark
+    Each letter drawn as a brush stroke sequence
+    Proportions: loose, organic, lowercase — matching the site's personality
+    Total width ~320px at 80px cap height
+  -->
+
+  <!-- ─── k ──────────────────────────────────────── -->
+  <!-- Stem -->
+  <path class="ink" d="
+    M 18 10 C 15 9 12 11 12 15
+    L 12 70 C 12 74 15 76 18 75
+    C 21 76 24 74 24 70
+    L 24 17 C 24 12 21 9 18 10 Z
+  "/>
+  <!-- Upper arm thin -->
+  <path class="ink" d="
+    M 24 34 L 24 29 L 58 12
+    C 60 11 62 12 61 15
+    C 60 17 28 35 26 36 Z
+  "/>
+  <!-- Lower arm thick -->
+  <path class="ink" d="
+    M 24 44 L 20 40
+    L 58 72 C 60 74 60 77 57 77
+    C 55 77 52 75 50 73
+    L 24 50 Z
+  "/>
+
+  <!-- ─── t ──────────────────────────────────────── -->
+  <!-- Stem — slightly compressed, starts at crossbar height -->
+  <path class="ink" d="
+    M 94 22 C 91 21 88 23 88 27
+    L 88 68 C 88 72 91 74 94 73
+    C 97 74 100 72 100 68
+    L 100 27 C 100 23 97 21 94 22 Z
+  "/>
+  <!-- Crossbar — thin horizontal, extends left and right -->
+  <path class="ink" d="
+    M 70 30 C 70 28 72 26 74 27
+    L 114 27 C 116 27 118 29 117 31
+    C 116 33 114 33 112 32
+    L 72 32 C 70 32 69 31 70 30 Z
+  "/>
+
+  <!-- ─── r ──────────────────────────────────────── -->
+  <!-- Stem -->
+  <path class="ink" d="
+    M 148 36 C 145 35 142 37 142 41
+    L 142 70 C 142 74 145 76 148 75
+    C 151 76 154 74 154 70
+    L 154 45 C 154 41 151 35 148 36 Z
+  "/>
+  <!-- Shoulder — brush arc curving up and right, lifted -->
+  <path class="ink" d="
+    M 154 42
+    C 158 35 168 28 178 27
+    C 181 26 183 28 182 31
+    C 181 33 178 33 176 34
+    C 168 35 160 40 156 46
+    Z
+  "/>
+
+  <!-- ─── n ──────────────────────────────────────── -->
+  <!-- First stem -->
+  <path class="ink" d="
+    M 208 36 C 205 35 202 37 202 41
+    L 202 70 C 202 74 205 76 208 75
+    C 211 76 214 74 214 70
+    L 214 41 C 214 37 211 35 208 36 Z
+  "/>
+  <!-- Arch — brush arc connecting to second stem -->
+  <path class="ink" d="
+    M 214 42
+    C 218 35 228 28 238 28
+    C 244 28 248 32 249 38
+    L 249 70 C 249 74 252 76 255 75
+    C 258 76 261 74 261 70
+    L 261 38 C 261 28 252 18 238 18
+    C 224 18 216 28 214 38
+    Z
+  "/>
+  <!-- Second stem -->
+  <path class="ink" d="
+    M 249 38 C 249 34 252 32 255 33
+    C 258 32 261 34 261 38
+    L 261 70 C 261 74 258 76 255 75
+    C 252 76 249 74 249 70 Z
+  "/>
+
+</svg>

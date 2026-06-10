@@ -5,44 +5,54 @@
   </style>
 
   <!--
-    Calligraphic "k" — broad-nib pen at ~35°
-    Stroke logic:
-      Stem        → medium (pen at angle to vertical)
-      Upper arm   → thin  (pen narrow edge faces this direction)
-      Lower arm   → thick (pen broad edge faces this direction)
+    Brush-style "k" — single expressive character
+    Inspired by East Asian brush calligraphy (一筆書き):
+    heavy entry, taper out, ink-loaded stem, lifted arm ends
   -->
 
-  <!-- ── STEM ── -->
+  <!-- STEM — brush loaded at top, lifting at bottom -->
+  <!-- Entry: wide and blunt (brush set down hard)   -->
+  <!-- Exit:  slight taper (brush lifting off)        -->
   <path class="ink" d="
-    M 44 15
-    C 44 13 48 12 50 13
-    L 52 14
-    C 54 15 54 17 54 19
-    L 54 109
-    C 54 112 51 114 49 113
-    C 47 114 44 112 44 109
+    M 34 16
+    C 30 14 27 16 27 20
+    L 27 104
+    C 27 109 30 113 34 113
+    C 36 114 39 113 41 112
+    C 43 111 45 109 45 106
+    L 45 22
+    C 45 18 40 14 34 16
     Z
   "/>
 
-  <!-- ── UPPER ARM — thin hairline diagonal ── -->
+  <!-- UPPER ARM — hairline thin (brush on its side) -->
+  <!-- Starts fat where it meets the stem, tapers to nothing -->
   <path class="ink" d="
-    M 54 54
-    L 54 48
-    L 96 16
-    C 98 14 101 15 100 18
-    C 99 20 58 54 56 56
+    M 45 50
+    C 45 46 48 44 52 42
+    L 90 18
+    C 93 16 96 17 95 21
+    C 94 23 90 25 87 27
+    L 50 53
+    C 47 55 45 53 45 50
     Z
   "/>
 
-  <!-- ── LOWER ARM — thick descending diagonal ── -->
+  <!-- LOWER ARM — thick descending stroke (brush broad face) -->
+  <!-- Heavy at stem junction, bold all the way, ink-pool at tip -->
   <path class="ink" d="
-    M 54 66
-    L 48 60
-    L 96 108
-    C 98 110 98 114 95 115
-    C 92 116 88 114 86 112
-    L 54 74
+    M 45 68
+    C 45 64 42 62 39 62
+    L 35 63
+    C 35 63 55 82 82 108
+    C 86 112 90 115 92 114
+    C 95 113 96 110 94 107
+    C 92 105 62 76 48 62
+    C 48 62 47 66 45 68
     Z
   "/>
+
+  <!-- INK POOL at tip of lower arm — brush lifted with a small blob -->
+  <ellipse class="ink" cx="91" cy="112" rx="5" ry="4" transform="rotate(-45 91 112)" opacity="0.7"/>
 
 </svg>

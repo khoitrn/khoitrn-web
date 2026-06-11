@@ -146,7 +146,4 @@
   <rect x="0" y="0"    width="1920" height="90"  fill="#000000" opacity="0.55"/>
   <rect x="0" y="990"  width="1920" height="90"  fill="#000000" opacity="0.65"/>
 
-  <!-- Grain -->
-  <rect width="1920" height="1080" fill="url(#grain)" opacity="0.025"/>
-
 </svg>

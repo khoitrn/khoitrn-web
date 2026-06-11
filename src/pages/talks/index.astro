@@ -70,29 +70,25 @@ const talkYear = (t: any) => (t.date ? new Date(t.date).getFullYear() : '');
               <!-- Description -->
               {talk.description && <p class="talk-desc">{talk.description}</p>}
 
-              <!-- Thumbnail — full width, below text -->
-              {thumb && (
-                <div class="talk-thumb">
-                  {href ? (
-                    <a href={href} target="_blank" rel="noopener noreferrer" class="thumb-wrap" aria-label={`Watch ${talk.title}`}>
-                      <img src={thumb} alt={talk.title} loading="lazy" />
-                      <span class="thumb-play" aria-hidden="true">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                          <polygon points="8,5 20,12 8,19" fill="currentColor"/>
-                        </svg>
-                      </span>
-                    </a>
-                  ) : <img src={thumb} alt={talk.title} loading="lazy" />}
+              <!-- Inline embed — click poster to play on-site -->
+              {ytId ? (
+                <div class="talk-embed" data-yt={ytId}>
+                  <button class="talk-embed-poster" type="button" aria-label={`Play ${talk.title}`}>
+                    <img src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`} alt={talk.title} loading="lazy" />
+                    <span class="talk-play-btn" aria-hidden="true">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><polygon points="8,5 20,12 8,19" fill="currentColor"/></svg>
+                    </span>
+                  </button>
                 </div>
-              )}
+              ) : thumb ? (
+                <div class="talk-embed"><img src={thumb} alt={talk.title} loading="lazy" style="width:100%;height:100%;object-fit:cover;" /></div>
+              ) : null}
 
-              <!-- Event line + CTA -->
+              <!-- Event line -->
               <div class="talk-footer">
                 <span class="talk-event">{talk.event}{talk.location ? ` · ${talk.location}` : ''}</span>
-                {href && (
-                  <a href={href} target="_blank" rel="noopener noreferrer" class="talk-cta">
-                    {ytId ? 'watch on youtube' : 'view recording'} →
-                  </a>
+                {href && !ytId && (
+                  <a href={href} target="_blank" rel="noopener noreferrer" class="talk-cta">view recording →</a>
                 )}
               </div>
 
@@ -186,44 +182,46 @@ const talkYear = (t: any) => (t.date ? new Date(t.date).getFullYear() : '');
     margin-bottom: 2rem;
   }
 
-  /* Thumbnail — full container width */
-  .talk-thumb {
-    width: 100%;
-    aspect-ratio: 16/9;
-    border-radius: 2px;
-    overflow: hidden;
-    background: var(--color-surface);
-    margin-bottom: 1.5rem;
-  }
-  .thumb-wrap {
-    display: block;
+  /* Inline embed — full container width */
+  .talk-embed {
     position: relative;
     width: 100%;
-    height: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 3px;
+    overflow: hidden;
+    background: #000;
+    margin-bottom: 1.5rem;
   }
-  .talk-thumb img {
-    width: 100%;
-    height: 100%;
+  .talk-embed-poster {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    padding: 0; border: none; cursor: pointer;
+    background: #000; display: block;
+  }
+  .talk-embed-poster img {
+    width: 100%; height: 100%;
     object-fit: cover;
-    filter: grayscale(0.5);
-    opacity: 0.85;
-    transition: filter 0.5s, opacity 0.5s;
+    filter: grayscale(0.4);
+    opacity: 0.82;
+    transition: filter 0.5s, opacity 0.5s, transform 0.6s cubic-bezier(0.16,1,0.3,1);
     display: block;
   }
-  .talk-item:hover .talk-thumb img { filter: grayscale(0); opacity: 1; }
-
-  .thumb-play {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0,0,0,0.25);
-    opacity: 0;
-    transition: opacity 0.3s;
-    color: rgba(255,255,255,0.9);
+  .talk-embed-poster:hover img { filter: grayscale(0); opacity: 1; transform: scale(1.02); }
+  .talk-play-btn {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
   }
-  .thumb-wrap:hover .thumb-play { opacity: 1; }
+  .talk-play-btn svg {
+    width: 54px; height: 54px;
+    padding: 14px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(2px);
+    transition: background 0.3s, transform 0.3s, color 0.3s;
+  }
+  .talk-embed-poster:hover .talk-play-btn svg { background: var(--color-accent); color: #000; transform: scale(1.05); }
+  .talk-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
   /* Event + CTA row */
   .talk-footer {
@@ -261,3 +259,21 @@ const talkYear = (t: any) => (t.date ? new Date(t.date).getFullYear() : '');
     .talk-footer { flex-direction: column; gap: 0.75rem; }
   }
 </style>
+
+<script>
+  // Click poster → inline YouTube embed (plays on-site)
+  document.querySelectorAll<HTMLElement>('.talk-embed[data-yt]').forEach(wrap => {
+    const btn = wrap.querySelector('.talk-embed-poster');
+    btn?.addEventListener('click', () => {
+      const id = wrap.dataset.yt;
+      if (!id) return;
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.allowFullscreen = true;
+      iframe.title = 'Talk video';
+      wrap.innerHTML = '';
+      wrap.appendChild(iframe);
+    });
+  });
+</script>

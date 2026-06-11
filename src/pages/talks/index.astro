@@ -18,19 +18,20 @@ function thumbUrl(talk: any): string | null {
 const fallback = [
   {
     _id: '1', title: 'Building Products at the Edge of Uncertainty',
-    event: 'Texas A&M Engineering Symposium', location: 'College Station, TX', year: '2024',
+    event: 'Texas A&M Engineering Symposium', location: 'College Station, TX', date: '2024-01-01',
     description: 'On the process of making decisions when you don\'t have all the information — and why that\'s the only way to build anything worth building.',
     mediaUrl: null, thumbnail: null,
   },
   {
     _id: '2', title: 'From Zero to Launch: A Student Founder\'s Playbook',
-    event: 'Startup Week Houston', location: 'Houston, TX', year: '2023',
+    event: 'Startup Week Houston', location: 'Houston, TX', date: '2023-01-01',
     description: 'How to ship fast without cutting the things that matter, told through the mistakes I made building my first product.',
     mediaUrl: null, thumbnail: null,
   },
 ];
 
 const items = talks.length > 0 ? talks : fallback;
+const talkYear = (t: any) => (t.date ? new Date(t.date).getFullYear() : '');
 ---
 
 <Layout title="Talks — Khoi Tran" description="Talks and presentations by Khoi Tran.">
@@ -56,7 +57,7 @@ const items = talks.length > 0 ? talks : fallback;
               <!-- Index + year line -->
               <div class="talk-index-row">
                 <span class="talk-num">0{i + 1}</span>
-                <span class="talk-year">{talk.year}</span>
+                <span class="talk-year">{talkYear(talk)}</span>
               </div>
 
               <!-- Title -->

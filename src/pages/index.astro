@@ -23,6 +23,7 @@ function ytId(url: string | null | undefined): string | null {
 const homeTalks = (allTalks ?? []).slice(0, 3).map((t: any) => ({
   ...t,
   youtubeId: ytId(t.mediaUrl),
+  year: t.date ? new Date(t.date).getFullYear() : '',
 }));
 ---
 

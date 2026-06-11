@@ -9,7 +9,14 @@ export default defineType({
     defineField({ name: 'slug', type: 'slug', options: { source: 'title' }, validation: r => r.required() }),
     defineField({ name: 'event', title: 'Event / Conference', type: 'string', validation: r => r.required() }),
     defineField({ name: 'location', type: 'string' }),
-    defineField({ name: 'year', type: 'string', validation: r => r.required() }),
+    defineField({
+      name: 'date',
+      title: 'Talk date',
+      description: 'When you gave the talk. Controls the order on the site (newest first) and the year shown.',
+      type: 'date',
+      options: { dateFormat: 'MMMM D, YYYY' },
+      validation: r => r.required(),
+    }),
     defineField({
       name: 'description',
       title: 'Brief description',
@@ -37,10 +44,13 @@ export default defineType({
       options: { hotspot: true },
     }),
     defineField({ name: 'featured', type: 'boolean', initialValue: false }),
-    defineField({ name: 'publishedAt', type: 'datetime', initialValue: () => new Date().toISOString() }),
   ],
   preview: {
-    select: { title: 'title', subtitle: 'event' },
+    select: { title: 'title', subtitle: 'event', date: 'date' },
+    prepare({ title, subtitle, date }) {
+      const year = date ? new Date(date).getFullYear() : '';
+      return { title, subtitle: [subtitle, year].filter(Boolean).join(' · ') };
+    },
   },
-  orderings: [{ title: 'Year, newest', name: 'yearDesc', by: [{ field: 'year', direction: 'desc' }] }],
+  orderings: [{ title: 'Date, newest', name: 'dateDesc', by: [{ field: 'date', direction: 'desc' }] }],
 });

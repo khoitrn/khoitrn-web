@@ -1,0 +1,187 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { client, talksQuery, talkBySlugQuery, portableTextToHtml } from '../../lib/sanity';
+
+export async function getStaticPaths() {
+  const talks = await client.fetch(talksQuery);
+  return talks
+    .filter((t: any) => t.slug?.current)
+    .map((t: any) => ({ params: { slug: t.slug.current } }));
+}
+
+const { slug } = Astro.params;
+const talk = await client.fetch(talkBySlugQuery, { slug });
+
+if (!talk) return Astro.redirect('/talks');
+
+function youtubeId(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+const ytId    = youtubeId(talk.mediaUrl);
+const talkYear = talk.date ? new Date(talk.date).getFullYear() : '';
+const bodyHtml = talk.body ? portableTextToHtml(talk.body) : '';
+---
+
+<Layout title={`${talk.title} — Khoi Tran`} description={talk.description ?? ''}>
+  <div class="talk-page">
+
+    <a href="/talks" class="back animate-fade-up">← talks</a>
+
+    <article>
+      <header class="animate-fade-up delay-1">
+        <span class="talk-meta-top">{talk.event}{talk.location ? ` · ${talk.location}` : ''}{talkYear ? ` · ${talkYear}` : ''}</span>
+        <h1 class="talk-title">{talk.title}</h1>
+        {talk.description && <p class="talk-desc">{talk.description}</p>}
+      </header>
+
+      <!-- Inline embed -->
+      {ytId && (
+        <div class="talk-embed-wrap animate-fade-up delay-2">
+          <div class="talk-embed" data-yt={ytId}>
+            <button class="talk-embed-poster" type="button" aria-label={`Play ${talk.title}`}>
+              <img src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`} alt={talk.title} loading="lazy" />
+              <span class="talk-play-btn" aria-hidden="true">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                  <polygon points="8,5 20,12 8,19" fill="currentColor"/>
+                </svg>
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      <!-- Full write-up -->
+      {bodyHtml && (
+        <div class="talk-body animate-fade-up delay-3" set:html={bodyHtml} />
+      )}
+    </article>
+
+  </div>
+</Layout>
+
+<script>
+  const wrap = document.querySelector<HTMLElement>('.talk-embed[data-yt]');
+  const btn  = wrap?.querySelector('.talk-embed-poster');
+  btn?.addEventListener('click', () => {
+    const id = wrap!.dataset.yt;
+    if (!id) return;
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    iframe.allowFullscreen = true;
+    iframe.title = 'Talk video';
+    wrap!.innerHTML = '';
+    wrap!.appendChild(iframe);
+  });
+</script>
+
+<style>
+  .talk-page {
+    padding: 5rem max(calc((100vw - 680px) / 2), 2rem) 8rem;
+  }
+
+  .back {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-decoration: none;
+    margin-bottom: 4rem;
+    transition: color 0.4s;
+  }
+  .back:hover { color: var(--color-ink); }
+
+  header { margin-bottom: 2.5rem; }
+
+  .talk-meta-top {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    opacity: 0.5;
+    margin-bottom: 1.25rem;
+  }
+
+  .talk-title {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    margin-bottom: 1.25rem;
+  }
+
+  .talk-desc {
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    color: var(--color-muted);
+    line-height: 1.85;
+    max-width: 54ch;
+  }
+
+  /* Embed */
+  .talk-embed-wrap {
+    margin: 2.5rem 0 3.5rem;
+  }
+  .talk-embed {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #000;
+  }
+  .talk-embed-poster {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    padding: 0; border: none; cursor: pointer;
+    background: #000; display: block;
+  }
+  .talk-embed-poster img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: grayscale(0.3);
+    opacity: 0.85;
+    transition: filter 0.5s, opacity 0.4s, transform 0.6s cubic-bezier(0.16,1,0.3,1);
+    display: block;
+  }
+  .talk-embed-poster:hover img { filter: grayscale(0); opacity: 1; transform: scale(1.02); }
+  .talk-play-btn {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+  }
+  .talk-play-btn svg {
+    width: 64px; height: 64px;
+    padding: 18px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(3px);
+    transition: background 0.3s, transform 0.3s, color 0.3s;
+  }
+  .talk-embed-poster:hover .talk-play-btn svg { background: var(--color-accent); color: #000; transform: scale(1.06); }
+  .talk-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+  /* Body (portable text) */
+  .talk-body {
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    line-height: 1.9;
+    color: var(--color-ink-soft);
+    max-width: 68ch;
+  }
+  .talk-body p { margin-bottom: 1.6em; }
+  .talk-body p:last-child { margin-bottom: 0; }
+  .talk-body a { color: var(--color-accent); }
+  .talk-body strong { color: var(--color-ink); font-weight: 500; }
+</style>

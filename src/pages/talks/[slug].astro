@@ -173,7 +173,7 @@ const bodyHtml = talk.body ? portableTextToHtml(talk.body) : '';
   .talk-embed-poster:hover .talk-play-btn svg { background: var(--color-accent); color: #000; transform: scale(1.06); }
   .talk-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
-  /* Body (portable text) */
+  /* Body (portable text — set:html content has no astro-cid, must use :global) */
   .talk-body {
     font-family: var(--font-body);
     font-size: 1.0625rem;
@@ -181,8 +181,8 @@ const bodyHtml = talk.body ? portableTextToHtml(talk.body) : '';
     color: var(--color-ink-soft);
     max-width: 68ch;
   }
-  .talk-body p { margin-bottom: 1.6em; }
-  .talk-body p:last-child { margin-bottom: 0; }
-  .talk-body a { color: var(--color-accent); }
-  .talk-body strong { color: var(--color-ink); font-weight: 500; }
+  :global(.talk-body p) { margin-bottom: 1.6em; }
+  :global(.talk-body p:last-child) { margin-bottom: 0; }
+  :global(.talk-body a) { color: var(--color-accent); }
+  :global(.talk-body strong) { color: var(--color-ink); font-weight: 500; }
 </style>

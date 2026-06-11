@@ -1,15 +1,29 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { client, featuredProjectsQuery, recentPostsQuery, settingsQuery, formatDateShort } from '../lib/sanity';
+import { client, featuredProjectsQuery, recentPostsQuery, settingsQuery, talksQuery, formatDateShort } from '../lib/sanity';
 
-const [projects, posts, settings] = await Promise.all([
+const [projects, posts, settings, allTalks] = await Promise.all([
   client.fetch(featuredProjectsQuery),
   client.fetch(recentPostsQuery),
   client.fetch(settingsQuery),
+  client.fetch(talksQuery),
 ]);
 
 const heroTagline  = settings?.heroTagline  ?? 'Student · Founder · Engineer';
 const heroParagraph = settings?.heroParagraph ?? 'I build things and think about building things — products, companies, and the ideas that hold them together.';
+
+// Extract YouTube ID from a talk's mediaUrl for thumbnails
+function ytId(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+// Top 3 talks for the home page (already ordered by date in the query)
+const homeTalks = (allTalks ?? []).slice(0, 3).map((t: any) => ({
+  ...t,
+  youtubeId: ytId(t.mediaUrl),
+}));
 ---
 
 <Layout title="Khoi Tran" hideNav={true}>
@@ -164,26 +178,7 @@ const heroParagraph = settings?.heroParagraph ?? 'I build things and think about
     <section id="talks" class="home-section reveal">
       <span class="section-label" style="display:block; margin-bottom:3rem;">talks</span>
       <div>
-        {[
-          {
-            title: "Building Products at the Edge of Uncertainty",
-            event: "Texas A&M Engineering Symposium",
-            location: "College Station, TX",
-            year: "2024",
-            duration: "20 min",
-            youtubeId: null,
-            description: "On the process of making decisions when you don't have all the information — and why that's the only way to build anything worth building.",
-          },
-          {
-            title: "From Zero to Launch: A Student Founder's Playbook",
-            event: "Startup Week Houston",
-            location: "Houston, TX",
-            year: "2023",
-            duration: "25 min",
-            youtubeId: null,
-            description: "How to ship fast without cutting the things that matter, told through the mistakes I made building my first product.",
-          },
-        ].map((talk, i) => (
+        {homeTalks.map((talk: any, i: number) => (
           <div class={`talk-row${i > 0 ? ' talk-row-border' : ''}`}>
             <div class="talk-inner">
               <div class="talk-thumb-wrap">

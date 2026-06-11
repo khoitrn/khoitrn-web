@@ -30,8 +30,8 @@ const homeTalks = (allTalks ?? []).slice(0, 3).map((t: any) => ({
 <Layout title="Khoi Tran" hideNav={true}>
 
   <!-- ── SHOJI PANELS (fixed, slide on scroll) ─────────────────── -->
-  <div id="panel-left"  class="shoji-panel" aria-hidden="true"><div class="panel-img panel-img-left"></div></div>
-  <div id="panel-right" class="shoji-panel" aria-hidden="true"><div class="panel-img panel-img-right"></div></div>
+  <div id="panel-left"  class="shoji-panel" aria-hidden="true"><img src="/hero.svg" alt="" class="panel-img panel-img-left"  /></div>
+  <div id="panel-right" class="shoji-panel" aria-hidden="true"><img src="/hero.svg" alt="" class="panel-img panel-img-right" /></div>
 
   <!-- ── LEFT NAV — hidden during shoji, fades in as panels open ── -->
   <nav id="hero-left-nav" class="hero-left-nav">
@@ -238,11 +238,10 @@ const homeTalks = (allTalks ?? []).slice(0, 3).map((t: any) => ({
     top: 0;
     width: 100vw;
     height: 100vh;
-    background-image: url('/hero.svg');
-    background-size: 100% 100%;
-    background-position: 0 0;
-    background-repeat: no-repeat;
+    object-fit: cover;
+    object-position: center center;
     pointer-events: none;
+    display: block;
   }
   .panel-img-left  { left: 0; }
   .panel-img-right { right: 0; }

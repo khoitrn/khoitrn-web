@@ -94,3 +94,11 @@ export const talksQuery = `*[_type == "talk"] | order(date desc) {
 export const talkBySlugQuery = `*[_type == "talk" && slug.current == $slug][0] {
   _id, title, slug, event, location, date, description, body, mediaUrl, thumbnail
 }`;
+
+export const beliefsQuery = `*[_type == "belief"] | order(order asc) {
+  _id, title, slug, order
+}`;
+
+export const beliefBySlugQuery = `*[_type == "belief" && slug.current == $slug][0] {
+  _id, title, slug, order, body
+}`;

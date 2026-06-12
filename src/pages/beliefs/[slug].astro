@@ -1,44 +1,53 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { beliefs } from '../../data/beliefs';
+import { client, beliefsQuery, beliefBySlugQuery, portableTextToHtml } from '../../lib/sanity';
 
-export function getStaticPaths() {
-  return beliefs.map(b => ({ params: { slug: b.slug }, props: { belief: b } }));
+export async function getStaticPaths() {
+  const beliefs = await client.fetch(beliefsQuery);
+  return beliefs
+    .filter((b: any) => b.slug?.current)
+    .map((b: any) => ({ params: { slug: b.slug.current } }));
 }
 
-const { belief } = Astro.props;
-const idx   = beliefs.findIndex(b => b.slug === belief.slug);
-const prev  = idx > 0               ? beliefs[idx - 1] : null;
-const next  = idx < beliefs.length - 1 ? beliefs[idx + 1] : null;
+const { slug } = Astro.params;
+const belief = await client.fetch(beliefBySlugQuery, { slug });
+if (!belief) return Astro.redirect('/beliefs');
+
+const allBeliefs = await client.fetch(beliefsQuery);
+const idx  = allBeliefs.findIndex((b: any) => b.slug?.current === slug);
+const prev = idx > 0                     ? allBeliefs[idx - 1] : null;
+const next = idx < allBeliefs.length - 1 ? allBeliefs[idx + 1] : null;
+
+const num      = String(belief.order).padStart(2, '0');
+const bodyHtml = belief.body ? portableTextToHtml(belief.body) : '';
 ---
 
-<Layout title={`${belief.num} — Khoi Tran`} description={belief.title}>
+<Layout title={`${belief.title} — Khoi Tran`} description={belief.title}>
   <div class="belief-page">
 
     <a href="/beliefs" class="back animate-fade-up">← beliefs</a>
 
     <article>
       <header class="animate-fade-up delay-1">
-        <span class="belief-num">{belief.num}</span>
+        <span class="belief-num">{num}</span>
         <h1 class="belief-title">{belief.title}</h1>
       </header>
 
-      <div class="belief-body animate-fade-up delay-2">
-        {belief.body.map(para => <p>{para}</p>)}
-      </div>
+      {bodyHtml && (
+        <div class="belief-body animate-fade-up delay-2" set:html={bodyHtml} />
+      )}
     </article>
 
-    <!-- Prev / next navigation -->
     <nav class="belief-nav">
       {prev && (
-        <a href={`/beliefs/${prev.slug}`} class="belief-nav-link belief-nav-prev">
-          <span class="nav-label">← {prev.num}</span>
+        <a href={`/beliefs/${prev.slug?.current}`} class="belief-nav-link belief-nav-prev">
+          <span class="nav-label">← {String(prev.order).padStart(2,'0')}</span>
           <span class="nav-title">{prev.title}</span>
         </a>
       )}
       {next && (
-        <a href={`/beliefs/${next.slug}`} class="belief-nav-link belief-nav-next">
-          <span class="nav-label">{next.num} →</span>
+        <a href={`/beliefs/${next.slug?.current}`} class="belief-nav-link belief-nav-next">
+          <span class="nav-label">{String(next.order).padStart(2,'0')} →</span>
           <span class="nav-title">{next.title}</span>
         </a>
       )}
@@ -48,92 +57,19 @@ const next  = idx < beliefs.length - 1 ? beliefs[idx + 1] : null;
 </Layout>
 
 <style>
-  .belief-page {
-    padding: 5rem max(calc((100vw - 640px) / 2), 2rem) 8rem;
-  }
-
-  /* Back link */
-  .back {
-    display: inline-block;
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.62rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-    text-decoration: none;
-    margin-bottom: 4rem;
-    transition: color 0.4s;
-  }
+  .belief-page { padding: 5rem max(calc((100vw - 640px) / 2), 2rem) 8rem; }
+  .back { display: inline-block; font-family: var(--font-display); font-weight: 300; font-size: 0.62rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--color-muted); text-decoration: none; margin-bottom: 4rem; transition: color 0.4s; }
   .back:hover { color: var(--color-ink); }
-
-  /* Header */
   header { margin-bottom: 3rem; }
-
-  .belief-num {
-    display: block;
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.6rem;
-    letter-spacing: 0.3em;
-    color: var(--color-muted);
-    opacity: 0.45;
-    margin-bottom: 1.25rem;
-  }
-
-  .belief-title {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: clamp(1.5rem, 3.5vw, 2.4rem);
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-    color: var(--color-ink);
-  }
-
-  /* Body */
-  .belief-body {
-    display: flex;
-    flex-direction: column;
-    gap: 1.6em;
-  }
-  .belief-body p {
-    font-family: var(--font-body);
-    font-size: clamp(0.9375rem, 1.6vw, 1.0625rem);
-    color: var(--color-ink-soft);
-    line-height: 1.9;
-  }
-
-  /* Prev / next */
-  .belief-nav {
-    display: flex;
-    justify-content: space-between;
-    gap: 2rem;
-    margin-top: 6rem;
-    padding-top: 2.5rem;
-  }
-  .belief-nav-link {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    text-decoration: none;
-    max-width: 44%;
-    transition: opacity 0.3s;
-  }
+  .belief-num { display: block; font-family: var(--font-display); font-weight: 300; font-size: 0.6rem; letter-spacing: 0.3em; color: var(--color-muted); opacity: 0.45; margin-bottom: 1.25rem; }
+  .belief-title { font-family: var(--font-display); font-weight: 300; font-size: clamp(1.5rem, 3.5vw, 2.4rem); line-height: 1.2; letter-spacing: -0.01em; color: var(--color-ink); }
+  .belief-body { font-family: var(--font-body); font-size: clamp(0.9375rem, 1.6vw, 1.0625rem); line-height: 1.9; color: var(--color-ink-soft); max-width: 62ch; }
+  :global(.belief-body p) { margin-bottom: 1.6em; }
+  :global(.belief-body p:last-child) { margin-bottom: 0; }
+  .belief-nav { display: flex; justify-content: space-between; gap: 2rem; margin-top: 6rem; padding-top: 2.5rem; }
+  .belief-nav-link { display: flex; flex-direction: column; gap: 0.4rem; text-decoration: none; max-width: 44%; transition: opacity 0.3s; }
   .belief-nav-link:hover { opacity: 0.65; }
   .belief-nav-next { align-items: flex-end; text-align: right; }
-
-  .nav-label {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.58rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--color-accent);
-  }
-  .nav-title {
-    font-family: var(--font-body);
-    font-size: 0.875rem;
-    color: var(--color-muted);
-    line-height: 1.5;
-  }
+  .nav-label { font-family: var(--font-display); font-weight: 300; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-accent); }
+  .nav-title { font-family: var(--font-body); font-size: 0.875rem; color: var(--color-muted); line-height: 1.5; }
 </style>

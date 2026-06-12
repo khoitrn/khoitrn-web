@@ -83,6 +83,14 @@ const homeTalks = (allTalks ?? []).slice(0, 3).map((t: any) => ({
     <a href="/writing">writing</a>
     <a href="/talks">talks</a>
     <a href="/about">about</a>
+    <!-- Diamond — beliefs link (mobile-only placement) -->
+    <a href="/beliefs" class="mobile-diamond-btn" aria-label="Beliefs" onclick="document.getElementById('hero-mobile-menu').classList.remove('open')">
+      <svg class="mobile-star-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+        <path class="mobile-star-glow"  d="M12 0.5 L13.5 10.5 L23.5 12 L13.5 13.5 L12 23.5 L10.5 13.5 L0.5 12 L10.5 10.5 Z"/>
+        <path class="mobile-star-shape" d="M12 0.5 L13.5 10.5 L23.5 12 L13.5 13.5 L12 23.5 L10.5 13.5 L0.5 12 L10.5 10.5 Z"/>
+        <path class="mobile-star-inner" d="M12 5.5 L13 11 L18.5 12 L13 13 L12 18.5 L11 13 L5.5 12 L11 11 Z"/>
+      </svg>
+    </a>
   </div>
 
   <div class="content-wrap home-body">
@@ -476,6 +484,51 @@ const homeTalks = (allTalks ?? []).slice(0, 3).map((t: any) => ({
   }
   .hero-menu-close:hover { color: var(--color-ink); }
 
+  /* Mobile diamond button (in menu overlay) */
+  .mobile-diamond-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    margin-top: 0.5rem;
+    text-decoration: none;
+    overflow: visible;
+    position: relative;
+  }
+  .mobile-diamond-btn::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    background: conic-gradient(from 0deg, transparent 0%, rgba(196,144,58,0.2) 15%, transparent 30%);
+    border-radius: 50%;
+    animation: nav-star-spin 6s linear infinite;
+    pointer-events: none;
+  }
+  .mobile-star-svg { width: 32px; height: 32px; overflow: visible; display: block; }
+  .mobile-star-glow {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 1.5;
+    opacity: 0;
+    filter: blur(3px);
+    animation: nav-star-pulse 3.5s ease-in-out infinite;
+  }
+  .mobile-star-shape {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 1.2;
+    stroke-linejoin: round;
+    animation: nav-star-breathe 3.5s ease-in-out infinite;
+  }
+  .mobile-star-inner {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 0.8;
+    opacity: 0.4;
+    animation: nav-star-breathe 3.5s ease-in-out infinite 0.4s;
+  }
+
   /* Mobile: single panel + hide desktop nav */
   @media (max-width: 768px) {
     .hero-hamburger { display: flex; }
@@ -491,6 +544,9 @@ const homeTalks = (allTalks ?? []).slice(0, 3).map((t: any) => ({
 
   /* ── Content ── */
   .shoji-spacer { height: 160vh; }
+  @media (max-width: 768px) {
+    .shoji-spacer { height: 115vh; }
+  }
 
   .home-body {
     max-width: 640px;
@@ -814,6 +870,15 @@ const homeTalks = (allTalks ?? []).slice(0, 3).map((t: any) => ({
 
   @media (max-width: 600px) {
     .talk-col-row { grid-template-columns: 1fr; gap: 0.75rem; }
+  }
+
+  /* Touch active states — provides feedback where hover isn't available */
+  @media (hover: none) {
+    .col-row:active { opacity: 0.5; }
+    .talk-col-row:active { opacity: 0.7; }
+    .section-link:active { color: var(--color-ink); }
+    .social-link:active { color: var(--color-ink); }
+    .hero-mobile-menu a:active { color: var(--color-accent); }
   }
 
   /* ── Footer ── */
@@ -1252,7 +1317,34 @@ const homeTalks = (allTalks ?? []).slice(0, 3).map((t: any) => ({
     .home-section { padding: 2.5rem 0; }
     .talk-inner { grid-template-columns: 1fr; gap: 1rem; }
     .talk-thumb-wrap { width: 100%; }
-    .social-links { gap: 1.25rem; flex-wrap: wrap; }
+    .social-links { gap: 0; flex-wrap: wrap; margin-left: -0.75rem; }
+
+    /* Larger touch targets */
+    .social-link {
+      padding: 0.75rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+    .col-row {
+      padding: 0.85rem 0;
+      min-height: 52px;
+    }
+    .section-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0.5rem 0;
+    }
+    .col-link {
+      padding: 0.5rem 0;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+    .talk-col-row {
+      padding: 1.25rem 0;
+    }
   }
 </style>
 
@@ -1273,7 +1365,8 @@ const homeTalks = (allTalks ?? []).slice(0, 3).map((t: any) => ({
   function updateShoji() {
     if (done) return;
 
-    const raw  = Math.max(0, Math.min(window.scrollY / (window.innerHeight * 1.6), 1));
+    const divisor = window.innerWidth <= 768 ? window.innerHeight * 1.1 : window.innerHeight * 1.6;
+    const raw  = Math.max(0, Math.min(window.scrollY / divisor, 1));
     cur = lerp(cur, raw, 0.048);
     const p = cur;
 

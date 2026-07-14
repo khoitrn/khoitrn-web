@@ -1,0 +1,288 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// foxy — product landing for the foxy.khoitrn.com subdomain. Front-of-house only (marketing +
+// download); the real app is local-first and never runs here. See ~/Developer/foxy docs/design/
+// DISTRIBUTION.md ("Web = front-of-house") + PRICING.md (the two tiers below).
+const DOWNLOAD = 'https://github.com/khoitrn/foxy-releases/releases/latest';
+const DEMO = 'https://contact.khoitrn.com';
+
+const principles = [
+  { k: 'Yours, on your disk', v: 'Your people live in a plain SQLite file on your own machine — export it, back it up, move it. foxy never holds a copy.' },
+  { k: 'No account, ever', v: 'No sign-up, no email, no cloud to breach. You open the app and it just works. The free tier never phones home.' },
+  { k: 'Works fully offline', v: 'Capture a thought, get your daily brief, search the graph — all local. Optionally point it at your own local model.' },
+];
+
+const free = [
+  'The whole local app — capture, daily brief, the graph, search',
+  'Export everything, any time — it was always yours',
+  'Bring your own local AI model (Ollama, LM Studio, …)',
+  'Back up into a cloud folder you already own (Drive/iCloud)',
+];
+const pro = [
+  'Your own remote database (libSQL / Turso)',
+  'Hosted public Foxy Card link + QR',
+  'Managed end-to-end-encrypted multi-device sync',
+  'Mobile app · Wallet pass · Event mode',
+];
+---
+
+<Layout
+  title="foxy — a local-first memory for the people you don't want to lose"
+  description="foxy is a local-first relationship memory. Your people live in a file on your own machine — no account, no cloud, free forever. Download for Mac."
+  hideNav={true}
+>
+  <!-- ── Top bar ─────────────────────────────── -->
+  <header class="foxy-topbar">
+    <span class="foxy-wordmark">foxy</span>
+    <a class="foxy-back" href="https://khoitrn.com">khoitrn.com ↗</a>
+  </header>
+
+  <!-- ── Hero ────────────────────────────────── -->
+  <section class="page-pad foxy-hero">
+    <p class="animate-fade-up foxy-eyebrow">For the people you don't want to lose</p>
+    <h1 class="animate-fade-up delay-1 foxy-h1">
+      A local-first memory<br />for the people who<br />matter to you.
+    </h1>
+    <p class="animate-fade-up delay-2 foxy-lede">
+      foxy remembers the threads you'd otherwise drop — who to reach out to, what you last talked
+      about, the small things worth following up on. It runs privately on your own machine. No
+      account. No cloud holding your relationships. Just a quiet daily nudge and a memory that's
+      wholly yours.
+    </p>
+    <div class="animate-fade-up delay-3 foxy-cta">
+      <a class="foxy-btn" href={DOWNLOAD}>Download for Mac →</a>
+      <a class="foxy-link" href={DEMO}>See a live demo →</a>
+    </div>
+    <p class="animate-fade-up delay-3 foxy-fineprint">
+      Free · Apple Silicon · runs offline · no account
+    </p>
+  </section>
+
+  <!-- ── Principles ──────────────────────────── -->
+  <section class="foxy-section">
+    <div class="foxy-principles">
+      {principles.map((p, i) => (
+        <div class="reveal foxy-principle" style={`transition-delay:${i * 80}ms;`}>
+          <h3 class="foxy-principle-k">{p.k}</h3>
+          <p class="foxy-principle-v">{p.v}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ── Pricing ─────────────────────────────── -->
+  <section class="foxy-section" id="pricing">
+    <p class="reveal foxy-eyebrow" style="text-align:center;">Pricing</p>
+    <h2 class="reveal foxy-h2">Free forever. Pay only for our servers, never for your data.</h2>
+
+    <div class="foxy-tiers">
+      <div class="reveal foxy-tier">
+        <div class="foxy-tier-head">
+          <span class="foxy-tier-name">Free</span>
+          <span class="foxy-tier-price">$0 · forever</span>
+        </div>
+        <p class="foxy-tier-sub">The complete local app. This is the product — not a trial.</p>
+        <ul class="foxy-feat">
+          {free.map((f) => <li><span class="foxy-tick">✓</span>{f}</li>)}
+        </ul>
+        <a class="foxy-btn foxy-btn-wide" href={DOWNLOAD}>Download for Mac →</a>
+      </div>
+
+      <div class="reveal foxy-tier foxy-tier-pro" style="transition-delay:80ms;">
+        <div class="foxy-tier-head">
+          <span class="foxy-tier-name">Pro</span>
+          <span class="foxy-tier-badge">Coming soon</span>
+        </div>
+        <p class="foxy-tier-sub">Optional cloud conveniences — end-to-end encrypted, so foxy still never reads your data.</p>
+        <ul class="foxy-feat">
+          {pro.map((f) => <li><span class="foxy-tick foxy-tick-pro">✓</span>{f}</li>)}
+        </ul>
+        <span class="foxy-btn foxy-btn-wide foxy-btn-ghost">Available in-app soon</span>
+      </div>
+    </div>
+
+    <p class="reveal foxy-guarantee">
+      The local app is free forever, and revenue never comes from degrading it or from holding your
+      data. Search quality and scale are never pricing levers.
+    </p>
+  </section>
+
+  <!-- ── Footer ──────────────────────────────── -->
+  <footer class="foxy-footer">
+    <span class="foxy-wordmark">foxy</span>
+    <div class="foxy-footer-links">
+      <a href={DOWNLOAD}>Download</a>
+      <a href={DEMO}>Demo</a>
+      <a href="https://khoitrn.com">khoitrn.com</a>
+    </div>
+    <span class="foxy-footer-note">A local-first memory · made by Khoi Tran</span>
+  </footer>
+</Layout>
+
+<style>
+  /* Top bar */
+  .foxy-topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 2rem 3rem; pointer-events: none;
+  }
+  .foxy-topbar > * { pointer-events: auto; }
+  .foxy-wordmark {
+    font-family: var(--font-display); font-weight: 300;
+    letter-spacing: 0.32em; text-transform: lowercase; font-size: 1rem;
+    color: var(--color-accent);
+  }
+  .foxy-back {
+    font-family: var(--font-display); font-weight: 300; font-size: 0.7rem;
+    letter-spacing: 0.22em; text-transform: uppercase; text-decoration: none;
+    color: var(--color-muted); transition: color 0.4s;
+  }
+  .foxy-back:hover { color: var(--color-ink); }
+
+  /* Hero */
+  .foxy-hero { max-width: 900px; margin: 0 auto; text-align: center; }
+  .foxy-eyebrow {
+    font-family: var(--font-display); font-weight: 300; font-size: 0.65rem;
+    letter-spacing: 0.35em; text-transform: uppercase; color: var(--color-muted);
+    margin-bottom: 1.75rem;
+  }
+  .foxy-h1 {
+    font-family: var(--font-display); font-weight: 300;
+    font-size: clamp(2.4rem, 6.5vw, 5rem); line-height: 1.05; letter-spacing: -0.025em;
+    color: var(--color-ink);
+  }
+  .foxy-lede {
+    font-family: var(--font-body); font-size: clamp(1.05rem, 2vw, 1.25rem);
+    line-height: 1.85; color: var(--color-ink-soft);
+    max-width: 620px; margin: 2.25rem auto 0;
+  }
+  .foxy-cta {
+    display: flex; align-items: center; justify-content: center; gap: 2rem;
+    flex-wrap: wrap; margin-top: 2.75rem;
+  }
+  .foxy-fineprint {
+    font-family: var(--font-display); font-weight: 300; font-size: 0.7rem;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted);
+    margin-top: 1.5rem;
+  }
+
+  /* Buttons + links */
+  .foxy-btn {
+    display: inline-block; font-family: var(--font-display); font-weight: 500;
+    font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+    text-decoration: none; color: var(--color-bg-hero);
+    background: var(--color-accent); padding: 1rem 1.75rem; border-radius: 3px;
+    transition: filter 0.35s, transform 0.35s;
+  }
+  .foxy-btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
+  .foxy-btn-wide { display: block; text-align: center; margin-top: 2rem; }
+  .foxy-btn-ghost {
+    background: transparent; color: var(--color-muted);
+    border: 1px solid var(--color-border); cursor: default;
+  }
+  .foxy-btn-ghost:hover { filter: none; transform: none; }
+  .foxy-link {
+    font-family: var(--font-display); font-weight: 300; font-size: 0.72rem;
+    letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none;
+    color: var(--color-accent); transition: color 0.4s;
+  }
+  .foxy-link:hover { color: var(--color-ink); }
+
+  /* Sections */
+  .foxy-section {
+    max-width: 1000px; margin: 0 auto; padding: 3rem 3rem 6rem;
+  }
+  .foxy-h2 {
+    font-family: var(--font-display); font-weight: 300;
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem); line-height: 1.2; letter-spacing: -0.02em;
+    color: var(--color-ink); text-align: center; max-width: 640px;
+    margin: 1rem auto 3.5rem;
+  }
+
+  /* Principles */
+  .foxy-principles {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem;
+    border-top: 1px solid var(--color-border); padding-top: 3.5rem;
+  }
+  .foxy-principle-k {
+    font-family: var(--font-display); font-weight: 400; font-size: 1rem;
+    letter-spacing: 0.01em; color: var(--color-ink); margin-bottom: 0.9rem;
+  }
+  .foxy-principle-v {
+    font-family: var(--font-body); font-size: 0.98rem; line-height: 1.8;
+    color: var(--color-muted);
+  }
+
+  /* Pricing tiers */
+  .foxy-tiers {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+  }
+  .foxy-tier {
+    border: 1px solid var(--color-border); border-radius: 5px;
+    background: var(--color-surface); padding: 2.25rem;
+    display: flex; flex-direction: column;
+  }
+  .foxy-tier-pro { border-color: color-mix(in srgb, var(--color-accent) 45%, transparent); }
+  .foxy-tier-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+  .foxy-tier-name {
+    font-family: var(--font-display); font-weight: 300; font-size: 1.5rem;
+    letter-spacing: 0.02em; color: var(--color-ink);
+  }
+  .foxy-tier-price {
+    font-family: var(--font-display); font-weight: 300; font-size: 0.72rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-muted);
+  }
+  .foxy-tier-badge {
+    font-family: var(--font-display); font-weight: 400; font-size: 0.6rem;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-accent);
+    border: 1px solid color-mix(in srgb, var(--color-accent) 40%, transparent);
+    border-radius: 999px; padding: 0.3rem 0.7rem;
+  }
+  .foxy-tier-sub {
+    font-family: var(--font-body); font-size: 0.95rem; line-height: 1.7;
+    color: var(--color-ink-soft); margin-bottom: 1.75rem;
+  }
+  .foxy-feat { list-style: none; flex: 1; }
+  .foxy-feat li {
+    display: flex; align-items: baseline; gap: 0.75rem;
+    font-family: var(--font-body); font-size: 0.95rem; line-height: 1.65;
+    color: var(--color-ink-soft); padding: 0.55rem 0;
+  }
+  .foxy-tick { color: var(--color-muted); flex-shrink: 0; font-size: 0.85rem; }
+  .foxy-tick-pro { color: var(--color-accent); }
+  .foxy-guarantee {
+    font-family: var(--font-body); font-style: italic; font-size: 0.95rem;
+    line-height: 1.8; color: var(--color-muted); text-align: center;
+    max-width: 620px; margin: 3rem auto 0;
+  }
+
+  /* Footer */
+  .foxy-footer {
+    border-top: 1px solid var(--color-border);
+    max-width: 1000px; margin: 0 auto; padding: 3rem;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;
+  }
+  .foxy-footer-links { display: flex; gap: 2rem; }
+  .foxy-footer-links a {
+    font-family: var(--font-display); font-weight: 300; font-size: 0.7rem;
+    letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none;
+    color: var(--color-muted); transition: color 0.4s;
+  }
+  .foxy-footer-links a:hover { color: var(--color-accent); }
+  .foxy-footer-note {
+    font-family: var(--font-body); font-size: 0.85rem; color: var(--color-muted);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .foxy-topbar { padding: 1.5rem; }
+    .foxy-section { padding: 2rem 1.5rem 4rem; }
+    .foxy-principles { grid-template-columns: 1fr; gap: 2.5rem; }
+    .foxy-tiers { grid-template-columns: 1fr; }
+    .foxy-footer { padding: 2.5rem 1.5rem; }
+  }
+</style>

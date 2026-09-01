@@ -1,30 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { client, featuredProjectsQuery, recentPostsQuery, settingsQuery, talksQuery, formatDateShort } from '../lib/sanity';
+import { client, settingsQuery } from '../lib/sanity';
 
-const [projects, posts, settings, allTalks] = await Promise.all([
-  client.fetch(featuredProjectsQuery),
-  client.fetch(recentPostsQuery),
-  client.fetch(settingsQuery),
-  client.fetch(talksQuery),
-]);
+const settings = await client.fetch(settingsQuery);
 
 const heroTagline  = settings?.heroTagline  ?? 'Student · Founder · Engineer';
 const heroParagraph = settings?.heroParagraph ?? 'I build things and think about building things — products, companies, and the ideas that hold them together.';
-
-// Extract YouTube ID from a talk's mediaUrl for thumbnails
-function ytId(url: string | null | undefined): string | null {
-  if (!url) return null;
-  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
-  return m ? m[1] : null;
-}
-
-// Top 3 talks for the home page (already ordered by date in the query)
-const homeTalks = (allTalks ?? []).slice(0, 3).map((t: any) => ({
-  ...t,
-  youtubeId: ytId(t.mediaUrl),
-  year: t.date ? new Date(t.date).getFullYear() : '',
-}));
 ---
 
 <Layout title="Khoi Tran" hideNav={true}>
@@ -33,21 +14,11 @@ const homeTalks = (allTalks ?? []).slice(0, 3).map((t: any) => ({
   <div id="panel-left"  class="shoji-panel" aria-hidden="true"><img src="/hero.svg?v=3" alt="" class="panel-img panel-img-left"  /></div>
   <div id="panel-right" class="shoji-panel" aria-hidden="true"><img src="/hero.svg?v=3" alt="" class="panel-img panel-img-right" /></div>
 
-  <!-- ── LEFT NAV — hidden during shoji, fades in as panels open ── -->
+  <!-- ── CORNER DIAMOND — hidden during shoji, fades in as panels open ── -->
+  <!-- The desktop nav links (about/work/writing/talks) used to live here too,
+       but they duplicate the link row on the landing content below, so this
+       is just the beliefs/"manifesto" diamond now, moved to the top-right corner. -->
   <nav id="hero-left-nav" class="hero-left-nav">
-    {[
-      { href: '/about',   label: 'about' },
-      { href: '/work',    label: 'work' },
-      { href: '/writing', label: 'writing' },
-      { href: '/talks',   label: 'talks' },
-    ].map(({ href, label }) => (
-      <a href={href} class="hero-nav-link"
-        onmouseover="this.style.color='rgba(255,255,255,0.92)'"
-        onmouseout="this.style.color='rgba(255,255,255,0.4)'"
-      >{label}</a>
-    ))}
-
-    <!-- Diamond — sits below nav links, links to beliefs page -->
     <a href="/beliefs" class="hero-diamond-btn" aria-label="Beliefs">
       <svg class="nav-star-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" overflow="visible">
         <path class="nav-star-glow"  d="M12 0.5 L13.5 10.5 L23.5 12 L13.5 13.5 L12 23.5 L10.5 13.5 L0.5 12 L10.5 10.5 Z"/>
@@ -98,125 +69,42 @@ const homeTalks = (allTalks ?? []).slice(0, 3).map((t: any) => ({
     <!-- 100vh spacer — panels open over this, about appears behind them -->
     <div class="shoji-spacer" aria-hidden="true"></div>
 
-    <!-- ── About ── -->
-    <section class="home-section reveal">
-      <p class="about-text">I'm a student and founder based in Texas, building at the intersection of technology and product.</p>
-      <p class="about-sub">I care about the craft of making — code that's clean, products that are clear, and ideas that have earned their place.</p>
+    <!-- ── About + links (condensed) ── -->
+    <!-- min-height keeps this section >= one viewport so there's enough scroll
+         runway for the shoji curtain (which needs ~1.6x viewport of scroll past
+         the spacer to fully open) even though the copy itself is short. -->
+    <section class="home-section home-hero-content reveal">
+      <p class="about-text">I'm a student and founder based in Texas, building at the intersection of technology and product — currently figuring out what it means to start something from scratch.</p>
 
-      <!-- Status + links -->
       <div class="status-row">
         <span class="status-dot" id="status-dot" aria-hidden="true"></span>
         <span class="status-time" id="status-time"></span>
         <span class="status-sep">·</span>
         <span class="status-loc">college station, tx</span>
       </div>
+
       <div class="social-links">
         {[
-          { href: 'https://github.com/khoitrn',         label: 'github' },
-          { href: 'https://linkedin.com/in/khoitrn',    label: 'linkedin' },
-          { href: 'https://x.com/khoitrn',              label: 'x' },
-          { href: 'mailto:khoi@tamu.edu',               label: 'email' },
+          { href: '/work',    label: 'work' },
+          { href: '/writing', label: 'writing' },
+          { href: '/talks',   label: 'talks' },
+          { href: '/now',     label: 'now' },
+          { href: '/about',   label: 'about' },
+        ].map(({ href, label }) => (
+          <a href={href} class="social-link">{label}</a>
+        ))}
+      </div>
+
+      <div class="social-links social-links-contact">
+        {[
+          { href: 'https://github.com/khoitrn',      label: 'github' },
+          { href: 'https://linkedin.com/in/khoitrn', label: 'linkedin' },
+          { href: 'https://x.com/khoitrn',           label: 'x' },
+          { href: 'mailto:khoi@tamu.edu',            label: 'email' },
         ].map(({ href, label }) => (
           <a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel={href.startsWith('http') ? 'noopener noreferrer' : undefined} class="social-link">{label}</a>
         ))}
       </div>
-      <a href="/about" class="section-link">more about me →</a>
-    </section>
-
-
-    <!-- ── Currently ── -->
-    <section class="home-section reveal">
-      <span class="section-label">currently</span>
-      <p class="currently-text">Building products, writing more, and figuring out what it means to start something from scratch.</p>
-      <a href="/now" class="section-link">full now page →</a>
-    </section>
-
-
-    <!-- ── Work + Writing — 2-col ── -->
-    <section class="home-section reveal">
-      <div class="grid-work-writing">
-
-        <div class="work-col">
-          <div class="col-header">
-            <span class="section-label">work</span>
-            <a href="/work" class="col-link">all →</a>
-          </div>
-          {projects.length > 0 ? (
-            <div>
-              {projects.map((item: any, i: number) => (
-                <a href={`/work/${item.slug.current}`} class="col-row" style={`transition-delay:${i*70}ms;`}>
-                  <span class="col-row-title">{item.title}</span>
-                  <span class="col-row-meta"><span>{item.category}</span><span>{item.year}</span></span>
-                </a>
-              ))}
-            </div>
-          ) : (
-            <p class="empty-note">Projects coming soon.</p>
-          )}
-        </div>
-
-        <div class="col-rule" aria-hidden="true"></div>
-
-        <div class="writing-col">
-          <div class="col-header">
-            <span class="section-label">writing</span>
-            <a href="/writing" class="col-link">all →</a>
-          </div>
-          {posts.length > 0 ? (
-            <div>
-              {posts.map((post: any, i: number) => (
-                <a href={`/writing/${post.slug.current}`} class="col-row" style={`transition-delay:${i*70}ms;`}>
-                  <span class="col-row-title">{post.title}</span>
-                  <span class="col-row-meta">
-                    <span>{post.category}</span>
-                    <span>{formatDateShort(post.publishedAt)}</span>
-                  </span>
-                </a>
-              ))}
-            </div>
-          ) : (
-            <p class="empty-note">Writing coming soon.</p>
-          )}
-        </div>
-
-      </div>
-    </section>
-
-
-    <!-- ── Talks ── -->
-    <section id="talks" class="home-section reveal">
-      <span class="section-label" style="display:block; margin-bottom:2.5rem;">talks</span>
-      <div class="talks-col-list">
-        {homeTalks.map((talk: any, i: number) => (
-          <a href={`/talks/${talk.slug?.current ?? talk._id}`} class="talk-col-row">
-
-            <!-- Left: video thumbnail -->
-            <div class="talk-col-video">
-              {talk.youtubeId ? (
-                <div class="talk-thumb-box">
-                  <img src={`https://img.youtube.com/vi/${talk.youtubeId}/mqdefault.jpg`} alt={talk.title} loading="lazy" />
-                  <span class="talk-thumb-play" aria-hidden="true">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><polygon points="8,5 20,12 8,19" fill="currentColor"/></svg>
-                  </span>
-                </div>
-              ) : (
-                <div class="talk-thumb-box talk-thumb-empty">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><polygon points="9,7 19,12 9,17" fill="currentColor" opacity="0.3"/></svg>
-                </div>
-              )}
-            </div>
-
-            <!-- Right: text -->
-            <div class="talk-col-body">
-              <h3 class="talk-col-title">{talk.title}</h3>
-              {talk.description && <p class="talk-col-desc">{talk.description}</p>}
-              <p class="talk-col-meta">{talk.event}{talk.location ? ` · ${talk.location}` : ''}{talk.year ? ` · ${talk.year}` : ''}</p>
-            </div>
-
-          </a>
-        ))}
-      </div>
-      <a href="/talks" class="section-link" style="display:inline-block; margin-top:2.5rem;">all talks →</a>
     </section>
 
 
@@ -282,15 +170,11 @@ const homeTalks = (allTalks ?? []).slice(0, 3).map((t: any) => ({
     will-change: opacity;
   }
 
-  /* Left nav — separate fixed element, hidden during shoji, fades in when open */
+  /* Corner diamond — separate fixed element, hidden during shoji, fades in when open */
   .hero-left-nav {
     position: fixed;
-    left: 2.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 1.75rem;
+    right: 2.5rem;
+    top: 2.25rem;
     z-index: 45;
     opacity: 0;
     pointer-events: none;
@@ -300,24 +184,14 @@ const homeTalks = (allTalks ?? []).slice(0, 3).map((t: any) => ({
     opacity: 1;
     pointer-events: auto;
   }
-  .hero-nav-link {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.7rem;
-    letter-spacing: 0.28em;
-    color: rgba(255,255,255,0.4);
-    text-decoration: none;
-    transition: color 0.4s;
-  }
 
-  /* Diamond button below nav */
+  /* Diamond button, top-right corner */
   .hero-diamond-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 24px;
     height: 24px;
-    margin-top: 0.75rem;
     text-decoration: none;
     overflow: visible;
     position: relative;
@@ -1023,6 +897,14 @@ const homeTalks = (allTalks ?? []).slice(0, 3).map((t: any) => ({
   .home-section {
     padding: 3.5rem 0;
   }
+  /* Guarantees enough scroll runway for the shoji curtain to fully open even
+     though this section's copy is short — see comment at the section's markup. */
+  .home-hero-content {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
   .home-rule {
     height: 1px;
     background: var(--color-border);
@@ -1076,6 +958,11 @@ const homeTalks = (allTalks ?? []).slice(0, 3).map((t: any) => ({
     display: flex;
     gap: 2rem;
     margin-bottom: 2.5rem;
+  }
+  /* Second row (contact/social) — slightly quieter, no trailing margin */
+  .social-links-contact {
+    margin-bottom: 0;
+    opacity: 0.75;
   }
   .social-link {
     font-family: var(--font-display);
@@ -1400,15 +1287,7 @@ const homeTalks = (allTalks ?? []).slice(0, 3).map((t: any) => ({
     requestAnimationFrame(updateShoji);
   }
 
-  window.addEventListener('scroll', () => {
-    if (done && window.scrollY < window.innerHeight * 0.08) {
-      done = false;
-      panelL.style.display = '';
-      if (panelR) panelR.style.display = '';
-      overlay.style.display = '';
-      requestAnimationFrame(updateShoji);
-    }
-  }, { passive: true });
+  // Once open, the curtain stays open — no re-close on scrolling back to top.
 
   requestAnimationFrame(updateShoji);
 

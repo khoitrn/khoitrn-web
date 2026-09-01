@@ -14,6 +14,7 @@ export default defineType({
       options: { list: ['Product', 'Engineering', 'Startup', 'Design'] },
     }),
     defineField({ name: 'year', type: 'string' }),
+    defineField({ name: 'active', type: 'boolean', title: 'Actively maintained', initialValue: true }),
     defineField({ name: 'featured', type: 'boolean', initialValue: false }),
     defineField({ name: 'coverImage', type: 'image', options: { hotspot: true } }),
     defineField({ name: 'url', type: 'url' }),

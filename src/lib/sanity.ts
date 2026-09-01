@@ -58,12 +58,12 @@ export const postBySlugQuery = `*[_type == "post" && slug.current == $slug][0] {
 }`;
 
 export const projectsQuery = `*[_type == "project"] | order(year desc) {
-  _id, title, slug, description, category, year, featured,
+  _id, title, slug, description, category, year, featured, active,
   coverImage, url, technologies
 }`;
 
 export const projectBySlugQuery = `*[_type == "project" && slug.current == $slug][0] {
-  _id, title, slug, description, category, year,
+  _id, title, slug, description, category, year, active,
   coverImage, url, technologies, body
 }`;
 

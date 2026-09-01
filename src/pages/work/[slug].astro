@@ -23,23 +23,23 @@ const coverUrl = project.coverImage ? urlFor(project.coverImage).width(1600).aut
       <a href="/work" class="back-link">work</a>
 
       <div class="animate-fade-up proj-meta">
-        {project.category && <span class="meta-item">{project.category}</span>}
+        <span class="status-pill">
+          <span class={`status-dot ${project.active === false ? 'offline' : ''}`} aria-hidden="true"></span>
+          <span class="meta-item">{project.active === false ? 'paused' : 'active'}</span>
+        </span>
         {project.year && <><span class="meta-dot">·</span><span class="meta-item">{project.year}</span></>}
       </div>
 
       <h1 class="animate-fade-up delay-1 proj-headline">{project.title}</h1>
       {project.description && <p class="animate-fade-up delay-2 proj-lede">{project.description}</p>}
 
-      <div class="animate-fade-up delay-3 proj-tech">
-        {project.technologies?.map((tech: string) => (
-          <span class="tech-tag">{tech}</span>
-        ))}
-        {project.url && (
+      {project.url && (
+        <div class="animate-fade-up delay-3 proj-links">
           <a href={project.url} target="_blank" rel="noopener noreferrer" class="proj-url">
             Visit project →
           </a>
-        )}
-      </div>
+        </div>
+      )}
     </header>
 
     <!-- Cover image -->
@@ -122,6 +122,19 @@ const coverUrl = project.coverImage ? urlFor(project.coverImage).width(1600).aut
   }
   .meta-dot { color: var(--color-border); }
 
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-accent);
+  }
+  .status-dot.offline { background: var(--color-muted); opacity: 0.5; }
+
   .proj-headline {
     font-family: var(--font-display);
     font-weight: 300;
@@ -139,22 +152,8 @@ const coverUrl = project.coverImage ? urlFor(project.coverImage).width(1600).aut
     max-width: 56ch;
   }
 
-  .proj-tech {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.75rem;
+  .proj-links {
     margin-top: 2rem;
-  }
-  .tech-tag {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.62rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-    border: 1px solid var(--color-border);
-    padding: 0.35rem 0.75rem;
   }
   .proj-url {
     font-family: var(--font-display);
@@ -164,7 +163,6 @@ const coverUrl = project.coverImage ? urlFor(project.coverImage).width(1600).aut
     text-transform: uppercase;
     color: var(--color-accent);
     text-decoration: none;
-    margin-left: auto;
     transition: color 0.4s;
   }
   .proj-url:hover { color: var(--color-ink); }

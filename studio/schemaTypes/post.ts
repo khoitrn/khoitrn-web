@@ -41,7 +41,22 @@ export default defineType({
     }),
     defineField({ name: 'excerpt', type: 'text', rows: 2 }),
     defineField({ name: 'publishedAt', type: 'datetime', initialValue: () => new Date().toISOString() }),
-    defineField({ name: 'body', type: 'array', of: [{ type: 'block' }, { type: 'image', options: { hotspot: true } }, { type: 'code' }] }),
+    defineField({
+      name: 'body',
+      type: 'array',
+      of: [
+        { type: 'block' },
+        {
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            { name: 'alt', title: 'Alt text', type: 'string' },
+            { name: 'caption', title: 'Caption', type: 'string' },
+          ],
+        },
+        { type: 'code' },
+      ],
+    }),
     defineField({
       name: 'footerLabel',
       title: 'Footer section label',

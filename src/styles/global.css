@@ -155,6 +155,17 @@ body {
 .prose li { margin-bottom: 0.5em; }
 .prose hr { border: none; margin: 4.5em 0; }
 .prose img { border-radius: 3px; width: 100%; margin: 2.5em 0; }
+.prose figure { margin: 2.5em 0; }
+.prose figure img { margin: 0; }
+.prose figcaption {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  text-align: center;
+  margin-top: 0.85em;
+}
 
 /* ── Mobile nav ─────────────────────────────────── */
 .mobile-menu {

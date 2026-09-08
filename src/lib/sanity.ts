@@ -23,7 +23,9 @@ export function portableTextToHtml(body: unknown[]): string {
       types: {
         image: ({ value }) => {
           const url = urlFor(value).width(1200).auto('format').url();
-          return `<img src="${url}" alt="${value.alt ?? ''}" loading="lazy" />`;
+          const img = `<img src="${url}" alt="${value.alt ?? ''}" loading="lazy" />`;
+          if (!value.caption) return img;
+          return `<figure>${img}<figcaption>${value.caption}</figcaption></figure>`;
         },
       },
     },

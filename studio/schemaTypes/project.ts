@@ -11,7 +11,7 @@ export default defineType({
     defineField({
       name: 'category',
       type: 'string',
-      options: { list: ['Product', 'Engineering', 'Startup', 'Design'] },
+      options: { list: ['AI', 'Product', 'Engineering', 'Startup', 'Design'] },
     }),
     defineField({ name: 'year', type: 'string' }),
     defineField({ name: 'active', type: 'boolean', title: 'Actively maintained', initialValue: true }),

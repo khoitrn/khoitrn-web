@@ -9,9 +9,15 @@ export default defineType({
     defineField({ name: 'slug', type: 'slug', options: { source: 'title' }, validation: r => r.required() }),
     defineField({
       name: 'category',
-      type: 'string',
-      options: { list: ['AI', 'Career', 'Travel', 'Reflection', 'Tech', 'Entrepreneurship', 'Leadership', 'Essay'] },
-      validation: r => r.required(),
+      title: 'Categories',
+      description: 'A post can belong to more than one — e.g. Career and AI.',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        list: ['AI', 'Career', 'Travel', 'Reflection', 'Tech', 'Entrepreneurship', 'Leadership', 'Essay'],
+        layout: 'tags',
+      },
+      validation: r => r.required().min(1),
     }),
     defineField({
       name: 'tags',
@@ -60,6 +66,7 @@ export default defineType({
     }),
   ],
   preview: {
-    select: { title: 'title', subtitle: 'category' },
+    select: { title: 'title', categories: 'category' },
+    prepare: ({ title, categories }) => ({ title, subtitle: categories?.join(', ') }),
   },
 });

@@ -4,7 +4,7 @@ import { client, postsQuery, formatDateShort } from '../../lib/sanity';
 
 const posts = await client.fetch(postsQuery);
 const hasVietnamese = posts.some((p: any) => p.language === 'vi');
-const rawCategories = Array.from(new Set(posts.map((p: any) => p.category).filter(Boolean))) as string[];
+const rawCategories = Array.from(new Set(posts.flatMap((p: any) => p.category ?? []))) as string[];
 rawCategories.sort((a, b) => (a === 'AI' ? -1 : b === 'AI' ? 1 : 0));
 const categories = ['All', ...rawCategories];
 ---
@@ -55,7 +55,7 @@ const categories = ['All', ...rawCategories];
               <a
                 href={`/writing/${post.slug.current}`}
                 class="reveal post-item"
-                data-category={post.category}
+                data-category={(post.category ?? []).join('|')}
                 data-language={post.language ?? 'en'}
                 style={`transition-delay:${i*60}ms;`}
               >
@@ -75,7 +75,7 @@ const categories = ['All', ...rawCategories];
                   )}
                 </div>
                 <span class="post-category">
-                  {post.category}
+                  {post.category?.map((cat: string) => <span>{cat}</span>)}
                   {post.language === 'vi' && <span class="post-lang-vi">VI</span>}
                 </span>
               </a>
@@ -324,7 +324,7 @@ const categories = ['All', ...rawCategories];
   function applyFilters() {
     items.forEach(item => {
       const langOk = activeLang === 'all' || item.dataset.language === activeLang;
-      const catOk  = activeCat  === 'All' || item.dataset.category  === activeCat;
+      const catOk  = activeCat  === 'All' || (item.dataset.category ?? '').split('|').includes(activeCat);
       item.style.display = langOk && catOk ? '' : 'none';
     });
 

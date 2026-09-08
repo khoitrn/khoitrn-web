@@ -12,8 +12,8 @@ const post = await client.fetch(postBySlugQuery, { slug });
 if (!post) return Astro.redirect('/writing');
 
 const html = portableTextToHtml(post.body ?? []);
-const related = post.category
-  ? await client.fetch(relatedPostsQuery, { slug, category: post.category })
+const related = post.category?.length > 0
+  ? await client.fetch(relatedPostsQuery, { slug, categories: post.category })
   : [];
 ---
 
@@ -25,7 +25,7 @@ const related = post.category
       <a href="/writing" class="back-link">writing</a>
 
       <div class="animate-fade-up post-meta">
-        <span class="meta-item">{post.category}</span>
+        {post.category?.map((cat: string) => <span class="meta-item">{cat}</span>)}
         <span class="meta-dot">·</span>
         <span class="meta-item">{formatDate(post.publishedAt)}</span>
         {post.estimatedReadingTime && <>

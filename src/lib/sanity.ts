@@ -45,6 +45,15 @@ export function formatDateShort(dateString: string): string {
   });
 }
 
+// post.category is schema'd as an array, but Sanity doesn't enforce that at the
+// write API level (scripts/webhooks/old revisions can still write a bare string) —
+// this keeps a static build from throwing when one document doesn't match.
+export function asCategoryArray(category: unknown): string[] {
+  if (Array.isArray(category)) return category;
+  if (typeof category === 'string' && category) return [category];
+  return [];
+}
+
 // Queries
 export const postsQuery = `*[_type == "post"] | order(publishedAt desc) {
   _id, title, slug, excerpt, category, language, tags, publishedAt,

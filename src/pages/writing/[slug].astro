@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { client, postsQuery, postBySlugQuery, relatedPostsQuery, portableTextToHtml, formatDate, formatDateShort } from '../../lib/sanity';
+import { client, postsQuery, postBySlugQuery, relatedPostsQuery, portableTextToHtml, formatDate, formatDateShort, asCategoryArray } from '../../lib/sanity';
 
 export async function getStaticPaths() {
   const posts = await client.fetch(postsQuery);
@@ -12,8 +12,9 @@ const post = await client.fetch(postBySlugQuery, { slug });
 if (!post) return Astro.redirect('/writing');
 
 const html = portableTextToHtml(post.body ?? []);
-const related = post.category?.length > 0
-  ? await client.fetch(relatedPostsQuery, { slug, categories: post.category })
+const categories = asCategoryArray(post.category);
+const related = categories.length > 0
+  ? await client.fetch(relatedPostsQuery, { slug, categories })
   : [];
 ---
 
@@ -25,7 +26,7 @@ const related = post.category?.length > 0
       <a href="/writing" class="back-link">writing</a>
 
       <div class="animate-fade-up post-meta">
-        {post.category?.map((cat: string) => <span class="meta-item">{cat}</span>)}
+        {categories.map((cat: string) => <span class="meta-item">{cat}</span>)}
         <span class="meta-dot">·</span>
         <span class="meta-item">{formatDate(post.publishedAt)}</span>
         {post.estimatedReadingTime && <>

@@ -55,19 +55,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     {!hideNav && <Footer />}
 
     <script>
-      // ── Page view tracking ─────────────────
-      fetch('/api/track', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          path: window.location.pathname,
-          referrer: document.referrer || null,
-        }),
-        keepalive: true,
-      }).catch(() => {});
-    </script>
-
-    <script>
       import Lenis from 'lenis';
 
       // ── Smooth scroll ──────────────────────

@@ -1,0 +1,474 @@
+---
+// Full-screen morphing point-cloud background.
+// Ported from docs/background-reference.html — same engine and shape
+// generators, with the demo-only UI (mode tabs, concept text, toggles)
+// stripped out. Always runs the "story" sequence: Hạc → Đèn → Giọt →
+// Sóng → Trà → Ensō → Đông Sơn → Latent → loop.
+---
+
+<canvas id="bg-morph" aria-hidden="true"></canvas>
+<div class="bg-scrim" aria-hidden="true"></div>
+
+<div class="bg-caption" id="bg-caption" hidden>
+  <span id="bg-caption-text"></span>
+  <button type="button" id="bg-caption-hide" aria-label="Hide chapter caption">&times;</button>
+</div>
+
+<style>
+  #bg-morph {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .bg-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: radial-gradient(62% 52% at 26% 90%, rgba(13, 13, 10, 0.82), rgba(13, 13, 10, 0) 72%);
+  }
+  .bg-caption {
+    position: fixed;
+    right: max(1.5rem, env(safe-area-inset-right, 0px));
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    font-variant-numeric: tabular-nums;
+    max-width: min(60vw, 32rem);
+    text-align: right;
+  }
+  .bg-caption[hidden] { display: none; }
+  .bg-caption button {
+    flex-shrink: 0;
+    font: inherit;
+    line-height: 1;
+    color: var(--color-muted);
+    background: none;
+    border: 0;
+    cursor: pointer;
+    padding: 0.35rem;
+    transition: color 0.3s;
+  }
+  .bg-caption button:hover,
+  .bg-caption button:focus-visible { color: var(--color-ink); }
+  .bg-caption button:focus-visible { outline: 1px solid var(--color-accent); outline-offset: 2px; }
+
+  @media (max-width: 768px) {
+    .bg-caption { display: none; }
+  }
+</style>
+
+<script>
+  (function () {
+    'use strict';
+
+    const canvas = document.getElementById('bg-morph') as HTMLCanvasElement | null;
+    const ctx = canvas?.getContext('2d') ?? null;
+    if (!canvas || !ctx) return;
+
+    const captionEl = document.getElementById('bg-caption') as HTMLElement | null;
+    const captionText = document.getElementById('bg-caption-text') as HTMLElement | null;
+    const captionHideBtn = document.getElementById('bg-caption-hide') as HTMLButtonElement | null;
+
+    let W = 0, H = 0, DPR = 1, FL = 800, OX = 0, OY = 0;
+    let isMobile = false;
+    const MOBILE_N = 320, DESKTOP_N = 560;
+
+    const reduceQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let reduce = reduceQuery.matches;
+    reduceQuery.addEventListener?.('change', (e) => { reduce = e.matches; });
+
+    const GOLD = [200, 148, 60], AMBER = [228, 174, 86], IVORY = [220, 212, 190], EMBER = [204, 108, 60], SAGE = [150, 176, 108];
+    // part palette: 0 ember, 1 gold, 2 amber, 3 ivory, 4 sage
+    const PAL = [EMBER, GOLD, AMBER, IVORY, SAGE];
+    const MONO = '"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace';
+
+    function clamp(v: number, a: number, b: number) { return v < a ? a : (v > b ? b : v); }
+    function rgba(c: number[], a: number) { return 'rgba(' + Math.round(c[0]) + ',' + Math.round(c[1]) + ',' + Math.round(c[2]) + ',' + (a < 0 ? 0 : a).toFixed(3) + ')'; }
+    function mixc(a: number[], b: number[], t: number) { return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; }
+    function h2(a: number, b: number) { const s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return s - Math.floor(s); }
+
+    function resize() {
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth; H = window.innerHeight;
+      canvas!.width = Math.round(W * DPR); canvas!.height = Math.round(H * DPR);
+      FL = Math.min(Math.max(W, H * 1.3) * 0.8, W * 1.7);
+      OX = W > 900 ? W * 0.1 : 0;
+      OY = -H * 0.05;
+      const nowMobile = window.matchMedia('(max-width: 768px)').matches;
+      if (nowMobile !== isMobile) {
+        isMobile = nowMobile;
+        morph.N = isMobile ? MOBILE_N : DESKTOP_N;
+        showNums = !isMobile;
+        morph.init();
+      }
+    }
+
+    // ---------- tiny 3D camera ----------
+    const C = { x: 0, y: 0, z: 0, fx: 0, fy: 0, fz: 1, rx: 1, ry: 0, rz: 0, ux: 0, uy: 1, uz: 0 };
+    const P = { x: 0, y: 0, s: 1, d: 1 };
+    function setCam(yaw: number, pitch: number, dist: number, tg: number[]) {
+      const cp = Math.cos(pitch), sp = Math.sin(pitch), cy = Math.cos(yaw), sy = Math.sin(yaw);
+      C.x = tg[0] + dist * sy * cp; C.y = tg[1] + dist * sp; C.z = tg[2] - dist * cy * cp;
+      let fx = tg[0] - C.x, fy = tg[1] - C.y, fz = tg[2] - C.z;
+      const l = Math.sqrt(fx * fx + fy * fy + fz * fz); fx /= l; fy /= l; fz /= l;
+      let rx = fz, rz = -fx; const rl = Math.sqrt(rx * rx + rz * rz); rx /= rl; rz /= rl;
+      C.fx = fx; C.fy = fy; C.fz = fz; C.rx = rx; C.ry = 0; C.rz = rz;
+      C.ux = fy * rz - fz * 0; C.uy = fz * rx - fx * rz; C.uz = fx * 0 - fy * rx;
+    }
+    function proj(x: number, y: number, z: number) {
+      const vx = x - C.x, vy = y - C.y, vz = z - C.z;
+      const d = vx * C.fx + vy * C.fy + vz * C.fz;
+      if (d < 0.1) { P.d = -1; return false; }
+      const s = FL / d;
+      P.x = W / 2 + OX + (vx * C.rx + vy * C.ry + vz * C.rz) * s;
+      P.y = H / 2 + OY - (vx * C.ux + vy * C.uy + vz * C.uz) * s;
+      P.s = s; P.d = d; return true;
+    }
+
+    // ---------- pointer ----------
+    const ptr = { x: 0, y: 0, nx: 0, ny: 0, sx: 0, sy: 0, t: -99999, tap: false };
+    function onPtr(e: PointerEvent) { ptr.x = e.clientX; ptr.y = e.clientY; ptr.nx = e.clientX / W * 2 - 1; ptr.ny = e.clientY / H * 2 - 1; ptr.t = performance.now(); }
+    window.addEventListener('pointermove', onPtr, { passive: true });
+    window.addEventListener('pointerdown', (e) => { onPtr(e); ptr.tap = true; }, { passive: true });
+    function ptrOn() { return performance.now() - ptr.t < 4500; }
+
+    // =========================================================
+    // Shape generators: positions plus a part id per point (colors)
+    // =========================================================
+    function sphereGen(N: number) {
+      const a = new Float32Array(N * 3), c = new Uint8Array(N);
+      for (let i = 0; i < N; i++) {
+        const y = 1 - (i + 0.5) / N * 2, rr = Math.sqrt(1 - y * y), th = i * 2.39996;
+        a[i * 3] = Math.cos(th) * rr * 2.7; a[i * 3 + 1] = y * 2.7; a[i * 3 + 2] = Math.sin(th) * rr * 2.7;
+        c[i] = clamp(Math.floor((1 - y) / 2 * 4), 0, 3);
+      }
+      return { pos: a, cid: c };
+    }
+    function starPerimeter(rOut: number, rIn: number, zj: number, off: number) {
+      const V: number[][] = [], cum = [0]; let total = 0;
+      for (let k = 0; k < 28; k++) { const an = k / 28 * 6.2832; V.push([(k % 2 ? rIn : rOut) * Math.cos(an), (k % 2 ? rIn : rOut) * Math.sin(an)]); }
+      for (let k = 0; k < 28; k++) { const a0 = V[k], b0 = V[(k + 1) % 28]; total += Math.hypot(b0[0] - a0[0], b0[1] - a0[1]); cum.push(total); }
+      return function (i: number, n: number) {
+        const s = (i + 0.5) / n * total; let seg = 0;
+        while (seg < 27 && cum[seg + 1] < s) seg++;
+        const fr = (s - cum[seg]) / (cum[seg + 1] - cum[seg] || 1), p0 = V[seg], p1 = V[(seg + 1) % 28];
+        return [p0[0] + (p1[0] - p0[0]) * fr, p0[1] + (p1[1] - p0[1]) * fr, (h2(i + off, 4) - 0.5) * zj];
+      };
+    }
+    function drumGen(N: number) {
+      const a = new Float32Array(N * 3), c = new Uint8Array(N), nStar = Math.round(N * 0.4), f = starPerimeter(2.5, 0.85, 0.3, 11);
+      for (let i = 0; i < N; i++) {
+        let x, y, cd; const z = (h2(i, 8) - 0.5) * 0.25;
+        if (i < nStar) { const p = f(i, nStar); x = p[0]; y = p[1]; cd = 2; }
+        else {
+          const q = i - nStar, m = N - nStar, grp = q % 3, k = Math.floor(q / 3), cnt = Math.ceil(m / 3), an = k / cnt * 6.2832;
+          if (grp === 0) { x = 3.1 * Math.cos(an); y = 3.1 * Math.sin(an); cd = 1; }
+          else if (grp === 1) { const a2 = Math.round(k / cnt * 48) / 48 * 6.2832; x = 3.75 * Math.cos(a2); y = 3.75 * Math.sin(a2); cd = 3; }
+          else { const rz = Math.round(k / cnt * 72) % 2 ? 4.5 : 4.15; x = rz * Math.cos(an); y = rz * Math.sin(an); cd = 0; }
+        }
+        a[i * 3] = x; a[i * 3 + 1] = y; a[i * 3 + 2] = z; c[i] = cd;
+      }
+      return { pos: a, cid: c };
+    }
+    function ensoGen(N: number) {
+      const a = new Float32Array(N * 3), c = new Uint8Array(N), start = -2.3;
+      for (let i = 0; i < N; i++) {
+        const s = Math.pow(h2(i, 5), 0.9), th = start + 5.5 * s, taper = 1 - 0.6 * s;
+        let r = 3.3 + (h2(i, 6) - 0.5) * 0.75 * taper * (0.6 + 0.8 * s);
+        if (s > 0.8 && h2(i, 12) < 0.4) r += (h2(i, 13) > 0.5 ? 1 : -1) * 0.5 * (s - 0.7);
+        a[i * 3] = r * Math.cos(th); a[i * 3 + 1] = r * Math.sin(th); a[i * 3 + 2] = (h2(i, 7) - 0.5) * 0.3;
+        c[i] = s < 0.3 ? 3 : (s < 0.7 ? 2 : 0);
+      }
+      return { pos: a, cid: c };
+    }
+    function dropGen(N: number) {
+      const a = new Float32Array(N * 3), c = new Uint8Array(N);
+      for (let i = 0; i < N; i++) {
+        const u = (i + 0.5) / N, th = i * 2.39996, r = 1.6 * Math.sin(Math.PI * Math.pow(u, 0.8)) * (1 - 0.5 * u);
+        a[i * 3] = r * Math.cos(th); a[i * 3 + 1] = -1.7 + u * 4.8 - 0.4; a[i * 3 + 2] = r * Math.sin(th);
+        c[i] = u > 0.8 ? 3 : (u < 0.15 ? 0 : 2);
+      }
+      return { pos: a, cid: c };
+    }
+    function ripplesGen(N: number) {
+      const a = new Float32Array(N * 3), c = new Uint8Array(N), rings = [0.8, 1.55, 2.3, 3.05, 3.8, 4.55], cum: number[] = [], rc = [3, 2, 1, 0, 3, 2];
+      let tot = 0;
+      for (let k = 0; k < rings.length; k++) { tot += rings[k]; cum.push(tot); }
+      for (let i = 0; i < N; i++) {
+        const s = (i + 0.5) / N * tot; let ri = 0; while (ri < rings.length - 1 && cum[ri] < s) ri++;
+        const prev = ri ? cum[ri - 1] : 0, an = (s - prev) / rings[ri] * 6.2832, r = rings[ri];
+        a[i * 3] = r * Math.cos(an); a[i * 3 + 1] = 0.2 * Math.sin(r * 2.6); a[i * 3 + 2] = r * Math.sin(an); c[i] = rc[ri];
+      }
+      return { pos: a, cid: c, tilt: 0.5 };
+    }
+    function whiskGen(N: number) {
+      const a = new Float32Array(N * 3), c = new Uint8Array(N), ac = [2, 1, 3, 0];
+      for (let i = 0; i < N; i++) {
+        const arm = i % 4, s = (Math.floor(i / 4) + 0.5) / (N / 4), rad = 0.3 + (1 - s) * 2.7, an = s * 9 + arm * 1.5708;
+        a[i * 3] = rad * Math.cos(an) + (h2(i, 3) - 0.5) * 0.12; a[i * 3 + 1] = 2.8 - s * 5.6; a[i * 3 + 2] = rad * Math.sin(an) + (h2(i, 4) - 0.5) * 0.12; c[i] = ac[arm];
+      }
+      return { pos: a, cid: c };
+    }
+    function lanternGen(N: number) {
+      const a = new Float32Array(N * 3), c = new Uint8Array(N);
+      for (let i = 0; i < N; i++) {
+        if (i % 18 === 0) { a[i * 3] = (h2(i, 3) - 0.5) * 0.1; a[i * 3 + 1] = -2.5 - h2(i, 4) * 1.4; a[i * 3 + 2] = (h2(i, 5) - 0.5) * 0.1; c[i] = 3; continue; }
+        const v = 1 - (i + 0.5) / N * 2, th = i * 2.39996, rib = Math.cos(8 * th), rr = 1.8 * Math.sqrt(1 - v * v) * (1 + 0.08 * rib);
+        a[i * 3] = rr * Math.cos(th); a[i * 3 + 1] = v * 2.4; a[i * 3 + 2] = rr * Math.sin(th);
+        c[i] = Math.abs(v) > 0.82 ? 1 : (rib > 0.6 ? 0 : 2);
+      }
+      return { pos: a, cid: c };
+    }
+    function craneGen(N: number) {
+      const T = 1.15, tip = 0.1 + 0.4 * 0.55, tq = 0.1 + 0.4 * 0.28;
+      const F = [
+        [[0, 0.18, 0], [0, 0, -0.14], [-0.35, 0, 0]], [[0, 0.18, 0], [0.35, 0, 0], [0, 0, -0.14]], [[0, 0.18, 0], [0, 0, 0.14], [0.35, 0, 0]], [[0, 0.18, 0], [-0.35, 0, 0], [0, 0, 0.14]],
+        [[0, -0.12, 0], [-0.35, 0, 0], [0, 0, -0.14]], [[0, -0.12, 0], [0, 0, -0.14], [0.35, 0, 0]], [[0, -0.12, 0], [0.35, 0, 0], [0, 0, 0.14]], [[0, -0.12, 0], [0, 0, 0.14], [-0.35, 0, 0]],
+        [[0.3, 0.03, 0.05], [0.3, 0.03, -0.05], [0.6, 0.3, 0]], [[0.58, 0.3, 0.025], [0.58, 0.3, -0.025], [0.84, 0.2, 0]], [[-0.3, 0.02, 0.05], [-0.3, 0.02, -0.05], [-0.7, 0.24, 0]],
+        [[-0.22, 0.1, 0], [0.26, 0.1, 0], [0.05, tip, -T]], [[-0.22, 0.1, 0], [0.05, tip, -T], [-0.3, tq, -0.7]],
+        [[-0.22, 0.1, 0], [0.05, tip, T], [0.26, 0.1, 0]], [[-0.22, 0.1, 0], [-0.3, tq, 0.7], [0.05, tip, T]]
+      ];
+      const cum: number[] = []; let tot = 0;
+      for (let k = 0; k < F.length; k++) {
+        const a0 = F[k][0], b0 = F[k][1], c0 = F[k][2];
+        const ux = b0[0] - a0[0], uy = b0[1] - a0[1], uz = b0[2] - a0[2], wx = c0[0] - a0[0], wy = c0[1] - a0[1], wz = c0[2] - a0[2];
+        const nx = uy * wz - uz * wy, ny = uz * wx - ux * wz, nz = ux * wy - uy * wx;
+        tot += 0.5 * Math.sqrt(nx * nx + ny * ny + nz * nz) + 0.004; cum.push(tot);
+      }
+      const pos = new Float32Array(N * 3), wing = new Float32Array(N), cid = new Uint8Array(N), SC = 2.4;
+      for (let i = 0; i < N; i++) {
+        const r = h2(i, 1) * tot; let f = 0; while (f < F.length - 1 && cum[f] < r) f++;
+        const v0 = F[f][0], v1 = F[f][1], v2 = F[f][2]; let px: number, py: number, pz: number;
+        if (h2(i, 4) < 0.3) {
+          const e = Math.floor(h2(i, 5) * 3), s = h2(i, 6), q0 = F[f][e], q1 = F[f][(e + 1) % 3];
+          px = q0[0] + (q1[0] - q0[0]) * s; py = q0[1] + (q1[1] - q0[1]) * s; pz = q0[2] + (q1[2] - q0[2]) * s;
+        } else {
+          let u = h2(i, 2), v = h2(i, 3); if (u + v > 1) { u = 1 - u; v = 1 - v; }
+          px = v0[0] + u * (v1[0] - v0[0]) + v * (v2[0] - v0[0]); py = v0[1] + u * (v1[1] - v0[1]) + v * (v2[1] - v0[1]); pz = v0[2] + u * (v1[2] - v0[2]) + v * (v2[2] - v0[2]);
+        }
+        pos[i * 3] = (px - 0.07) * SC; pos[i * 3 + 1] = (py - 0.12) * SC; pos[i * 3 + 2] = pz * SC;
+        wing[i] = f >= 11 ? Math.min(1, Math.abs(pz) / T) : 0;
+        cid[i] = f < 8 ? 3 : (f < 10 ? 0 : (f === 10 ? 1 : (wing[i] > 0.72 ? 0 : 2)));
+      }
+      return { pos, wing, cid, flapScale: 0.55 * SC };
+    }
+
+    // =========================================================
+    // The morphing engine: one cloud, a sequence of shapes
+    // =========================================================
+    let showNums = true;
+    const colorOn = true;
+
+    function mkMorph(cfg: any) {
+      return {
+        cfg, N: cfg.N, t0: null as number | null, shapes: [] as any[],
+        X: null as Float32Array | null, Y: null as Float32Array | null, Z: null as Float32Array | null,
+        cnt: null as Uint8Array | null, sx: null as Float32Array | null, sy: null as Float32Array | null,
+        ss: null as Float32Array | null, sd: null as Float32Array | null, tint: null as Float32Array | null,
+        E: null as Float32Array | null, toff: 0, lab: '', txt: [] as string[], txtT: -9, links: 0, mtNow: 0,
+        init() {
+          const N = this.N;
+          this.shapes = cfg.shapes.map((s: any) => { const g = s[1](N); return { name: s[0], story: s[2] || '', pos: g.pos, cid: g.cid, wing: g.wing || null, flap: g.flapScale || 0, tilt: g.tilt || 0 }; });
+          this.X = new Float32Array(N); this.Y = new Float32Array(N); this.Z = new Float32Array(N); this.cnt = new Uint8Array(N);
+          this.sx = new Float32Array(N); this.sy = new Float32Array(N); this.ss = new Float32Array(N); this.sd = new Float32Array(N);
+          this.tint = new Float32Array(N); this.E = new Float32Array(N); this.txt = new Array(N);
+          for (let i = 0; i < N; i++) { this.tint[i] = h2(i, 9); this.txt[i] = ''; }
+          this.toff = 0; this.lab = ''; this.txtT = -9; this.t0 = null;
+        },
+        frame(tRaw: number, dt: number) {
+          if (this.t0 === null) this.t0 = tRaw;
+          const t = tRaw - this.t0;
+          // intro: the camera starts far away so the first shape arrives from a distance
+          let ie = cfg.intro ? Math.max(0, 1 - t / 6) : 0; ie = ie * ie * (3 - 2 * ie);
+          setCam(0, 0, 12 + 30 * ie, [0, 0, 0]);
+          const N = this.N, S = this.shapes.length, cycle = cfg.cycle;
+          let tt = Math.max(0, t - (cfg.lead || 0) + this.toff);
+          if (ptr.tap) {
+            ptr.tap = false;
+            const ph0 = tt % cycle; if (ph0 < 0.55 * cycle) { this.toff += 0.55 * cycle - ph0; tt = Math.max(0, t - (cfg.lead || 0) + this.toff); }
+          }
+          const kk = Math.floor(tt / cycle), A = this.shapes[kk % S], B = this.shapes[(kk + 1) % S];
+          const mt = clamp(((tt % cycle) / cycle - 0.55) / 0.45, 0, 1), sm = mt * mt * (3 - 2 * mt);
+          this.mtNow = sm;
+          const cs = mt > 0.5 ? B : A, ci = (mt > 0.5 ? kk + 1 : kk) % S, nm = cs.name;
+          if (nm !== this.lab) { this.lab = nm; setChapterCaption(nm, cs.story, ci + 1, S); }
+          let ay = cfg.spin ? t * 0.12 + ptr.sx * 0.6 : cfg.yaw + cfg.yawAmp * Math.sin(t * 0.18) + ptr.sx * 0.5;
+          ay += (1.3 - ay) * ie; // head-on at first, then it banks into profile
+          const ax = 0.35 + (A.tilt + (B.tilt - A.tilt) * sm) + ptr.sy * 0.3;
+          const cb = Math.cos(ay), sb = Math.sin(ay), ca = Math.cos(ax), sa = Math.sin(ax);
+          const X = this.X!, Y = this.Y!, Z = this.Z!, cnt = this.cnt!, E = this.E!, ap = A.pos, bp = B.pos;
+          const flapNow = Math.sin(t * (2.2 + 1.6 * ie)) * 0.5;
+          for (let i = 0; i < N; i++) {
+            let e = clamp((mt - (i % 9) / 9 * 0.45) / 0.55, 0, 1); e = e * e * (3 - 2 * e); E[i] = e;
+            let yA = ap[i * 3 + 1], yB = bp[i * 3 + 1];
+            if (A.wing) yA += flapNow * A.flap * A.wing[i];
+            if (B.wing) yB += flapNow * B.flap * B.wing[i];
+            X[i] = ap[i * 3] + (bp[i * 3] - ap[i * 3]) * e + Math.sin(t * 0.5 + i) * 0.08;
+            Y[i] = yA + (yB - yA) * e + Math.sin(t * 0.43 + i * 1.3) * 0.08;
+            Z[i] = ap[i * 3 + 2] + (bp[i * 3 + 2] - ap[i * 3 + 2]) * e + Math.sin(t * 0.37 + i * 0.7) * 0.08;
+            cnt[i] = 0;
+          }
+          ctx!.globalCompositeOperation = 'lighter'; ctx!.lineCap = 'round';
+          const buckets: number[][] = []; const LIM = 1.25, D2 = LIM * LIM, cA = A.cid, cB = B.cid;
+          for (let bi = 0; bi < 15; bi++) buckets.push([]);
+          let links = 0;
+          for (let i = 0; i < N; i++) {
+            for (let j = i + 1; j < N; j++) {
+              const dx = X[i] - X[j]; if (dx > LIM || dx < -LIM) continue;
+              const dy = Y[i] - Y[j]; if (dy > LIM || dy < -LIM) continue;
+              const dz = Z[i] - Z[j], d2 = dx * dx + dy * dy + dz * dz;
+              if (d2 < D2 && cnt[i] < 4 && cnt[j] < 4) {
+                cnt[i]++; cnt[j]++; links++;
+                const cc = colorOn ? (E[i] < 0.5 ? cA[i] : cB[i]) : 1;
+                buckets[(d2 < 0.35 ? 0 : (d2 < 0.8 ? 1 : 2)) * 5 + cc].push(i, j);
+              }
+            }
+          }
+          this.links = links;
+          const sx = this.sx!, sy = this.sy!, ss = this.ss!, sd = this.sd!;
+          for (let i = 0; i < N; i++) {
+            const x1 = X[i] * cb + Z[i] * sb, z1 = -X[i] * sb + Z[i] * cb, y1 = Y[i] * ca - z1 * sa, z2 = Y[i] * sa + z1 * ca;
+            if (proj(x1, y1, z2)) { sx[i] = P.x; sy[i] = P.y; ss[i] = P.s; sd[i] = P.d; } else sd[i] = -1;
+          }
+          const alphas = [0.34, 0.2, 0.1];
+          ctx!.lineWidth = 1;
+          for (let b = 0; b < 3; b++) {
+            for (let c = 0; c < 5; c++) {
+              const pr = buckets[b * 5 + c]; if (!pr.length) continue;
+              ctx!.beginPath();
+              for (let q = 0; q < pr.length; q += 2) { if (sd[pr[q]] < 0 || sd[pr[q + 1]] < 0) continue; ctx!.moveTo(sx[pr[q]], sy[pr[q]]); ctx!.lineTo(sx[pr[q + 1]], sy[pr[q + 1]]); }
+              ctx!.strokeStyle = rgba(PAL[c], alphas[b]); ctx!.stroke();
+            }
+          }
+          // numbers: refresh the cached readouts a few times a second so they stay legible
+          if (showNums && t - this.txtT > 0.3) {
+            this.txtT = t;
+            for (let i = 3; i < N; i += 11) this.txt[i] = (X[i] / 3.5).toFixed(2);
+          }
+          const on = ptrOn(); let best = -1, bestD = 110, curSz = 0;
+          ctx!.textAlign = 'left'; ctx!.textBaseline = 'middle';
+          for (let i = 0; i < N; i++) {
+            if (sd[i] < 0) continue;
+            const nearV = on ? clamp(1.3 - Math.hypot(sx[i] - ptr.x, sy[i] - ptr.y) / 200, 0, 1) : 0;
+            if (on) { const dd = Math.hypot(sx[i] - ptr.x, sy[i] - ptr.y); if (dd < bestD) { bestD = dd; best = i; } }
+            const fog = clamp(1.3 - (sd[i] - 9) / 8, 0.25, 1), sz = clamp(ss[i] * 0.016, 1, 3.2) * (1 + nearV * 0.8);
+            const col = mixc(PAL[cA[i]], PAL[cB[i]], E[i]);
+            const cl = mixc(col, IVORY, nearV);
+            ctx!.fillStyle = rgba(cl, (0.5 + 0.4 * nearV) * fog);
+            ctx!.fillRect(sx[i] - sz / 2, sy[i] - sz / 2, sz, sz);
+            if (nearV > 0.5) { ctx!.fillStyle = rgba(col, 0.12 * nearV); ctx!.beginPath(); ctx!.arc(sx[i], sy[i], sz * 4, 0, 6.2832); ctx!.fill(); }
+            if (showNums && i % 11 === 3 && sd[i] < 16) {
+              const fs = clamp(Math.round(ss[i] * 0.011), 7, 11);
+              if (fs !== curSz) { curSz = fs; ctx!.font = '500 ' + fs + 'px ' + MONO; }
+              ctx!.fillStyle = rgba(mixc(col, IVORY, 0.3), (0.34 + 0.4 * nearV) * fog);
+              ctx!.fillText(this.txt[i], sx[i] + 7, sy[i] - 5);
+            }
+          }
+          // readout for the point nearest the cursor
+          if (best >= 0) {
+            const bx = sx[best], by = sy[best];
+            ctx!.lineWidth = 1; ctx!.strokeStyle = rgba(IVORY, 0.8);
+            ctx!.beginPath(); ctx!.arc(bx, by, 8, 0, 6.2832); ctx!.stroke();
+            ctx!.beginPath(); ctx!.moveTo(bx + 6, by - 6); ctx!.lineTo(bx + 28, by - 28); ctx!.lineTo(bx + 44, by - 28); ctx!.stroke();
+            ctx!.font = '500 11px ' + MONO; ctx!.fillStyle = rgba(IVORY, 0.95);
+            ctx!.fillText('x ' + X[best].toFixed(2) + '  y ' + Y[best].toFixed(2) + '  z ' + Z[best].toFixed(2), bx + 48, by - 28);
+            ctx!.fillStyle = rgba(AMBER, 0.8);
+            ctx!.fillText('point ' + best + '  links ' + cnt[best], bx + 48, by - 13);
+          }
+          ctx!.globalCompositeOperation = 'source-over';
+        }
+      };
+    }
+
+    const morph = mkMorph({
+      N: DESKTOP_N, cycle: 7, spin: false, intro: true, lead: 2.5, yaw: 0.45, yawAmp: 0.45,
+      shapes: [
+        ['Hạc · paper crane', craneGen, 'A paper crane crosses the sky and flies toward you, carrying a wish.'],
+        ['Đèn · silk lantern', lanternGen, 'It lands as a lantern, and lights the river at Hội An.'],
+        ['Giọt · a drop of tea', dropGen, 'One drop falls out of the light.'],
+        ['Sóng · ripples', ripplesGen, 'It spreads outward, ring by ring.'],
+        ['Trà · whisk', whiskGen, 'Stirred until it holds together.'],
+        ['Ensō · the circle', ensoGen, 'Then stillness: one brush stroke, one circle.'],
+        ['Đông Sơn · drum star', drumGen, 'Behind the circle, the old star on the drum, where I come from.'],
+        ['Latent · the model', sphereGen, 'And the star dissolves into the next thing: a model still learning its shape.'],
+      ],
+    });
+
+    const CAPTION_HIDDEN_KEY = 'bg-caption-hidden';
+    let captionDismissed = false;
+    try { captionDismissed = localStorage.getItem(CAPTION_HIDDEN_KEY) === '1'; } catch { /* storage unavailable */ }
+
+    function setChapterCaption(name: string, story: string, i: number, total: number) {
+      if (!captionText || !captionEl || captionDismissed || isMobile) return;
+      const short = name.split(' · ')[0];
+      const num = (i < 10 ? '0' : '') + i;
+      captionText.textContent = num + ' / 0' + total + ' · ' + short + ' · ' + story;
+      captionEl.hidden = false;
+    }
+    captionHideBtn?.addEventListener('click', () => {
+      captionDismissed = true;
+      if (captionEl) captionEl.hidden = true;
+      try { localStorage.setItem(CAPTION_HIDDEN_KEY, '1'); } catch { /* storage unavailable */ }
+    });
+
+    // ---------- run / pause ----------
+    let running = false;
+    let rafId = 0;
+    let last = performance.now();
+    let T = 0;
+
+    function loop(now: number) {
+      if (!running) return;
+      const raw = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now;
+      const dt = reduce ? raw * 0.2 : raw;
+      T += dt;
+      ctx!.setTransform(DPR, 0, 0, DPR, 0, 0);
+      ctx!.globalAlpha = 1; ctx!.globalCompositeOperation = 'source-over';
+      ctx!.clearRect(0, 0, W, H);
+      const k = Math.min(1, raw * 2.5); ptr.sx += (ptr.nx - ptr.sx) * k; ptr.sy += (ptr.ny - ptr.sy) * k;
+      morph.frame(T, dt);
+      ctx!.globalAlpha = 1; ctx!.globalCompositeOperation = 'source-over';
+      rafId = requestAnimationFrame(loop);
+    }
+
+    function start() {
+      if (running) return;
+      running = true;
+      last = performance.now();
+      rafId = requestAnimationFrame(loop);
+    }
+    function stop() {
+      running = false;
+      if (rafId) cancelAnimationFrame(rafId);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop(); else start();
+    });
+
+    const io = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting && !document.hidden) start(); else stop();
+      }
+    });
+    io.observe(canvas);
+
+    resize();
+    window.addEventListener('resize', resize);
+    morph.init();
+    if (!document.hidden) start();
+  })();
+</script>

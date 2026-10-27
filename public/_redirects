@@ -1,3 +1,4 @@
 # Cloudflare Pages redirects
 /feed  /writing  301
 /favicon.ico  /favicon.svg  200
+/now  /about#right-now  301

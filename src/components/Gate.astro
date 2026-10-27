@@ -1,0 +1,164 @@
+---
+/* The title gate. It sits in front of the canvas and breaks as the page is scrolled:
+   the crane dives through the name, the letters shatter, the two shoji panels slide apart.
+   Scrolling is native: a tall runway below drives scroll progress, the gate itself is fixed. */
+interface Props {
+  tagline: string;
+  blurb: string;
+}
+const { tagline, blurb } = Astro.props;
+---
+
+<!-- Runs before first paint of the gate: repeat visits and reduced motion never see it. -->
+<script is:inline>
+  (function () {
+    var seen = false;
+    try { seen = sessionStorage.getItem('khoi-gate-seen') === '1'; } catch (e) {}
+    if (seen || matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.dataset.gate = 'skip';
+  })();
+</script>
+<noscript><style>.gate, .runway, .gate-skip, .gate-cue { display: none !important; } .chrome { opacity: 1 !important; }</style></noscript>
+
+<div class="runway" aria-hidden="true"></div>
+
+<button type="button" class="gate-skip" id="gate-skip">Skip intro</button>
+<p class="gate-cue" id="gate-cue" aria-hidden="true">Scroll to open<i></i></p>
+
+<div class="gate" id="gate" aria-hidden="true">
+  <div class="shoji shoji-l" id="shoji-l"><img src="/hero.svg?v=3" alt="" /></div>
+  <div class="shoji shoji-r" id="shoji-r"><img src="/hero.svg?v=3" alt="" /></div>
+  <div class="gate-title" id="gate-title">
+    <p class="gate-eyebrow" id="gate-eyebrow">{tagline}</p>
+    <div class="gate-name" id="gate-name">khoi tran</div>
+    <p class="gate-blurb" id="gate-blurb">{blurb}</p>
+  </div>
+</div>
+
+<style>
+  /* 100vh to see the gate, then ~120vh of runway that drives progress */
+  .runway { height: calc(100vh + 120vh); height: calc(100svh + 120svh); }
+
+  .gate { position: fixed; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; }
+  .shoji {
+    position: absolute; top: 0; bottom: 0; width: 37%; overflow: hidden; will-change: transform;
+    background: var(--color-bg-hero);
+  }
+  .shoji img { position: absolute; top: 0; width: 100vw; height: 100%; object-fit: cover; object-position: center; display: block; }
+  .shoji-l { left: 0; box-shadow: 18px 0 40px rgba(0, 0, 0, 0.55); }
+  .shoji-r { right: 0; box-shadow: -18px 0 40px rgba(0, 0, 0, 0.55); }
+  .shoji-l img { left: 0; }
+  .shoji-r img { right: 0; }
+  /* shade so the title reads over the lit paper, plus the seam of each panel */
+  .shoji::after { content: ''; position: absolute; inset: 0; background: linear-gradient(rgba(9, 9, 7, 0.12), rgba(9, 9, 7, 0.3)); }
+  .shoji-l::before, .shoji-r::before { content: ''; position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(0, 0, 0, 0.5); z-index: 1; }
+  .shoji-l::before { right: 0; }
+  .shoji-r::before { left: 0; }
+
+  .gate-title {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    padding: 0 max(20px, env(safe-area-inset-left, 0px));
+  }
+  .gate-eyebrow {
+    font-family: var(--font-display); font-weight: 300; font-size: clamp(0.7rem, 1.5vw, 1rem); line-height: 1;
+    letter-spacing: 0.4em; text-transform: uppercase; color: #a29e8e; margin: 0 0 clamp(18px, 4vh, 40px);
+  }
+  .gate-name {
+    font-family: var(--font-display); font-weight: 200; font-size: clamp(3.4rem, 15vw, 11.5rem); line-height: 1;
+    letter-spacing: -0.01em; color: #f4f2ea; white-space: nowrap; will-change: transform;
+  }
+  .gate-name :global(.ch) { display: inline-block; will-change: transform, opacity; }
+  .gate-blurb {
+    font-family: var(--font-serif); font-size: clamp(1.05rem, 1.8vw, 1.45rem); line-height: 1.65; color: #a8a495;
+    max-width: 27rem; margin: clamp(22px, 5vh, 48px) 0 0; text-wrap: balance;
+  }
+
+  .gate-cue {
+    position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 64px); transform: translateX(-50%); z-index: 6;
+    text-align: center; font: 400 0.85rem/1 var(--font-ui); letter-spacing: 0.04em; color: var(--color-muted);
+    pointer-events: none; opacity: 0; transition: opacity 1s ease;
+  }
+  .gate-cue i { display: block; width: 1px; height: 36px; margin: 10px auto 0; background: linear-gradient(var(--color-accent), transparent); animation: gate-drip 2.2s ease-in-out infinite; transform-origin: top; }
+  @keyframes gate-drip { 0% { transform: scaleY(0); } 60% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1); opacity: 0; } }
+
+  .gate-skip {
+    position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); transform: translateX(-50%); z-index: 6;
+    font: 400 0.85rem/1 var(--font-ui); letter-spacing: 0.03em; color: var(--color-muted);
+    background: none; border: 0; padding: 0.7rem 0.9rem; cursor: pointer; transition: color 0.25s ease;
+  }
+  .gate-skip:hover { color: var(--color-ink); }
+  .gate-skip:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 2px; }
+
+  /* repeat visits and reduced motion: no gate at all */
+  :global(html[data-gate='skip']) .gate, :global(html[data-gate='skip']) .runway,
+  :global(html[data-gate='skip']) .gate-skip, :global(html[data-gate='skip']) .gate-cue,
+  :global(html[data-gate='done']) .gate, :global(html[data-gate='done']) .runway,
+  :global(html[data-gate='done']) .gate-skip, :global(html[data-gate='done']) .gate-cue { display: none; }
+  @media (prefers-reduced-motion: reduce) { .gate, .runway, .gate-skip, .gate-cue { display: none; } .gate-cue i { animation: none; } }
+</style>
+
+<script>
+  import { clamp, h2, smooth } from '../lib/gate/math.ts';
+  import { gate, markGateSeen, onFrame, openGate } from '../lib/gate/state.ts';
+
+  const $ = (id: string) => document.getElementById(id) as HTMLElement;
+  const root = document.documentElement;
+  const elName = $('gate-name'), elEyebrow = $('gate-eyebrow'), elBlurb = $('gate-blurb'), elTitle = $('gate-title');
+  const shL = $('shoji-l'), shR = $('shoji-r'), cue = $('gate-cue'), skip = $('gate-skip');
+  const runway = document.querySelector('.runway') as HTMLElement | null;
+
+  /* repeat visit or reduced motion: the inline script above already hid the gate */
+  if (root.dataset.gate !== 'skip') {
+    /* split the name into letters that can lean away from the crane and then shatter */
+    const word = 'khoi tran';
+    elName.textContent = '';
+    const letters = [...word].map((ch, li) => {
+      const el = document.createElement('span');
+      el.className = 'ch'; el.textContent = ch === ' ' ? ' ' : ch;
+      elName.appendChild(el);
+      return { el, f: (li + 0.5) / word.length, x: (li - (word.length - 1) / 2) / ((word.length - 1) / 2), rx: h2(li, 1) - 0.5, ry: h2(li, 2) - 0.5, rr: h2(li, 3) - 0.5 };
+    });
+
+    let appear = 0, lastP = -1, finished = false;
+
+    function finish() {
+      finished = true;
+      markGateSeen();
+      root.dataset.gate = 'done';
+      runway?.remove(); /* the page is a fixed stage from here on */
+      window.scrollTo(0, 0);
+    }
+
+    skip.addEventListener('click', () => { openGate(); });
+
+    onFrame((p, dt) => {
+      if (finished) return;
+      if (p >= 0.985) { finish(); return; }
+      appear = Math.min(1, appear + dt * 1.3);
+      cue.style.opacity = gate.target < 0.03 && gate.idle > 3.5 ? '1' : '0';
+      const sk = 1 - smooth(p / 0.25);
+      skip.style.opacity = sk.toFixed(3); skip.style.visibility = sk < 0.05 ? 'hidden' : '';
+      if (p === lastP && appear >= 1) return; /* nothing moved */
+      lastP = p;
+
+      const a = smooth(appear);
+      elTitle.style.opacity = a.toFixed(3); shL.style.opacity = a.toFixed(3); shR.style.opacity = a.toFixed(3);
+      elName.style.transform = `scale(${(1 + 0.1 * smooth(p / 0.45)).toFixed(4)})`;
+      const nr = elName.getBoundingClientRect(), ly = nr.top + nr.height / 2, W = window.innerWidth;
+      for (const L of letters) {
+        const b = smooth((p - 0.4 - Math.abs(L.x) * 0.1) / 0.22); /* shatter, staggered by distance from the center */
+        /* letters near the crane lean away from it and warm up to gold as it flies past */
+        const vx = nr.left + nr.width * L.f - gate.crane.x, vy = ly - gate.crane.y, dist = Math.hypot(vx, vy) + 0.001;
+        let w = clamp(1 - dist / (W * 0.16), 0, 1); w = w * w * (1 - b);
+        const px = vx / dist * 44 * w, py = vy / dist * 44 * w;
+        L.el.style.transform = `translate(${((L.x * 170 + L.rx * 120) * b + px).toFixed(1)}px,${(L.ry * 280 * b + py).toFixed(1)}px) rotate(${(L.rr * 140 * b).toFixed(1)}deg) scale(${(1 + 0.6 * b).toFixed(3)})`;
+        L.el.style.opacity = (1 - b).toFixed(3);
+        L.el.style.color = w > 0.03 ? `rgb(${Math.round(244 - 16 * w * 0.9)},${Math.round(242 - 68 * w * 0.9)},${Math.round(234 - 148 * w * 0.9)})` : '';
+      }
+      const t2 = smooth((p - 0.38) / 0.2);
+      elEyebrow.style.opacity = (1 - t2).toFixed(3); elEyebrow.style.transform = `translateY(${(-34 * t2).toFixed(1)}px)`;
+      elBlurb.style.opacity = (1 - t2).toFixed(3); elBlurb.style.transform = `translateY(${(34 * t2).toFixed(1)}px)`;
+      const e = smooth((p - 0.5) / 0.3);
+      shL.style.transform = `translateX(${(-105 * e).toFixed(2)}%)`; shR.style.transform = `translateX(${(105 * e).toFixed(2)}%)`;
+    });
+  }
+</script>

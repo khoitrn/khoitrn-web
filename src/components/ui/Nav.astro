@@ -12,17 +12,16 @@ const { pathname } = Astro.url;
   <nav style="display: flex; align-items: center; justify-content: space-between; padding: 2.25rem 3rem; pointer-events: auto;">
 
     <a href="/"
-      style="font-family: var(--font-display); font-weight: 300; font-size: 0.7rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--color-muted); text-decoration: none; transition: color 0.4s;"
-      onmouseover="this.style.color='var(--color-ink)'"
-      onmouseout="this.style.color='var(--color-muted)'"
-    >Khoi Tran</a>
+      aria-label="Khoi Tran, home"
+      style="font-family: var(--font-serif); font-weight: 400; font-size: 1.5rem; line-height: 1; letter-spacing: 0.04em; color: var(--color-ink); text-decoration: none;"
+    >Ktrn</a>
 
     <div class="nav-links" style="display: flex; align-items: center; gap: 3rem;">
       <ul style="display: flex; gap: 3rem; list-style: none; margin: 0; padding: 0;">
         {links.map(({ href, label }) => (
           <li>
             <a href={href}
-              style={`font-family: var(--font-display); font-weight: 300; font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; text-decoration: none; transition: color 0.4s; color: ${pathname.startsWith(href) ? 'var(--color-ink)' : 'var(--color-muted)'};`}
+              style={`font-family: var(--font-ui); font-weight: 400; font-size: 0.95rem; letter-spacing: 0.03em; text-decoration: none; transition: color 0.4s; color: ${pathname.startsWith(href) ? 'var(--color-ink)' : 'var(--color-muted)'};`}
               onmouseover="this.style.color='var(--color-ink)'"
               onmouseout={`this.style.color='${pathname.startsWith(href) ? 'var(--color-ink)' : 'var(--color-muted)'}'`}
             >{label}</a>
@@ -48,7 +47,7 @@ const { pathname } = Astro.url;
   {links.map(({ href, label }) => (
     <a href={href}>{label}</a>
   ))}
-  <a href="/" style="font-size: 1.25rem; opacity: 0.4;">Khoi Tran</a>
+  <a href="/" style="font-size: 1.25rem; opacity: 0.4;">Ktrn</a>
 </div>
 
 <script>

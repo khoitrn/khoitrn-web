@@ -8,6 +8,8 @@ interface Props {
   description?: string;
   image?: string;
   hideNav?: boolean;
+  /** Lenis smooth scrolling. Pages driven by native scroll position (the homepage gate) turn it off. */
+  smoothScroll?: boolean;
 }
 
 const {
@@ -15,6 +17,7 @@ const {
   description = 'Khoi Tran — student, founder, engineer.',
   image = '/og-default.png',
   hideNav = false,
+  smoothScroll = true,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -47,7 +50,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       document.documentElement.setAttribute('data-theme', 'dark');
     </script>
   </head>
-  <body>
+  <body data-smooth={smoothScroll ? 'on' : 'off'}>
     {!hideNav && <Nav />}
     <main>
       <slot />
@@ -58,13 +61,15 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       import Lenis from 'lenis';
 
       // ── Smooth scroll ──────────────────────
-      const lenis = new Lenis({
-        duration: 1.6,
-        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true,
-      });
-      function raf(time: number) { lenis.raf(time); requestAnimationFrame(raf); }
-      requestAnimationFrame(raf);
+      if (document.body.dataset.smooth === 'on') {
+        const lenis = new Lenis({
+          duration: 1.6,
+          easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          smoothWheel: true,
+        });
+        function raf(time: number) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
+      }
 
       // ── Scroll reveal ──────────────────────
       const obs = new IntersectionObserver(

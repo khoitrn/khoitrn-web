@@ -2,6 +2,11 @@
 @import "@fontsource-variable/raleway/index.css";
 @import "@fontsource/lora/400.css";
 @import "@fontsource/lora/400-italic.css";
+/* Homepage type. These packages ship the Vietnamese subset (Đ, ạ, ơ, stacked accents) via unicode-range. */
+@import "@fontsource/newsreader/400.css";
+@import "@fontsource/newsreader/400-italic.css";
+@import "@fontsource/be-vietnam-pro/400.css";
+@import "@fontsource/be-vietnam-pro/500.css";
 
 /* ── Theme tokens ─────────────────────────────────── */
 
@@ -20,6 +25,8 @@
   --font-display: "Raleway Variable", sans-serif;
   --font-body:    "Lora", serif;
   --font-mono:    "JetBrains Mono", "Fira Code", monospace;
+  --font-serif:   "Newsreader", Georgia, "Times New Roman", serif;
+  --font-ui:      "Be Vietnam Pro", system-ui, "Helvetica Neue", Arial, sans-serif;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-smooth:   cubic-bezier(0.45, 0, 0.55, 1);

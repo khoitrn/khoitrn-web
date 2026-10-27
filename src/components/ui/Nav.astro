@@ -13,7 +13,7 @@ const { pathname } = Astro.url;
 
     <a href="/"
       aria-label="Khoi Tran, home"
-      style="font-family: var(--font-serif); font-weight: 400; font-size: 1.25rem; line-height: 1; letter-spacing: 0.02em; color: var(--color-ink); text-decoration: none;"
+      style="font-family: var(--font-serif); font-weight: 400; font-size: 1.25rem; line-height: 1; letter-spacing: 0.02em; text-transform: lowercase; color: var(--color-ink); text-decoration: none;"
     >Khoi Tran</a>
 
     <div class="nav-links" style="display: flex; align-items: center; gap: 3rem;">
@@ -21,7 +21,7 @@ const { pathname } = Astro.url;
         {links.map(({ href, label }) => (
           <li>
             <a href={href}
-              style={`font-family: var(--font-ui); font-weight: 400; font-size: 0.875rem; letter-spacing: 0.03em; text-decoration: none; transition: color 0.4s; color: ${pathname.startsWith(href) ? 'var(--color-ink)' : 'var(--color-muted)'};`}
+              style={`font-family: var(--font-ui); font-weight: 400; font-size: 0.875rem; letter-spacing: 0.03em; text-transform: lowercase; text-decoration: none; transition: color 0.4s; color: ${pathname.startsWith(href) ? 'var(--color-ink)' : 'var(--color-muted)'};`}
               onmouseover="this.style.color='var(--color-ink)'"
               onmouseout={`this.style.color='${pathname.startsWith(href) ? 'var(--color-ink)' : 'var(--color-muted)'}'`}
             >{label}</a>

@@ -38,7 +38,7 @@ const { tagline, blurb } = Astro.props;
   /* 100vh to see the gate, then ~120vh of runway that drives progress */
   .runway { height: calc(100vh + 120vh); height: calc(100svh + 120svh); }
 
-  .gate { position: fixed; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; }
+  .gate { position: fixed; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; text-transform: lowercase; }
   .shoji {
     position: absolute; top: 0; bottom: 0; width: 37%; overflow: hidden; will-change: transform;
     background: var(--color-bg-hero);
@@ -60,7 +60,7 @@ const { tagline, blurb } = Astro.props;
   }
   .gate-eyebrow {
     font-family: var(--font-display); font-weight: 300; font-size: clamp(0.7rem, 1.5vw, 1rem); line-height: 1;
-    letter-spacing: 0.4em; text-transform: uppercase; color: #a29e8e; margin: 0 0 clamp(18px, 4vh, 40px);
+    letter-spacing: 0.4em; text-transform: lowercase; color: #a29e8e; margin: 0 0 clamp(18px, 4vh, 40px);
   }
   .gate-name {
     font-family: var(--font-display); font-weight: 200; font-size: clamp(3rem, 11vw, 8.5rem); line-height: 1;
@@ -73,7 +73,7 @@ const { tagline, blurb } = Astro.props;
   }
 
   .gate-cue {
-    position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 64px); transform: translateX(-50%); z-index: 6;
+    text-transform: lowercase; position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 64px); transform: translateX(-50%); z-index: 6;
     text-align: center; font: 400 0.85rem/1 var(--font-ui); letter-spacing: 0.04em; color: var(--color-muted);
     pointer-events: none; opacity: 0; transition: opacity 1s ease;
   }
@@ -81,7 +81,7 @@ const { tagline, blurb } = Astro.props;
   @keyframes gate-drip { 0% { transform: scaleY(0); } 60% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1); opacity: 0; } }
 
   .gate-skip {
-    position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); transform: translateX(-50%); z-index: 6;
+    text-transform: lowercase; position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); transform: translateX(-50%); z-index: 6;
     font: 400 0.85rem/1 var(--font-ui); letter-spacing: 0.03em; color: var(--color-muted);
     background: none; border: 0; padding: 0.7rem 0.9rem; cursor: pointer; transition: color 0.25s ease;
   }

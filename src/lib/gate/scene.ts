@@ -7,7 +7,7 @@ import { gate } from './state.ts';
 const GOLD: RGB = [200, 148, 60], AMBER: RGB = [228, 174, 86], IVORY: RGB = [220, 212, 190], EMBER: RGB = [204, 108, 60], SAGE: RGB = [150, 176, 108];
 /* part palette: 0 ember, 1 gold, 2 amber, 3 ivory, 4 sage */
 const PAL: RGB[] = [EMBER, GOLD, AMBER, IVORY, SAGE];
-const UI_FONT = '"Be Vietnam Pro", system-ui, "Helvetica Neue", Arial, sans-serif';
+const UI_FONT = '"Raleway Variable", system-ui, "Helvetica Neue", Arial, sans-serif';
 const TAU = 6.2832;
 
 /** Chapters, in order. The caption shows while a chapter is current; the first (dust) has none. */

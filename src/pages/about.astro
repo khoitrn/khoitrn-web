@@ -1,10 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import PageHead from '../components/ui/PageHead.astro';
+import Glyph from '../components/ui/Glyph.astro';
 import { client, aboutQuery, nowQuery, portableTextToHtml, formatDate } from '../lib/sanity';
 
 const [about, now] = await Promise.all([client.fetch(aboutQuery), client.fetch(nowQuery)]);
-const nowHtml = now?.body ? portableTextToHtml(now.body) : null;
-const nowUpdated = now?.updatedAt ? formatDate(now.updatedAt) : null;
 const bodyHtml = about?.body ? portableTextToHtml(about.body) : null;
 const headline = about?.headline ?? 'Student, founder, engineer.';
 const currentItems: string[] = about?.currentItems ?? [
@@ -13,84 +13,82 @@ const currentItems: string[] = about?.currentItems ?? [
   'Writing here, thinking out loud',
 ];
 const email = about?.email ?? 'khoi@tamu.edu';
+const nowHtml = now?.body ? portableTextToHtml(now.body) : null;
+const nowUpdated = now?.updatedAt ? formatDate(now.updatedAt) : null;
 ---
 
 <Layout title="About">
-  <div class="page-pad" style="min-height:100svh;">
-    <div style="max-width:1100px; margin:0 auto;">
+  <div class="open-wrap">
+    <PageHead title="about" sub={headline} />
 
-      <!-- Header -->
-      <div class="about-header">
-        <p class="animate-fade-up" style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.25rem;">About</p>
-        <h1 class="animate-fade-up delay-1" style="font-family:var(--font-display); font-weight:300; font-size:clamp(2.25rem,6vw,5rem); line-height:1.05; letter-spacing:-0.025em; color:var(--color-ink);" set:html={headline.replace(',', ',<br/>')}></h1>
+    <div class="about-grid">
+      <!-- A photo can go here (public/photo.jpg); until then the point cloud holds the space -->
+      <div class="about-photo" aria-hidden="true">
+        <Glyph kind="sphere" width={300} accent />
       </div>
 
-      <!-- Content grid -->
-      <div class="grid-about">
-
-        <!-- Photo -->
-        <div class="reveal about-photo">
-          <div style="aspect-ratio:3/4; background:var(--color-surface); border-radius:2px; overflow:hidden;">
-            <!-- <img src="/photo.jpg" alt="Khoi Tran" style="width:100%;height:100%;object-fit:cover;" /> -->
+      <div class="about-text">
+        {bodyHtml ? (
+          <div class="about-prose" set:html={bodyHtml} />
+        ) : (
+          <div class="about-prose">
+            <p class="lead">I'm Khoi Tran, a student at Texas A&amp;M University, building things at the intersection of technology, product, and entrepreneurship.</p>
+            <p>I started writing code because I wanted to build things I cared about. That curiosity led me to engineering, then to product thinking, and eventually to starting companies.</p>
+            <p class="quiet">I care deeply about craft: code that's readable, products that are intuitive, and writing that earns its reader's attention.</p>
           </div>
-        </div>
+        )}
 
-        <!-- Text -->
-        <div class="reveal" style="transition-delay:80ms;">
-          {bodyHtml ? (
-            <div class="prose about-prose" set:html={bodyHtml} />
+        <section id="right-now" class="right-now" aria-labelledby="right-now-title">
+          <div class="right-now-top">
+            <h2 id="right-now-title">right now</h2>
+            {nowUpdated && <span class="open-label">updated {nowUpdated}</span>}
+          </div>
+          {nowHtml ? (
+            <div class="about-prose" set:html={nowHtml} />
           ) : (
-            <>
-              <p style="font-family:var(--font-body); font-size:clamp(1rem,2vw,1.125rem); color:var(--color-ink-soft); line-height:1.9; margin-bottom:1.75rem;">
-                I'm Khoi Tran — a student at Texas A&M University, building things at the intersection of technology, product, and entrepreneurship.
-              </p>
-              <p style="font-family:var(--font-body); font-size:1rem; color:var(--color-ink-soft); line-height:1.9; margin-bottom:1.75rem;">
-                I started writing code because I wanted to build things I cared about. That curiosity led me to engineering, then to product thinking, and eventually to starting companies.
-              </p>
-              <p style="font-family:var(--font-body); font-size:1rem; color:var(--color-muted); line-height:1.9; margin-bottom:4rem;">
-                I care deeply about craft — code that's readable, products that are intuitive, and writing that earns its reader's attention.
-              </p>
-            </>
+            <div class="about-prose">
+              <p>Building a new project, still early, focused on getting the core right before anything else. Finishing the semester at Texas A&amp;M, and thinking about what makes a product actually good: the gap between clever and useful.</p>
+            </div>
           )}
+        </section>
 
-          <!-- Currently -->
-          <p style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.75rem; margin-top: 3rem;">Currently</p>
-          <div>
-            {currentItems.map((item, i) => (
-              <div style="display:flex; align-items:baseline; gap:1rem; padding:0.9rem 0;">
-                <span style="font-family:var(--font-display); font-weight:300; font-size:0.75rem; color:var(--color-border); flex-shrink:0;">{i > 0 ? '/' : ''}</span>
-                <span style="font-family:var(--font-body); font-size:0.95rem; color:var(--color-ink-soft); line-height:1.6;">{item}</span>
-              </div>
-            ))}
-          </div>
+        <ul class="current">
+          {currentItems.map((item) => <li>{item}</li>)}
+        </ul>
 
-          <!-- Right now (the old /now page lives here) -->
-          <section id="right-now" aria-labelledby="right-now-title" style="margin-top:5rem;">
-            <h2 id="right-now-title" style="font-family:var(--font-ui); font-weight:500; font-size:1rem; letter-spacing:0.02em; color:var(--color-ink); margin-bottom:0.4rem;">Right now</h2>
-            {nowUpdated && <p style="font-family:var(--font-ui); font-size:0.85rem; color:var(--color-muted); margin-bottom:1.5rem;">Updated {nowUpdated}</p>}
-            {nowHtml ? (
-              <div class="prose" set:html={nowHtml} />
-            ) : (
-              <div class="prose">
-                <p>Building a new project, still early, focused on getting the core right before anything else. Finishing the semester at Texas A&amp;M, and thinking about what makes a product actually good: the gap between clever and useful.</p>
-              </div>
-            )}
-          </section>
-
-          <div style="margin-top:4rem; padding-top:1rem;">
-            <a href={`mailto:${email}`} style="font-family:var(--font-display); font-weight:300; font-size:0.7rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent); text-decoration:none; transition:color 0.4s;" onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-accent)'">{email} →</a>
-          </div>
-        </div>
+        <a class="email" href={`mailto:${email}`}>{email} →</a>
       </div>
-
     </div>
   </div>
 </Layout>
 
 <style>
-  .about-header { margin-bottom: clamp(3rem, 6vw, 6rem); }
+  .about-grid { margin-top: 4.5rem; display: grid; grid-template-columns: 21rem 1fr; gap: 5rem; align-items: start; }
+  .about-photo {
+    aspect-ratio: 3 / 4; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(70% 60% at 40% 40%, rgba(196, 144, 58, 0.18), rgba(13, 13, 10, 0) 75%);
+  }
 
-  /* Constrain prose font size to match the hardcoded style */
-  .about-prose p { font-size: clamp(1rem, 2vw, 1.125rem); line-height: 1.9; margin-bottom: 1.75rem; }
-  .about-prose p:last-child { margin-bottom: 4rem; }
+  .about-prose { font-family: var(--font-body); font-size: 1.125rem; line-height: 1.8; color: var(--color-ink-soft); max-width: none; }
+  .about-prose :global(p) { margin-bottom: 1.5rem; }
+  .about-prose :global(p.lead) { font-size: 1.5rem; line-height: 1.65; color: var(--color-ink); margin-bottom: 1.75rem; }
+  .about-prose :global(p.quiet) { color: var(--color-muted); }
+  .about-prose :global(a) { color: var(--color-accent); }
+
+  .right-now { margin-top: 4rem; padding-top: 1.75rem; border-top: 1px solid rgba(196, 144, 58, 0.5); }
+  .right-now-top { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-bottom: 1rem; }
+  .right-now h2 { font-family: var(--font-display); font-weight: 300; font-size: 1.75rem; color: var(--color-accent); }
+  .right-now .about-prose :global(p:last-child) { margin-bottom: 0; }
+
+  .current { margin-top: 3.5rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2.5rem; list-style: none; }
+  .current li { font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.6; color: var(--color-ink-soft); }
+
+  .email { display: inline-block; margin-top: 3.5rem; font-family: var(--font-display); font-weight: 300; font-size: 0.9375rem; letter-spacing: 0.04em; color: var(--color-accent); text-decoration: none; padding: 0.4rem 0; }
+  .email:hover { color: var(--color-ink); }
+
+  @media (max-width: 960px) {
+    .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+    .about-photo { display: none; }
+    .current { grid-template-columns: 1fr; gap: 1rem; }
+  }
 </style>

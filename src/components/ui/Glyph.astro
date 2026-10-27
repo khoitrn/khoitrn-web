@@ -1,0 +1,65 @@
+---
+/* A small cloud of points joined by hairlines, the same visual language as the homepage canvas.
+   Named kinds are fixed shapes; "trail" draws a stable zig-zag from a seed (a slug, a title). */
+interface Props {
+  kind?: 'torii' | 'sphere' | 'hex' | 'trail';
+  seed?: string;
+  width?: number;
+  accent?: boolean;
+}
+const { kind = 'trail', seed = '', width = 240, accent = false } = Astro.props;
+
+type Dot = [number, number, number];
+const ellipse = (cx: number, cy: number, rx: number, ry: number) => `M${cx - rx} ${cy} a${rx} ${ry} 0 1 0 ${rx * 2} 0 a${rx} ${ry} 0 1 0 ${-rx * 2} 0`;
+
+function hash(s: string, n: number) {
+  let h = 2166136261 ^ n;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  h ^= h >>> 15; h = Math.imul(h, 2246822507); h ^= h >>> 13;
+  return ((h >>> 0) % 10000) / 10000;
+}
+
+let viewBox = '0 0 200 120';
+let paths: string[] = [];
+let dots: Dot[] = [];
+
+if (kind === 'torii') {
+  paths = ['M50 105 L50 30', 'M150 105 L150 30', 'M30 42 L170 42', 'M18 24 L182 24', 'M50 42 L100 24', 'M150 42 L100 24'];
+  dots = [[50,105,2.4],[50,70,2],[50,42,2.6],[150,105,2.4],[150,70,2],[150,42,2.6],[18,24,2.2],[60,24,2],[100,24,3],[140,24,2],[182,24,2.2],[30,42,2],[170,42,2]];
+} else if (kind === 'sphere') {
+  paths = [ellipse(100, 60, 62, 50), ellipse(100, 60, 62, 18), ellipse(100, 60, 24, 50)];
+  dots = [[100,10,2],[100,110,2],[38,60,2.2],[162,60,2.2],[76,60,2],[124,60,2],[60,30,2],[140,30,2],[60,90,2],[140,90,2],[100,42,2.4],[100,78,2.4]];
+} else if (kind === 'hex') {
+  paths = ['M30 30 L100 15 L170 30 L170 90 L100 105 L30 90 Z', 'M30 60 L170 60', 'M100 15 L100 105'];
+  dots = [[30,30,2.2],[100,15,2.2],[170,30,2.2],[170,90,2.2],[100,105,2.2],[30,90,2.2],[30,60,2],[170,60,2],[100,60,3]];
+} else {
+  viewBox = '0 0 90 40';
+  const n = 4 + Math.floor(hash(seed, 0) * 2);
+  const pts: [number, number][] = [];
+  for (let i = 0; i < n; i++) pts.push([6 + (76 * i) / (n - 1), 6 + hash(seed, i + 1) * 28]);
+  paths = [`M${pts.map((p) => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' L')}`];
+  dots = pts.map((p, i) => [p[0], p[1], i === n - 1 ? 2.6 : 2.2] as Dot);
+}
+const [, , vw, vh] = viewBox.split(' ').map(Number);
+const height = Math.round((width * vh) / vw);
+---
+
+<svg class:list={['glyph', { accent }]} width={width} height={height} viewBox={viewBox} aria-hidden="true" focusable="false">
+  <g class="glyph-lines" fill="none" stroke-width="1">
+    {paths.map((d) => <path d={d} />)}
+  </g>
+  <g class="glyph-dots">
+    {dots.map(([cx, cy, r]) => <circle cx={cx} cy={cy} r={r} />)}
+  </g>
+</svg>
+
+<style>
+  .glyph { display: block; max-width: 100%; height: auto; overflow: visible; }
+  .glyph-lines { stroke: var(--color-muted); stroke-opacity: 0.42; transition: stroke 0.4s, stroke-opacity 0.4s; }
+  .glyph-dots { fill: var(--color-ink-soft); transition: fill 0.4s; }
+  .glyph.accent .glyph-lines { stroke: var(--color-accent); stroke-opacity: 0.55; }
+  .glyph.accent .glyph-dots { fill: #e2ac54; }
+  /* a parent can light a glyph up on hover by setting --glyph-on */
+  :global(.glyph-host:hover) .glyph-lines, :global(.glyph-host:focus-visible) .glyph-lines { stroke: var(--color-accent); stroke-opacity: 0.55; }
+  :global(.glyph-host:hover) .glyph-dots, :global(.glyph-host:focus-visible) .glyph-dots { fill: #e2ac54; }
+</style>

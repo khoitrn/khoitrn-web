@@ -1,5 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import PageHead from '../../components/ui/PageHead.astro';
+import Glyph from '../../components/ui/Glyph.astro';
 import { client, talksQuery, urlFor } from '../../lib/sanity';
 
 const talks = await client.fetch(talksQuery);
@@ -31,240 +33,85 @@ const fallback = [
 ];
 
 const items = talks.length > 0 ? talks : fallback;
-const talkYear = (t: any) => (t.date ? new Date(t.date).getFullYear() : '');
+const talkWhen = (t: any) => (t.date ? new Date(t.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '');
 ---
 
 <Layout title="Talks — Khoi Tran" description="Talks and presentations by Khoi Tran.">
-  <div style="padding: 7rem max(calc((100vw - 640px) / 2), 2rem) 8rem;">
-    <div>
+  <div class="open-wrap">
+    <PageHead title="talks" sub="things i've said out loud, on a stage." />
 
-      <!-- Page header -->
-      <header class="animate-fade-up" style="margin-bottom: 6rem;">
-        <p class="page-label">Talks</p>
-        <p class="page-sub">Conversations I've been part of — on building, thinking, and starting things.</p>
-      </header>
-
-      <!-- Talk list — no dividers, spacing + year as separator -->
-      <div class="talk-list">
-        {items.map((talk: any, i: number) => {
-          const thumb  = thumbUrl(talk);
-          const ytId   = youtubeId(talk.mediaUrl);
-          const href   = talk.mediaUrl ?? null;
-
-          return (
-            <article class="talk-item reveal" style={`transition-delay:${i * 100}ms`}>
-
-              <!-- Index + year line -->
-              <div class="talk-index-row">
-                <span class="talk-num">0{i + 1}</span>
-                <span class="talk-year">{talkYear(talk)}</span>
-              </div>
-
-              <!-- Title links to detail page -->
-              <h2 class="talk-title">
-                <a href={`/talks/${talk.slug?.current ?? talk._id}`} class="talk-title-link">{talk.title}</a>
-              </h2>
-
-              <!-- Description -->
-              {talk.description && <p class="talk-desc">{talk.description}</p>}
-
-              <!-- Inline embed — click poster to play on-site -->
+    <div class="talk-list">
+      {items.map((talk: any, i: number) => {
+        const thumb = thumbUrl(talk);
+        const ytId  = youtubeId(talk.mediaUrl);
+        const href  = `/talks/${talk.slug?.current ?? talk._id}`;
+        const where = [talk.event, talk.location, talkWhen(talk)].filter(Boolean).join(', ');
+        return (
+          <article class="talk-item reveal" style={`transition-delay:${i * 100}ms`}>
+            <div class="talk-media">
               {ytId ? (
-                <div class="talk-embed-wrap">
-                  <div class="talk-embed" data-yt={ytId}>
-                    <button class="talk-embed-poster" type="button" aria-label={`Play ${talk.title}`}>
-                      <img src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`} alt={talk.title} loading="lazy" />
-                      <span class="talk-play-btn" aria-hidden="true">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><polygon points="8,5 20,12 8,19" fill="currentColor"/></svg>
-                      </span>
-                    </button>
-                  </div>
+                <div class="talk-embed" data-yt={ytId}>
+                  <button class="talk-embed-poster" type="button" aria-label={`Play ${talk.title}`}>
+                    <img src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`} alt="" loading="lazy" />
+                    <span class="talk-play" aria-hidden="true">
+                      <svg width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="17" fill="none" stroke="currentColor"/><path d="M15 12 L25 18 L15 24 Z" fill="currentColor"/></svg>
+                      <span>watch the talk</span>
+                    </span>
+                  </button>
                 </div>
               ) : thumb ? (
-                <div class="talk-embed-wrap">
-                  <div class="talk-embed"><img src={thumb} alt={talk.title} loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" /></div>
-                </div>
-              ) : null}
+                <div class="talk-embed"><img src={thumb} alt="" loading="lazy" /></div>
+              ) : (
+                <div class="talk-glyph"><Glyph kind="trail" seed={talk.slug?.current ?? talk._id} width={340} accent /></div>
+              )}
+            </div>
 
-              <!-- Event + links -->
-              <div class="talk-footer">
-                <span class="talk-event">{talk.event}{talk.location ? ` · ${talk.location}` : ''}</span>
-                <div class="talk-footer-links">
-                  <a href={`/talks/${talk.slug?.current ?? talk._id}`} class="talk-cta">read more →</a>
-                  {ytId && <a href={`https://www.youtube.com/watch?v=${ytId}`} target="_blank" rel="noopener noreferrer" class="talk-cta">watch →</a>}
-                </div>
+            <div class="talk-body">
+              {where && <p class="open-label">{where}</p>}
+              <h2><a href={href}>{talk.title}</a></h2>
+              {talk.description && <p class="talk-desc">{talk.description}</p>}
+              <div class="talk-links">
+                <a href={href}>read the write-up →</a>
+                {ytId && <a href={`https://www.youtube.com/watch?v=${ytId}`} target="_blank" rel="noopener noreferrer">watch on youtube →</a>}
               </div>
-
-            </article>
-          );
-        })}
-      </div>
-
+            </div>
+          </article>
+        );
+      })}
     </div>
   </div>
 </Layout>
 
 <style>
-  /* Header */
-  .page-label {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: clamp(2.5rem, 6vw, 4.5rem);
-    letter-spacing: -0.02em;
-    color: var(--color-ink);
-    line-height: 1;
-    margin-bottom: 1.5rem;
-  }
-  .page-sub {
-    font-family: var(--font-body);
-    font-size: 0.9rem;
-    color: var(--color-muted);
-    line-height: 1.8;
-    max-width: 44ch;
-  }
+  .talk-list { margin-top: 4.5rem; display: flex; flex-direction: column; gap: 6rem; }
+  .talk-item { display: grid; grid-template-columns: 1.2fr 1fr; gap: 4.5rem; align-items: center; }
 
-  /* Talk list — spacing is the only separator */
-  .talk-list { display: flex; flex-direction: column; }
+  .talk-media { position: relative; min-height: 20rem; display: flex; align-items: center; }
+  .talk-glyph {
+    width: 100%; min-height: 25rem; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(65% 75% at 50% 50%, rgba(196, 144, 58, 0.2), rgba(13, 13, 10, 0) 70%);
+  }
+  .talk-embed { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 2px; background: var(--color-surface); }
+  .talk-embed img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: opacity 0.4s; }
+  .talk-embed-poster { position: absolute; inset: 0; width: 100%; height: 100%; background: none; border: 0; padding: 0; cursor: pointer; color: var(--color-ink); }
+  .talk-embed-poster:hover img { opacity: 1; }
+  .talk-embed-poster::after { content: ''; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(transparent, rgba(13, 13, 10, 0.85)); pointer-events: none; }
+  .talk-play { z-index: 1; position: absolute; left: 1.25rem; bottom: 1.1rem; display: flex; align-items: center; gap: 0.75rem; font-family: var(--font-display); font-weight: 300; font-size: 0.875rem; color: var(--color-ink); }
+  .talk-play svg { color: var(--color-accent); }
 
-  .talk-item {
-    padding-bottom: 6rem;
-    border: none;
-    outline: none;
-  }
-  .talk-item + .talk-item {
-    padding-top: 5rem;
-  }
+  .talk-body { border-top: 1px solid rgba(196, 144, 58, 0.5); padding-top: 1.75rem; }
+  .talk-body h2 { margin: 0.85rem 0 1.25rem; font-family: var(--font-display); font-weight: 300; font-size: clamp(1.9rem, 3.2vw, 2.6rem); line-height: 1.15; }
+  .talk-body h2 a { color: var(--color-accent); text-decoration: none; }
+  .talk-desc { font-family: var(--font-body); font-size: 1.125rem; line-height: 1.75; color: var(--color-ink-soft); margin-bottom: 1.75rem; }
+  .talk-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.75rem; }
+  .talk-links a { font-family: var(--font-display); font-weight: 300; font-size: 0.875rem; letter-spacing: 0.04em; color: var(--color-accent); text-decoration: none; padding: 0.4rem 0; }
+  .talk-links a:hover { color: var(--color-ink); }
 
-  /* Index row: 01 ············ 2024 */
-  .talk-index-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.75rem;
-  }
-  .talk-num {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.6rem;
-    letter-spacing: 0.25em;
-    color: var(--color-muted);
-    opacity: 0.45;
-  }
-  .talk-year {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.6rem;
-    letter-spacing: 0.25em;
-    color: var(--color-muted);
-    opacity: 0.45;
-  }
-
-  /* Title */
-  .talk-title {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: clamp(1.5rem, 3.5vw, 2.4rem);
-    line-height: 1.15;
-    letter-spacing: -0.01em;
-    color: var(--color-ink);
-    margin-bottom: 1.25rem;
-  }
-  .talk-title-link {
-    color: inherit;
-    text-decoration: none;
-    transition: opacity 0.3s;
-  }
-  .talk-title-link:hover { opacity: 0.7; }
-
-  /* Description */
-  .talk-desc {
-    font-family: var(--font-body);
-    font-size: 0.9375rem;
-    color: var(--color-muted);
-    line-height: 1.85;
-    margin-bottom: 2rem;
-  }
-
-  /* Inline embed */
-  .talk-embed-wrap {
-    max-width: 480px;
-    margin-bottom: 1.5rem;
-  }
-  .talk-embed {
-    position: relative;
-    width: 100%;
-    /* padding-top trick — survives innerHTML swap without collapsing */
-    padding-top: 56.25%;
-    border-radius: 3px;
-    overflow: hidden;
-    background: #000;
-  }
-  .talk-embed-poster {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    padding: 0; border: none; cursor: pointer;
-    background: #000; display: block;
-  }
-  .talk-embed-poster img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    filter: grayscale(0.4);
-    opacity: 0.82;
-    transition: filter 0.5s, opacity 0.5s, transform 0.6s cubic-bezier(0.16,1,0.3,1);
-    display: block;
-  }
-  .talk-embed-poster:hover img { filter: grayscale(0); opacity: 1; transform: scale(1.02); }
-  .talk-play-btn {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff;
-  }
-  .talk-play-btn svg {
-    width: 48px; height: 48px;
-    padding: 13px;
-    border-radius: 50%;
-    background: rgba(0,0,0,0.55);
-    backdrop-filter: blur(2px);
-    transition: background 0.3s, transform 0.3s, color 0.3s;
-  }
-  .talk-embed-poster:hover .talk-play-btn svg { background: var(--color-accent); color: #000; transform: scale(1.05); }
-  .talk-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-
-  /* Event + CTA row */
-  .talk-footer {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-  }
-  .talk-event {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.6rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-    opacity: 0.6;
-  }
-  .talk-cta {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--color-accent);
-    text-decoration: none;
-    white-space: nowrap;
-    transition: color 0.4s;
-  }
-  .talk-cta:hover { color: var(--color-ink); }
-  .talk-footer-links { display: flex; gap: 1.5rem; align-items: baseline; }
-
-  @media (max-width: 600px) {
-    .talk-item { padding-bottom: 4rem; }
-    .talk-item + .talk-item { padding-top: 4rem; }
-    .talk-footer { flex-direction: column; gap: 0.75rem; }
+  @media (max-width: 860px) {
+    .talk-item { grid-template-columns: 1fr; gap: 2rem; }
+    .talk-media, .talk-glyph { min-height: 0; }
+    .talk-glyph { min-height: 14rem; }
+    .talk-list { gap: 4.5rem; margin-top: 3rem; }
   }
 </style>
 

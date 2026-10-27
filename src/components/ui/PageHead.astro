@@ -1,0 +1,19 @@
+---
+/* Heading for the inner pages: a very thin lowercase title with a quiet italic line beside it. */
+interface Props { title: string; sub?: string; }
+const { title, sub } = Astro.props;
+---
+
+<header class="page-head animate-fade-up">
+  <h1>{title}</h1>
+  {sub && <p>{sub}</p>}
+</header>
+
+<style>
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
+  h1 {
+    font-family: var(--font-display); font-weight: 200; text-transform: lowercase;
+    font-size: clamp(3.5rem, 9vw, 6.5rem); line-height: 1; letter-spacing: -0.025em; color: var(--color-ink);
+  }
+  p { max-width: 21rem; margin-bottom: 0.75rem; font-family: var(--font-body); font-style: italic; font-size: 1.125rem; line-height: 1.6; color: var(--color-muted); text-transform: lowercase; }
+</style>

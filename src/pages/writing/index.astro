@@ -1,94 +1,63 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { client, postsQuery, formatDateShort, asCategoryArray } from '../../lib/sanity';
+import PageHead from '../../components/ui/PageHead.astro';
+import Glyph from '../../components/ui/Glyph.astro';
+import { client, postsQuery, asCategoryArray } from '../../lib/sanity';
 
 const posts = await client.fetch(postsQuery);
 const hasVietnamese = posts.some((p: any) => p.language === 'vi');
 const rawCategories = Array.from(new Set(posts.flatMap((p: any) => asCategoryArray(p.category)))) as string[];
 rawCategories.sort((a, b) => (a === 'AI' ? -1 : b === 'AI' ? 1 : 0));
 const categories = ['All', ...rawCategories];
+const fmtDate = (d: string) => new Date(d).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 ---
 
 <Layout title="Writing">
-  <div class="page-pad" style="min-height:100svh;">
-    <div style="max-width:1100px; margin:0 auto;">
+  <div class="open-wrap">
+    <PageHead title="writing" sub="essays and notes, thinking out loud." />
 
-      <!-- Header -->
-      <div style="margin-bottom:3.5rem;">
-        <div class="animate-fade-up" style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:1.25rem;">
-          <p style="font-family:var(--font-display); font-weight:300; font-size:0.65rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--color-muted); margin:0;">Writing</p>
-          <a href="/rss.xml" style="font-family:var(--font-display); font-weight:300; font-size:0.6rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-muted); text-decoration:none; opacity:0.5; transition:opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">RSS</a>
-        </div>
-        <h1 class="animate-fade-up delay-1" style="font-family:var(--font-display); font-weight:300; font-size:clamp(2.25rem,6vw,5rem); line-height:1.05; letter-spacing:-0.025em; color:var(--color-ink);">Essays, notes,<br/>and thinking.</h1>
-      </div>
-
-      <!-- Language toggle — only shown when Vietnamese posts exist -->
+    <div class="filters">
       {hasVietnamese && (
-        <div id="lang-filter" class="animate-fade-up">
-          <button data-lang="all" class="lang-btn active">All</button>
-          <span class="lang-sep">·</span>
-          <button data-lang="en" class="lang-btn">EN</button>
-          <span class="lang-sep">·</span>
-          <button data-lang="vi" class="lang-btn">VI</button>
+        <div id="lang-filter" role="group" aria-label="Language">
+          <button data-lang="all" class="lang-btn active">all</button>
+          <button data-lang="en" class="lang-btn">en</button>
+          <button data-lang="vi" class="lang-btn">vi</button>
         </div>
       )}
-
-      <!-- Category filter -->
       {categories.length > 1 && (
-        <div id="filter-bar">
+        <div id="filter-bar" role="group" aria-label="Category">
           {categories.map((cat: string) => (
             <button data-filter={cat} class="filter-btn">{cat}</button>
           ))}
         </div>
       )}
-
-      <!-- Post list -->
-      {posts.length > 0 ? (
-        <div id="post-list">
-          {posts.map((post: any, i: number) => (
-            <>
-              {i > 0 && (
-                <div class="post-divider">
-                  <span style="font-family:var(--font-display); font-weight:300; font-size:0.8rem; color:var(--color-border);">/</span>
-                </div>
-              )}
-              <a
-                href={`/writing/${post.slug.current}`}
-                class="reveal post-item"
-                data-category={asCategoryArray(post.category).join('|')}
-                data-language={post.language ?? 'en'}
-                style={`transition-delay:${i*60}ms;`}
-              >
-                <span class="post-date">
-                  {formatDateShort(post.publishedAt)}
-                  {post.estimatedReadingTime ? <span class="post-read-time">· {post.estimatedReadingTime} min</span> : ''}
-                </span>
-                <div class="post-body">
-                  <h2 class="post-title">{post.title}</h2>
-                  {post.excerpt && <p class="post-excerpt">{post.excerpt}</p>}
-                  {post.tags?.length > 0 && (
-                    <div class="post-tags">
-                      {post.tags.map((tag: string) => (
-                        <span class="post-tag">{tag}</span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <span class="post-category">
-                  {asCategoryArray(post.category).map((cat: string) => <span>{cat}</span>)}
-                  {post.language === 'vi' && <span class="post-lang-vi">VI</span>}
-                </span>
-              </a>
-            </>
-          ))}
-        </div>
-      ) : (
-        <p style="font-family:var(--font-display); font-weight:300; font-size:0.68rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--color-muted); padding:4rem 0;">Writing coming soon.</p>
-      )}
-
+      <a href="/rss.xml" class="rss">rss</a>
     </div>
 
-    <!-- ◆ Philosophy — quiet corner, easy to miss -->
+    {posts.length > 0 ? (
+      <div id="post-list">
+        {posts.map((post: any, i: number) => (
+          <a
+            href={`/writing/${post.slug.current}`}
+            class="post-item glyph-host reveal"
+            data-category={asCategoryArray(post.category).join('|')}
+            data-language={post.language ?? 'en'}
+            style={`transition-delay:${i * 50}ms;`}
+          >
+            <span class="open-label post-date">{post.publishedAt ? fmtDate(post.publishedAt) : ''}</span>
+            <h2 class="post-title">{post.title}</h2>
+            <span class="open-label post-category">
+              {asCategoryArray(post.category).join(', ')}{post.language === 'vi' ? ', vi' : ''}
+            </span>
+            <span class="post-glyph"><Glyph kind="trail" seed={post.slug.current} width={100} /></span>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <p class="open-label" style="padding:4rem 0;">writing coming soon.</p>
+    )}
+
+    <!-- ◆ Philosophy: quiet corner, easy to miss -->
     <div class="philosophy-corner">
       <button class="philosophy-trigger" id="philosophy-trigger" aria-label="A note" title="">◆</button>
       <div class="philosophy-body" id="philosophy-body" aria-hidden="true">
@@ -98,225 +67,56 @@ const categories = ['All', ...rawCategories];
         <p>If something here lands with you, that's enough.</p>
       </div>
     </div>
-
   </div>
 </Layout>
 
 <style>
-  /* ── Language toggle ── */
-  #lang-filter {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin-bottom: 2rem;
+  .filters { margin-top: 3rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 2rem; }
+  #lang-filter, #filter-bar { display: flex; flex-wrap: wrap; gap: 0.5rem 2rem; }
+  #lang-filter { padding-right: 2rem; border-right: 1px solid var(--color-border); }
+  .lang-btn, .filter-btn {
+    font-family: var(--font-display); font-weight: 300; font-size: 0.9375rem; letter-spacing: 0.04em; text-transform: lowercase;
+    color: var(--color-muted); background: none; border: 0; border-bottom: 1px solid transparent; padding: 0.4rem 0 0.4rem; cursor: pointer;
+    transition: color 0.25s, border-color 0.25s;
   }
-  .lang-btn {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.6rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    transition: color 0.25s;
-  }
-  .lang-btn:hover { color: var(--color-ink); }
-  .lang-btn.active { color: var(--color-accent); }
-  .lang-sep {
-    font-size: 0.6rem;
-    color: var(--color-border);
-    pointer-events: none;
-    opacity: 0.6;
-  }
+  .lang-btn:hover, .filter-btn:hover { color: var(--color-ink); }
+  .lang-btn.active, .filter-btn.active { color: var(--color-accent); border-bottom-color: var(--color-accent); }
+  .rss { margin-left: auto; font-family: var(--font-display); font-weight: 300; font-size: 0.8125rem; letter-spacing: 0.06em; color: var(--color-muted); text-decoration: none; }
+  .rss:hover { color: var(--color-accent); }
 
-  /* ── Category filter ── */
-  #filter-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 4rem;
-  }
-  .filter-btn {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.6rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    padding: 0.45rem 1rem;
-    border-radius: 2rem;
-    border: 1px solid var(--color-border);
-    background: transparent;
-    color: var(--color-muted);
-    cursor: pointer;
-    transition: all 0.25s;
-    white-space: nowrap;
-  }
-  .filter-btn:hover { color: var(--color-ink); border-color: rgba(240,239,220,0.35); }
-  .filter-btn.active {
-    color: var(--color-accent);
-    border-color: var(--color-accent);
-    background: var(--color-glow);
-  }
-
-  /* ── Post row ── */
+  /* a single hairline above the list; rows are separated by space alone */
+  #post-list { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--color-border); }
   .post-item {
-    display: grid;
-    grid-template-columns: 7rem 1fr auto;
-    gap: 2.5rem;
-    align-items: baseline;
-    padding: 2.25rem 0;
-    text-decoration: none;
+    display: grid; grid-template-columns: 7rem 1fr 13rem 6.5rem; align-items: center; gap: 1.5rem;
+    padding: 1.6rem 0; text-decoration: none;
   }
-  .post-divider { padding: 0.2rem 0; }
+  .post-title { font-family: var(--font-display); font-weight: 300; font-size: 2rem; line-height: 1.2; color: var(--color-ink); transition: color 0.35s; }
+  .post-item:hover .post-title, .post-item:focus-visible .post-title { color: var(--color-accent); }
+  .post-category { color: var(--color-muted); }
+  .post-glyph { justify-self: end; }
 
-  .post-date {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.65rem;
-    letter-spacing: 0.08em;
-    color: var(--color-muted);
-    white-space: nowrap;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-  .post-read-time { opacity: 0.55; letter-spacing: 0.06em; }
-
-  .post-title {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: clamp(1.1rem, 2.5vw, 1.75rem);
-    color: var(--color-ink);
-    margin-bottom: 0.5rem;
-    transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
-    line-height: 1.3;
-  }
-  .post-excerpt {
-    font-family: var(--font-body);
-    font-size: 0.875rem;
-    color: var(--color-muted);
-    line-height: 1.7;
-    max-width: 54ch;
-  }
-  .post-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; }
-  .post-tag {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.55rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-    opacity: 0.6;
+  @media (max-width: 760px) {
+    .post-item { grid-template-columns: 1fr; gap: 0.35rem; padding: 1.4rem 0; }
+    .post-title { font-size: 1.5rem; }
+    .post-date { order: -1; }
+    .post-glyph { display: none; }
+    .rss { margin-left: 0; }
+    #lang-filter { border-right: 0; padding-right: 0; }
   }
 
-  .post-category {
-    font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-    white-space: nowrap;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.3rem;
-  }
-  .post-lang-vi {
-    font-size: 0.55rem;
-    letter-spacing: 0.2em;
-    color: var(--color-accent);
-    opacity: 0.7;
-  }
-
-  .post-item:hover .post-title { transform: translateX(8px); }
-
-  /* ── Mobile ── */
-  @media (max-width: 640px) {
-    #filter-bar {
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
-      margin-bottom: 2.5rem;
-      padding-bottom: 0.25rem;
-    }
-    #filter-bar::-webkit-scrollbar { display: none; }
-
-    .post-item {
-      grid-template-columns: 1fr;
-      gap: 0.35rem;
-      padding: 1.75rem 0;
-    }
-    .post-date { display: none; }
-    .post-category {
-      order: -1;
-      font-size: 0.58rem;
-      letter-spacing: 0.22em;
-      flex-direction: row;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .post-title { font-size: 1.15rem; }
-    .post-excerpt { font-size: 0.9rem; max-width: 100%; }
-  }
-
-  /* ◆ Philosophy corner */
-  .philosophy-corner {
-    margin-top: 6rem;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-  .philosophy-trigger {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 0.45rem;
-    color: var(--color-muted);
-    opacity: 0.18;
-    padding: 0.5rem;
-    transition: opacity 0.6s;
-    user-select: none;
-    letter-spacing: 0;
-  }
-  .philosophy-trigger:hover { opacity: 0.45; }
-
-  .philosophy-body {
-    max-width: 38ch;
-    text-align: right;
-    margin-top: 1.75rem;
-    opacity: 0;
-    transform: translateY(8px);
-    pointer-events: none;
-    transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1),
-                transform 0.7s cubic-bezier(0.16,1,0.3,1);
-  }
-  .philosophy-body.visible {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
-  .philosophy-body p {
-    font-family: var(--font-body);
-    font-size: 0.8125rem;
-    line-height: 1.85;
-    color: var(--color-muted);
-    opacity: 0.65;
-    margin-bottom: 1em;
-    font-style: italic;
-  }
-  .philosophy-body p:last-child { margin-bottom: 0; }
+  /* ── Philosophy corner ── */
+  .philosophy-corner { margin-top: 6rem; }
+  .philosophy-trigger { background: none; border: 0; cursor: pointer; color: var(--color-muted); opacity: 0.35; font-size: 0.8rem; padding: 0.75rem; transition: opacity 0.3s; }
+  .philosophy-trigger:hover { opacity: 0.8; }
+  .philosophy-body { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.6s, opacity 0.6s; max-width: 34rem; text-transform: none; }
+  .philosophy-body.visible { max-height: 40rem; opacity: 1; }
+  .philosophy-body p { font-family: var(--font-body); font-style: italic; font-size: 1rem; line-height: 1.8; color: var(--color-muted); margin-top: 0.9rem; }
 </style>
 
 <script>
   const langBtns = document.querySelectorAll<HTMLButtonElement>('.lang-btn');
   const catBtns  = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
   const items    = document.querySelectorAll<HTMLElement>('.post-item');
-  const dividers = document.querySelectorAll<HTMLElement>('.post-divider');
 
   let activeLang = 'all';
   let activeCat  = 'All';
@@ -325,20 +125,9 @@ const categories = ['All', ...rawCategories];
     items.forEach(item => {
       const langOk = activeLang === 'all' || item.dataset.language === activeLang;
       const catOk  = activeCat  === 'All' || (item.dataset.category ?? '').split('|').includes(activeCat);
-      item.style.display = langOk && catOk ? '' : 'none';
+      item.style.display = langOk && catOk ? '' : 'none'; /* grid items: '' restores the grid display */
     });
 
-    // rebuild / slashes between visible posts only
-    let lastVisible: HTMLElement | null = null;
-    dividers.forEach(div => (div.style.display = 'none'));
-    items.forEach(item => {
-      if (item.style.display === 'none') return;
-      if (lastVisible) {
-        const sib = item.previousElementSibling as HTMLElement;
-        if (sib?.classList.contains('post-divider')) sib.style.display = '';
-      }
-      lastVisible = item;
-    });
   }
 
   // Language toggle

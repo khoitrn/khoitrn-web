@@ -1,63 +1,80 @@
 ---
 const links = [
-  { href: '/work',    label: 'Work' },
-  { href: '/writing', label: 'Writing' },
-  { href: '/talks',   label: 'Talks' },
-  { href: '/about',   label: 'About' },
+  { href: '/work',    label: 'work' },
+  { href: '/writing', label: 'writing' },
+  { href: '/talks',   label: 'talks' },
+  { href: '/about',   label: 'about' },
 ];
 const { pathname } = Astro.url;
+const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
 ---
 
-<header class="nav-inner" style="position: fixed; top: 0; left: 0; right: 0; z-index: 100; pointer-events: none;">
-  <nav style="display: flex; align-items: center; justify-content: space-between; padding: 2.25rem 3rem; pointer-events: auto;">
+<header class="site-nav">
+  <nav class="site-nav-inner" aria-label="Primary">
+    <a href="/" class="site-nav-logo" aria-label="Khoi Tran, home">khoi tran</a>
 
-    <a href="/"
-      aria-label="Khoi Tran, home"
-      style="font-family: var(--font-serif); font-weight: 400; font-size: 1.25rem; line-height: 1; letter-spacing: 0.02em; text-transform: lowercase; color: var(--color-ink); text-decoration: none;"
-    >Khoi Tran</a>
+    <ul class="site-nav-links nav-links">
+      {links.map(({ href, label }) => (
+        <li><a href={href} aria-current={isActive(href) ? 'page' : undefined}>{label}</a></li>
+      ))}
+    </ul>
 
-    <div class="nav-links" style="display: flex; align-items: center; gap: 3rem;">
-      <ul style="display: flex; gap: 3rem; list-style: none; margin: 0; padding: 0;">
-        {links.map(({ href, label }) => (
-          <li>
-            <a href={href}
-              style={`font-family: var(--font-ui); font-weight: 400; font-size: 0.875rem; letter-spacing: 0.03em; text-transform: lowercase; text-decoration: none; transition: color 0.4s; color: ${pathname.startsWith(href) ? 'var(--color-ink)' : 'var(--color-muted)'};`}
-              onmouseover="this.style.color='var(--color-ink)'"
-              onmouseout={`this.style.color='${pathname.startsWith(href) ? 'var(--color-ink)' : 'var(--color-muted)'}'`}
-            >{label}</a>
-          </li>
-        ))}
-      </ul>
+    <div class="site-nav-right">
+      <a href="/beliefs" class="site-nav-star" aria-label="Beliefs">
+        <svg viewBox="-20 -20 40 40" aria-hidden="true"><path d="M0 -18 Q2.6 -2.6 18 0 Q2.6 2.6 0 18 Q-2.6 2.6 -18 0 Q-2.6 -2.6 0 -18Z" fill="currentColor"></path></svg>
+      </a>
+      <button class="hamburger" id="hamburger-btn" aria-label="Open menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </div>
-
-    <!-- Hamburger (mobile only) -->
-    <button class="hamburger" id="hamburger-btn" aria-label="Open menu">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-
   </nav>
 </header>
 
 <!-- Mobile full-screen menu -->
 <div class="mobile-menu" id="mobile-menu">
-  <button class="mobile-menu-close" id="mobile-menu-close">Close</button>
-
+  <button class="mobile-menu-close" id="mobile-menu-close">close</button>
   {links.map(({ href, label }) => (
     <a href={href}>{label}</a>
   ))}
-  <a href="/" style="font-size: 1.25rem; opacity: 0.4;">Khoi Tran</a>
+  <a href="/beliefs" style="font-size: 1.25rem; opacity: 0.5;">beliefs</a>
 </div>
+
+<style>
+  .site-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; pointer-events: none; }
+  .site-nav-inner {
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem;
+    max-width: 1280px; margin: 0 auto; padding: 1.75rem clamp(1.25rem, 4vw, 3rem); pointer-events: auto;
+  }
+  .site-nav { background: linear-gradient(var(--color-canvas) 35%, transparent); }
+  .site-nav-logo {
+    justify-self: start; font-family: var(--font-display); font-weight: 300; font-size: 1rem; letter-spacing: 0.06em;
+    color: var(--color-ink); text-decoration: none; padding: 0.4rem 0;
+  }
+  .site-nav-links { display: flex; gap: clamp(1.5rem, 3vw, 2.75rem); list-style: none; }
+  .site-nav-links a {
+    font-family: var(--font-display); font-weight: 300; font-size: 0.875rem; letter-spacing: 0.08em; text-decoration: none;
+    color: var(--color-muted); padding: 0.6rem 0.1rem; transition: color 0.3s;
+  }
+  .site-nav-links a:hover, .site-nav-links a[aria-current='page'] { color: var(--color-accent); }
+  .site-nav-right { justify-self: end; display: flex; align-items: center; gap: 0.5rem; }
+  .site-nav-star { display: flex; padding: 0.5rem; color: var(--color-accent); }
+  .site-nav-star svg { width: 24px; height: 24px; filter: drop-shadow(0 0 8px rgba(196, 144, 58, 0.5)); }
+  .site-nav a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; border-radius: 2px; }
+  @media (max-width: 768px) {
+    .site-nav-inner { grid-template-columns: 1fr auto; padding: 1.25rem 1.5rem; }
+  }
+</style>
 
 <script>
   const btn   = document.getElementById('hamburger-btn');
   const menu  = document.getElementById('mobile-menu');
   const close = document.getElementById('mobile-menu-close');
 
-  btn?.addEventListener('click',   () => menu?.classList.add('open'));
-  close?.addEventListener('click', () => menu?.classList.remove('open'));
+  btn?.addEventListener('click', () => { menu?.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); });
+  close?.addEventListener('click', () => { menu?.classList.remove('open'); btn?.setAttribute('aria-expanded', 'false'); });
   menu?.querySelectorAll('a').forEach(a =>
-    a.addEventListener('click', () => menu.classList.remove('open'))
+    a.addEventListener('click', () => { menu.classList.remove('open'); btn?.setAttribute('aria-expanded', 'false'); })
   );
 </script>

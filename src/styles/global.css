@@ -2,11 +2,6 @@
 @import "@fontsource-variable/raleway/index.css";
 @import "@fontsource/lora/400.css";
 @import "@fontsource/lora/400-italic.css";
-/* Homepage type. These packages ship the Vietnamese subset (Đ, ạ, ơ, stacked accents) via unicode-range. */
-@import "@fontsource/newsreader/400.css";
-@import "@fontsource/newsreader/400-italic.css";
-@import "@fontsource/be-vietnam-pro/400.css";
-@import "@fontsource/be-vietnam-pro/500.css";
 
 /* ── Theme tokens ─────────────────────────────────── */
 
@@ -25,8 +20,6 @@
   --font-display: "Raleway Variable", sans-serif;
   --font-body:    "Lora", serif;
   --font-mono:    "JetBrains Mono", "Fira Code", monospace;
-  --font-serif:   "Newsreader", Georgia, "Times New Roman", serif;
-  --font-ui:      "Be Vietnam Pro", system-ui, "Helvetica Neue", Arial, sans-serif;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-smooth:   cubic-bezier(0.45, 0, 0.55, 1);
@@ -174,6 +167,12 @@ body {
   margin-top: 0.85em;
 }
 
+/* ── Inner pages (work, writing, talks, about) ───── */
+.open-wrap { max-width: 1184px; margin: 0 auto; padding: 8rem clamp(1.25rem, 4vw, 3rem) 7rem; text-transform: lowercase; }
+.open-wrap :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; border-radius: 2px; }
+.open-label { font-family: var(--font-display); font-weight: 300; font-size: 0.8125rem; letter-spacing: 0.06em; color: var(--color-muted); }
+@media (max-width: 768px) { .open-wrap { padding-top: 6rem; } }
+
 /* ── Mobile nav ─────────────────────────────────── */
 .mobile-menu {
   display: none;
@@ -191,8 +190,8 @@ body {
   font-family: var(--font-display);
   font-weight: 300;
   font-size: 2rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
   color: var(--color-ink);
   text-decoration: none;
   transition: color 0.3s;
@@ -207,9 +206,9 @@ body {
   cursor: pointer;
   color: var(--color-muted);
   font-family: var(--font-display);
-  font-size: 0.65rem;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
+  font-size: 0.8125rem;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
   transition: color 0.3s;
 }
 .mobile-menu-close:hover { color: var(--color-ink); }

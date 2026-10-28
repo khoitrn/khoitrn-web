@@ -18,7 +18,7 @@ const kinds = ['torii', 'sphere', 'hex'] as const;
           const meta = [project.year, ...asCategoryArray(project.category)].filter(Boolean).join(', ');
           return (
             <a href={`/work/${project.slug.current}`} class="work-item glyph-host reveal" style={`transition-delay:${i * 80}ms;`}>
-              <div class="work-glyph"><Glyph kind={kinds[i % kinds.length]} width={240} /></div>
+              <div class="work-glyph"><Glyph kind={kinds[i % kinds.length]} width={240} animate /></div>
               <div class="work-body">
                 <div class="work-top">
                   <h2>{project.title}</h2>

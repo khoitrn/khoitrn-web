@@ -6,8 +6,10 @@ interface Props {
   seed?: string;
   width?: number;
   accent?: boolean;
+  /** Draw the lines in once, twinkle the points, and (sphere) turn the meridian. Off by default. */
+  animate?: boolean;
 }
-const { kind = 'trail', seed = '', width = 240, accent = false } = Astro.props;
+const { kind = 'trail', seed = '', width = 240, accent = false, animate = false } = Astro.props;
 
 type Dot = [number, number, number];
 const ellipse = (cx: number, cy: number, rx: number, ry: number) => `M${cx - rx} ${cy} a${rx} ${ry} 0 1 0 ${rx * 2} 0 a${rx} ${ry} 0 1 0 ${-rx * 2} 0`;
@@ -44,12 +46,12 @@ const [, , vw, vh] = viewBox.split(' ').map(Number);
 const height = Math.round((width * vh) / vw);
 ---
 
-<svg class:list={['glyph', { accent }]} width={width} height={height} viewBox={viewBox} aria-hidden="true" focusable="false">
+<svg class:list={['glyph', { accent, animate }]} width={width} height={height} viewBox={viewBox} aria-hidden="true" focusable="false">
   <g class="glyph-lines" fill="none" stroke-width="1">
-    {paths.map((d) => <path d={d} />)}
+    {paths.map((d, i) => <path d={d} pathLength="1" class:list={{ spin: kind === 'sphere' && i === 2 }} style={`--i:${i}`} />)}
   </g>
   <g class="glyph-dots">
-    {dots.map(([cx, cy, r]) => <circle cx={cx} cy={cy} r={r} />)}
+    {dots.map(([cx, cy, r], i) => <circle cx={cx} cy={cy} r={r} style={`--dur:${(2.6 + (i % 4) * 0.7).toFixed(1)}s; --delay:${(-i * 0.45).toFixed(2)}s`} />)}
   </g>
 </svg>
 
@@ -59,6 +61,18 @@ const height = Math.round((width * vh) / vw);
   .glyph-dots { fill: var(--color-ink-soft); transition: fill 0.4s; }
   .glyph.accent .glyph-lines { stroke: var(--color-accent); stroke-opacity: 0.55; }
   .glyph.accent .glyph-dots { fill: #e2ac54; }
+  /* motion: transform and opacity only. Lines draw in once, points twinkle out of step, the whole figure drifts,
+     and the sphere's meridian turns. Reduced motion gets the still figure. */
+  @media (prefers-reduced-motion: no-preference) {
+    .glyph.animate { animation: glyph-drift 9s ease-in-out infinite alternate; }
+    .glyph.animate .glyph-lines path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: glyph-draw 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: calc(var(--i) * 0.18s); }
+    .glyph.animate .glyph-dots circle { animation: glyph-twinkle var(--dur) ease-in-out infinite; animation-delay: var(--delay); }
+    .glyph.animate .glyph-lines path.spin { transform-box: fill-box; transform-origin: center; animation: glyph-draw 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards, glyph-turn 8s ease-in-out 1.8s infinite alternate; }
+  }
+  @keyframes glyph-draw { to { stroke-dashoffset: 0; } }
+  @keyframes glyph-twinkle { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+  @keyframes glyph-drift { from { transform: translateY(-3px); } to { transform: translateY(3px); } }
+  @keyframes glyph-turn { from { transform: scaleX(1); } to { transform: scaleX(0.18); } }
   /* a parent can light a glyph up on hover by setting --glyph-on */
   :global(.glyph-host:hover) .glyph-lines, :global(.glyph-host:focus-visible) .glyph-lines { stroke: var(--color-accent); stroke-opacity: 0.55; }
   :global(.glyph-host:hover) .glyph-dots, :global(.glyph-host:focus-visible) .glyph-dots { fill: #e2ac54; }

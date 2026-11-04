@@ -99,11 +99,13 @@ export const relatedPostsQuery = `*[_type == "post" && slug.current != $slug && 
 }`;
 
 export const talksQuery = `*[_type == "talk"] | order(date desc) {
-  _id, title, slug, event, location, date, description, mediaUrl, thumbnail, featured
+  _id, title, slug, event, location, date, description, mediaUrl, thumbnail, featured,
+  "audioUrl": audio.asset->url
 }`;
 
 export const talkBySlugQuery = `*[_type == "talk" && slug.current == $slug][0] {
-  _id, title, slug, event, location, date, description, body, mediaUrl, thumbnail
+  _id, title, slug, event, location, date, description, body, mediaUrl, thumbnail,
+  "audioUrl": audio.asset->url
 }`;
 
 export const beliefsQuery = `*[_type == "belief"] | order(order asc) {

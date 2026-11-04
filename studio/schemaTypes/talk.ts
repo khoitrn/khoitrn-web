@@ -38,6 +38,13 @@ export default defineType({
       type: 'url',
     }),
     defineField({
+      name: 'audio',
+      title: 'Audio file',
+      description: 'Optional. Upload an audio-only version of the talk (mp3 or m4a) to give listeners a true audio player. Leave blank to use a small docked video player.',
+      type: 'file',
+      options: { accept: 'audio/*' },
+    }),
+    defineField({
       name: 'thumbnail',
       type: 'image',
       description: 'Leave blank to auto-pull from YouTube.',

@@ -1,0 +1,13 @@
+---
+/* Abstract cover for a talk, drawn from its slug (see lib/talkCover.ts). Fills its parent. */
+import { talkCoverSvg } from '../../lib/talkCover';
+interface Props { seed: string; }
+const { seed } = Astro.props;
+const art = talkCoverSvg(seed);
+---
+
+<svg class="talk-cover-art" viewBox="0 0 160 90" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false" set:html={art} />
+
+<style>
+  .talk-cover-art { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+</style>

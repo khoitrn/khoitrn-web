@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import ListenDock from '../../components/ui/ListenDock.astro';
 import { client, talksQuery, talkBySlugQuery, portableTextToHtml } from '../../lib/sanity';
 
 export async function getStaticPaths() {
@@ -35,6 +36,11 @@ const bodyHtml = talk.body ? portableTextToHtml(talk.body) : '';
         <span class="talk-meta-top">{talk.event}{talk.location ? ` · ${talk.location}` : ''}{talkYear ? ` · ${talkYear}` : ''}</span>
         <h1 class="talk-title">{talk.title}</h1>
         {talk.description && <p class="talk-desc">{talk.description}</p>}
+        {(ytId || talk.audioUrl) && (
+          <div class="talk-actions">
+            <button class="open-pill" type="button" data-listen aria-pressed="false" data-title={talk.title} data-yt={ytId ?? ''} data-audio={talk.audioUrl ?? ''}>listen instead</button>
+          </div>
+        )}
       </header>
 
       <!-- Inline embed -->
@@ -60,6 +66,7 @@ const bodyHtml = talk.body ? portableTextToHtml(talk.body) : '';
     </article>
 
   </div>
+  <ListenDock />
 </Layout>
 
 <script>
@@ -99,6 +106,7 @@ const bodyHtml = talk.body ? portableTextToHtml(talk.body) : '';
   .back:hover { color: var(--color-ink); }
 
   header { margin-bottom: 2.5rem; }
+  .talk-actions { margin-top: 1.5rem; }
 
   .talk-meta-top {
     display: block;

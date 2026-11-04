@@ -80,7 +80,7 @@ export const projectBySlugQuery = `*[_type == "project" && slug.current == $slug
 
 export const nowQuery = `*[_type == "now"][0] { body, updatedAt }`;
 
-export const aboutQuery = `*[_type == "about"][0] { headline, body, currentItems, email }`;
+export const aboutQuery = `*[_type == "about"][0] { name, title, quote, quoteAttribution, body, affiliations, expertise, centersAndPrograms, email, portrait }`;
 
 export const settingsQuery = `*[_type == "settings"][0] { heroTagline, heroParagraph }`;
 

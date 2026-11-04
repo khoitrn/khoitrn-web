@@ -14,6 +14,9 @@
   --color-ink:      #EEEEE4;
   --color-ink-soft: #C8C8BC;
   --color-accent:   #C4903A;
+  --color-rule:     rgba(196, 144, 58, 0.5);
+  --color-rule-soft: rgba(196, 144, 58, 0.22);
+  --color-hairline: rgba(240, 239, 220, 0.07);
   --color-glow:     rgba(196, 144, 58, 0.1);
   --color-bg-hero:  #090907;
 
@@ -34,6 +37,9 @@
   --color-ink:      #1C1C1A;
   --color-ink-soft: #3A3A35;
   --color-accent:   #8A6420;
+  --color-rule:     rgba(138, 100, 32, 0.5);
+  --color-rule-soft: rgba(138, 100, 32, 0.22);
+  --color-hairline: rgba(28, 28, 26, 0.08);
   --color-glow:     rgba(138, 100, 32, 0.08);
   --color-bg-hero:  #090907;
 }
@@ -171,6 +177,10 @@ body {
 .open-wrap { max-width: 1184px; margin: 0 auto; padding: 8rem clamp(1.25rem, 4vw, 3rem) 7rem; text-transform: lowercase; }
 .open-wrap :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; border-radius: 2px; }
 .open-label { font-family: var(--font-display); font-weight: 300; font-size: 0.8125rem; letter-spacing: 0.06em; color: var(--color-muted); }
+/* Shared labeled list: gold label with a soft rule, then rows split by faint hairlines. */
+.open-section-label { padding-bottom: 0.6rem; border-bottom: 1px solid var(--color-rule-soft); font-family: var(--font-display); font-weight: 300; font-size: 0.8125rem; letter-spacing: 0.06em; text-transform: lowercase; color: var(--color-accent); }
+.open-rows { list-style: none; }
+.open-rows li { padding: 0.6rem 0; border-bottom: 1px solid var(--color-hairline); font-family: var(--font-body); font-size: 0.9375rem; line-height: 1.6; color: var(--color-ink-soft); }
 @media (max-width: 768px) { .open-wrap { padding-top: 6rem; } }
 
 /* ── Mobile nav ─────────────────────────────────── */

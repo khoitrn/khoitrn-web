@@ -99,7 +99,7 @@ const talkWhen = (t: any) => (t.date ? new Date(t.date).toLocaleDateString('en-U
   .talk-play { z-index: 1; position: absolute; left: 1.25rem; bottom: 1.1rem; display: flex; align-items: center; gap: 0.75rem; font-family: var(--font-display); font-weight: 300; font-size: 0.875rem; color: var(--color-ink); }
   .talk-play svg { color: var(--color-accent); }
 
-  .talk-body { border-top: 1px solid rgba(196, 144, 58, 0.5); padding-top: 1.75rem; }
+  .talk-body { border-top: 1px solid var(--color-rule); padding-top: 1.75rem; }
   .talk-body h2 { margin: 0.85rem 0 1.25rem; font-family: var(--font-display); font-weight: 300; font-size: clamp(1.9rem, 3.2vw, 2.6rem); line-height: 1.15; }
   .talk-body h2 a { color: var(--color-accent); text-decoration: none; }
   .talk-desc { font-family: var(--font-body); font-size: 1.125rem; line-height: 1.75; color: var(--color-ink-soft); margin-bottom: 1.75rem; }

@@ -1,94 +1,104 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import PageHead from '../components/ui/PageHead.astro';
-import Glyph from '../components/ui/Glyph.astro';
-import { client, aboutQuery, nowQuery, portableTextToHtml, formatDate } from '../lib/sanity';
+import PortraitFrame from '../components/ui/PortraitFrame.astro';
+import { client, aboutQuery, portableTextToHtml, urlFor } from '../lib/sanity';
+import { resolveAbout } from '../lib/about';
 
-const [about, now] = await Promise.all([client.fetch(aboutQuery), client.fetch(nowQuery)]);
-const bodyHtml = about?.body ? portableTextToHtml(about.body) : null;
-const headline = about?.headline ?? 'Student, founder, engineer.';
-const currentItems: string[] = about?.currentItems ?? [
-  'Studying at Texas A&M University',
-  "Building — ask me what's current",
-  'Writing here, thinking out loud',
-];
-const email = about?.email ?? 'khoi@tamu.edu';
-const nowHtml = now?.body ? portableTextToHtml(now.body) : null;
-const nowUpdated = now?.updatedAt ? formatDate(now.updatedAt) : null;
+const about = resolveAbout(await client.fetch(aboutQuery));
+const bodyHtml = about.body ? portableTextToHtml(about.body) : null;
+// A portrait set in Sanity wins; otherwise the headshot shipped in public/ is used.
+const portraitUrl = about.portrait ? urlFor(about.portrait as any).width(1000).auto('format').url() : '/headshot.jpg';
+const portraitAlt = (about.portrait as any)?.alt || `Portrait of ${about.name}`;
 ---
 
-<Layout title="About">
+<Layout title="About" description={about.title}>
   <div class="open-wrap">
-    <PageHead title="about" sub={headline} />
+    <PageHead title="about" />
 
-    <div class="about-grid">
-      <!-- A photo can go here (public/photo.jpg); until then the point cloud holds the space -->
-      <div class="about-photo" aria-hidden="true">
-        <Glyph kind="sphere" width={300} accent />
-      </div>
+    <div class="profile">
+      <div class="profile-main">
+        <header>
+          <h2 class="name">{about.name}</h2>
+          <figure class="quote">
+            <svg class="quote-mark" width="24" height="19" viewBox="0 0 30 24" aria-hidden="true"><path fill="currentColor" d="M0 24V14.4C0 6.2 4.4 1.2 11.4 0l1.2 3.6C8.6 5 6.6 7.6 6.4 11H12v13H0Zm17 0V14.4C17 6.2 21.4 1.2 28.4 0l1.2 3.6c-4 1.4-6 4-6.2 7.4H29v13H17Z"/></svg>
+            <blockquote>{about.quote}</blockquote>
+            <figcaption>{about.quoteAttribution}</figcaption>
+          </figure>
+        </header>
 
-      <div class="about-text">
         {bodyHtml ? (
-          <div class="about-prose" set:html={bodyHtml} />
+          <div class="bio" set:html={bodyHtml} />
         ) : (
-          <div class="about-prose">
-            <p class="lead">I'm Khoi Tran, a student at Texas A&amp;M University, building things at the intersection of technology, product, and entrepreneurship.</p>
-            <p>I started writing code because I wanted to build things I cared about. That curiosity led me to engineering, then to product thinking, and eventually to starting companies.</p>
-            <p class="quiet">I care deeply about craft: code that's readable, products that are intuitive, and writing that earns its reader's attention.</p>
+          <div class="bio">
+            {about.bioFallback.map((p) => <p>{p}</p>)}
           </div>
         )}
 
-        <section id="right-now" class="right-now" aria-labelledby="right-now-title">
-          <div class="right-now-top">
-            <h2 id="right-now-title">right now</h2>
-            {nowUpdated && <span class="open-label">updated {nowUpdated}</span>}
-          </div>
-          {nowHtml ? (
-            <div class="about-prose" set:html={nowHtml} />
-          ) : (
-            <div class="about-prose">
-              <p>Building a new project, still early, focused on getting the core right before anything else. Finishing the semester at Texas A&amp;M, and thinking about what makes a product actually good: the gap between clever and useful.</p>
-            </div>
-          )}
+        <section class="block" aria-labelledby="affiliations-label">
+          <h2 id="affiliations-label" class="open-section-label">affiliations</h2>
+          <ul class="open-rows">
+            {about.affiliations.map((item) => <li>{item}</li>)}
+          </ul>
         </section>
 
-        <ul class="current">
-          {currentItems.map((item) => <li>{item}</li>)}
-        </ul>
-
-        <a class="email" href={`mailto:${email}`}>{email} →</a>
+        <section class="block" aria-labelledby="contact-label">
+          <h2 id="contact-label" class="open-section-label">contact</h2>
+          <ul class="open-rows">
+            <li><a class="email" href={`mailto:${about.email}`}>{about.email}</a></li>
+          </ul>
+        </section>
       </div>
+
+      <aside class="profile-side" aria-label="Expertise and programs">
+        <PortraitFrame src={portraitUrl} alt={portraitAlt} />
+
+        <section class="block" aria-labelledby="expertise-label">
+          <h2 id="expertise-label" class="open-section-label">expertise</h2>
+          <ul class="open-rows">
+            {about.expertise.map((item) => <li>{item}</li>)}
+          </ul>
+        </section>
+
+        <section class="block" aria-labelledby="centers-label">
+          <h2 id="centers-label" class="open-section-label">centers &amp; programs</h2>
+          <ul class="open-rows">
+            {about.centersAndPrograms.map((item) => <li>{item}</li>)}
+          </ul>
+        </section>
+      </aside>
     </div>
   </div>
 </Layout>
 
 <style>
-  .about-grid { margin-top: 4.5rem; display: grid; grid-template-columns: 21rem 1fr; gap: 5rem; align-items: start; }
-  .about-photo {
-    aspect-ratio: 3 / 4; display: flex; align-items: center; justify-content: center;
-    background: radial-gradient(70% 60% at 40% 40%, rgba(196, 144, 58, 0.18), rgba(13, 13, 10, 0) 75%);
-  }
+  /* .open-wrap lowercases inner pages. The profile copy is written with intentional casing
+     (proper nouns, "i" mid-sentence), so it opts out; section labels stay lowercase. */
+  .profile { margin-top: 4.5rem; display: grid; grid-template-columns: minmax(0, 1fr) 18rem; gap: 4.5rem; align-items: start; }
+  .profile-main, .profile-side { min-width: 0; text-transform: none; }
 
-  .about-prose { font-family: var(--font-body); font-size: 1.125rem; line-height: 1.8; color: var(--color-ink-soft); max-width: none; }
-  .about-prose :global(p) { margin-bottom: 1.5rem; }
-  .about-prose :global(p.lead) { font-size: 1.5rem; line-height: 1.65; color: var(--color-ink); margin-bottom: 1.75rem; }
-  .about-prose :global(p.quiet) { color: var(--color-muted); }
-  .about-prose :global(a) { color: var(--color-accent); }
+  .name { margin-top: 0; font-family: var(--font-display); font-weight: 200; font-size: clamp(1.75rem, 3.5vw, 2.25rem); line-height: 1.05; letter-spacing: -0.02em; color: var(--color-ink); overflow-wrap: anywhere; }
+  .quote { margin-top: 2.5rem; margin-bottom: 3rem; max-width: 38rem; }
+  .quote-mark { display: block; color: var(--color-accent); margin-bottom: 1.25rem; }
+  blockquote { font-family: var(--font-body); font-style: italic; font-size: clamp(1rem, 1.8vw, 1.125rem); line-height: 1.75; color: var(--color-ink); }
+  figcaption { margin-top: 1.5rem; font-family: var(--font-display); font-weight: 400; font-style: italic; font-size: 0.8125rem; letter-spacing: 0.04em; text-transform: none; color: var(--color-muted); }
 
-  .right-now { margin-top: 4rem; padding-top: 1.75rem; border-top: 1px solid rgba(196, 144, 58, 0.5); }
-  .right-now-top { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-bottom: 1rem; }
-  .right-now h2 { font-family: var(--font-display); font-weight: 300; font-size: 1.75rem; color: var(--color-accent); }
-  .right-now .about-prose :global(p:last-child) { margin-bottom: 0; }
+  .bio { font-family: var(--font-body); font-size: 1rem; line-height: 1.75; color: var(--color-ink-soft); max-width: 38rem; }
+  .bio :global(p) { margin-bottom: 1.25rem; }
+  .bio :global(p:last-child) { margin-bottom: 0; }
+  .bio :global(a) { color: var(--color-accent); }
 
-  .current { margin-top: 3.5rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2.5rem; list-style: none; }
-  .current li { font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.6; color: var(--color-ink-soft); }
+  .block { margin-top: 3rem; }
+  .profile-side .block:first-child { margin-top: 0; }
+  .profile-side .block + .block { margin-top: 2.5rem; }
 
-  .email { display: inline-block; margin-top: 3.5rem; font-family: var(--font-display); font-weight: 300; font-size: 0.9375rem; letter-spacing: 0.04em; color: var(--color-accent); text-decoration: none; padding: 0.4rem 0; }
+  .email { color: var(--color-accent); text-decoration: none; }
   .email:hover { color: var(--color-ink); }
 
+
   @media (max-width: 960px) {
-    .about-grid { grid-template-columns: 1fr; gap: 3rem; }
-    .about-photo { display: none; }
-    .current { grid-template-columns: 1fr; gap: 1rem; }
-  }
+    .profile { margin-top: 2.5rem; grid-template-columns: 1fr; gap: 2.5rem; }
+    /* Sidebar stacks above the main content on small screens. */
+    .profile-side { order: -1; }
+    }
 </style>

@@ -98,7 +98,10 @@ const portraitAlt = (about.portrait as any)?.alt || `Portrait of ${about.name}`;
 
   @media (max-width: 960px) {
     .profile { margin-top: 2.5rem; grid-template-columns: 1fr; gap: 2.5rem; }
-    /* Sidebar stacks above the main content on small screens. */
-    .profile-side { order: -1; }
+    /* On phones: portrait, then name, quote and bio, then the sidebar lists. */
+    .profile-side { display: contents; }
+    .profile-side :global(.pf) { order: -2; margin-bottom: 0; }
+    .profile-main { order: -1; }
+    .profile-side .block { margin-top: 0; }
     }
 </style>

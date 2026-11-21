@@ -32,7 +32,7 @@ export const ABOUT_DEFAULTS = {
     'Center for Applied Entrepreneurship and Innovation',
     'Texas Cyber Range',
   ],
-  email: 'khoi@tamu.edu',
+  email: 'khoitrnn@gmail.com',
 };
 
 export interface RawAbout {

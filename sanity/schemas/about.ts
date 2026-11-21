@@ -56,7 +56,7 @@ export default defineType({
       name: 'email',
       title: 'Contact email',
       type: 'string',
-      initialValue: 'khoi@tamu.edu',
+      initialValue: 'khoitrnn@gmail.com',
     }),
     defineField({
       name: 'portrait',

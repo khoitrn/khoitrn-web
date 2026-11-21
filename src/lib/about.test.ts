@@ -10,7 +10,7 @@ test('empty or missing document falls back to defaults', () => {
     assert.deepEqual(a.affiliations, ABOUT_DEFAULTS.affiliations);
     assert.deepEqual(a.expertise, ABOUT_DEFAULTS.expertise);
     assert.deepEqual(a.centersAndPrograms, ABOUT_DEFAULTS.centersAndPrograms);
-    assert.equal(a.email, 'khoi@tamu.edu');
+    assert.equal(a.email, 'khoitrnn@gmail.com');
     assert.equal(a.body, null);
     assert.equal(a.portrait, null);
   }

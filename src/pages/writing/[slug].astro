@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { client, postsQuery, postBySlugQuery, relatedPostsQuery, portableTextToHtml, formatDate, formatDateShort, asCategoryArray } from '../../lib/sanity';
+import { client, postsQuery, postBySlugQuery, relatedCandidatesQuery, portableTextToHtml, formatDate, formatDateShort, asCategoryArray } from '../../lib/sanity';
+import { rankRelated } from '../../lib/related';
 
 export async function getStaticPaths() {
   const posts = await client.fetch(postsQuery);
@@ -13,9 +14,7 @@ if (!post) return Astro.redirect('/writing');
 
 const html = portableTextToHtml(post.body ?? []);
 const categories = asCategoryArray(post.category);
-const related = categories.length > 0
-  ? await client.fetch(relatedPostsQuery, { slug, categories })
-  : [];
+const related = rankRelated(post, await client.fetch(relatedCandidatesQuery, { slug }), 3);
 ---
 
 <Layout title={post.title} description={post.excerpt} image={`/og/${post.slug.current}.png`}>
@@ -100,16 +99,16 @@ const related = categories.length > 0
   .post-header {
     max-width: 720px;
     margin: 0 auto;
-    padding: 0 clamp(1rem, 5vw, 3rem) 4.5rem;
+    padding: 0 clamp(1rem, 5vw, 3rem) 1.5rem;
   }
   .post-body-wrap {
     max-width: 720px;
     margin: 0 auto;
-    padding: 4.5rem clamp(1rem, 5vw, 3rem) 0;
+    padding: 2.5rem clamp(1rem, 5vw, 3rem) 0;
   }
   .post-footer {
     max-width: 720px;
-    margin: 6rem auto 0;
+    margin: 3.5rem auto 0;
     padding: 0 clamp(1rem, 5vw, 3rem);
     display: flex;
     gap: 2.5rem;
@@ -190,8 +189,8 @@ const related = categories.length > 0
   /* ── Takeaways ── */
   .takeaways-wrap {
     max-width: 720px;
-    margin: 5rem auto 0;
-    padding: 3rem clamp(1rem, 5vw, 3rem) 3.5rem;
+    margin: 4rem auto 0;
+    padding: 2.5rem clamp(1rem, 5vw, 3rem) 3rem;
     background: var(--color-surface);
     border-radius: 2px;
   }
@@ -202,7 +201,7 @@ const related = categories.length > 0
     letter-spacing: 0.35em;
     text-transform: uppercase;
     color: var(--color-muted);
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
     opacity: 0.7;
   }
   .takeaways-list {
@@ -214,19 +213,19 @@ const related = categories.length > 0
     gap: 0;
   }
   .takeaway-item {
-    padding: 2rem 0;
+    padding: 1.4rem 0;
   }
   .takeaway-item:first-child { padding-top: 0; }
   .takeaway-item:last-child { padding-bottom: 0; }
   .takeaway-heading {
     font-family: var(--font-display);
-    font-weight: 300;
-    font-size: 0.72rem;
-    letter-spacing: 0.15em;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.03em;
     text-transform: lowercase;
-    color: var(--color-muted);
+    color: var(--color-ink);
     display: block;
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.45rem;
   }
   .takeaway-body {
     font-family: var(--font-body);
@@ -239,7 +238,7 @@ const related = categories.length > 0
   /* ── Related ── */
   .related-wrap {
     max-width: 720px;
-    margin: 6rem auto 0;
+    margin: 4.5rem auto 0;
     padding: 0 clamp(1rem, 5vw, 3rem);
   }
   .related-label {
@@ -297,8 +296,8 @@ const related = categories.length > 0
 
   /* ── Mobile reading (Kindle-feel) ── */
   @media (max-width: 640px) {
-    .post-header { padding-bottom: 2.5rem; }
-    .post-body-wrap { padding-top: 2.5rem; }
+    .post-header { padding-bottom: 1rem; }
+    .post-body-wrap { padding-top: 1.5rem; }
     .post-footer { margin-top: 3rem; }
 
     /* Slightly larger body text for thumb-scrolling comfort */

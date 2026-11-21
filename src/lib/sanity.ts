@@ -93,8 +93,9 @@ export const recentPostsQuery = `*[_type == "post"] | order(publishedAt desc)[0.
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180)
 }`;
 
-export const relatedPostsQuery = `*[_type == "post" && slug.current != $slug && count((category[])[@ in $categories]) > 0] | order(publishedAt desc)[0...3] {
-  _id, title, slug, excerpt, category, publishedAt,
+// every other post, with the fields lib/related.ts needs to rank them
+export const relatedCandidatesQuery = `*[_type == "post" && slug.current != $slug] {
+  _id, title, slug, excerpt, category, tags, publishedAt,
   "estimatedReadingTime": round(length(pt::text(body)) / 5 / 180)
 }`;
 
